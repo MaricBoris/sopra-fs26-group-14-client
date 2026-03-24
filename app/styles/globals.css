@@ -1,14 +1,14 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #292c3b;
+  --foreground: #292c3b;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #d90e0e;
     --foreground: #ededed;
   }
-}
+} */
 
 html,
 body {
@@ -35,18 +35,17 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
   }
-}
+} */
 
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: rgb(41, 44, 59);
 }
 
 .login-button {
@@ -58,5 +57,18 @@ a {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: rgb(41, 44, 59);
+}
+
+.ant-btn-variant-outlined.ant-btn-color-default {
+  --btn-bg: #0fac5b;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  background: var(--btn-bg) !important;
+}
+
+.ant-btn-variant-outlined.ant-btn-color-default:hover,
+.ant-btn-variant-outlined.ant-btn-color-default:focus {
+  color: #01ff1f !important;
+  border: 2px solid #01ff1f !important;
+  background: var(--btn-bg) !important;
 }
