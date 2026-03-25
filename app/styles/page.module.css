@@ -176,7 +176,7 @@ a.secondary {
   background-color: #8f8c8c !important;
 }
 .scrollTitle {
-  background-image: url("@/public/schriftrolle.png");
+  background-image: url("/schriftrolle.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
