@@ -11,7 +11,7 @@ import { Button, Table } from "antd";
 import type { TableProps } from "antd"; // antd component library allows imports of types
 // Optionally, you can import a CSS module or file for additional styling:
 // import "@/styles/views/Dashboard.scss";
-import styles from "./page.module.css";
+import styles from "@/styles/page.module.css";
 
 // Columns for the antd table of User objects
 const columns: TableProps<User>["columns"] = [
