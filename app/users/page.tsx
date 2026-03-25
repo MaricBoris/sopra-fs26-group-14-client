@@ -7,28 +7,31 @@ import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
-import { Button, Card, Table } from "antd";
+import { Button, Table } from "antd";
 import type { TableProps } from "antd"; // antd component library allows imports of types
 // Optionally, you can import a CSS module or file for additional styling:
 // import "@/styles/views/Dashboard.scss";
+import styles from "./page.module.css";
 
 // Columns for the antd table of User objects
 const columns: TableProps<User>["columns"] = [
   {
+    title: "#",
+    key: "index",
+    render: (_, __, index) => index + 1, //numbering starts from 1 instead of 0
+    onCell: () => ({ //style for the cells of this column
+      style: {
+        backgroundColor: "#fafafa", //light gray
+        fontWeight: "bold",           //makes the numbers bold
+        textAlign: "center",          //centers the numbers 
+      },
+    }),
+  },
+  {
     title: "Username",
     dataIndex: "username",
     key: "username",
-  },
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "Id",
-    dataIndex: "id",
-    key: "id",
-  },
+  }
 ];
 
 const Dashboard: React.FC = () => {
@@ -47,9 +50,9 @@ const Dashboard: React.FC = () => {
   const handleLogout = (): void => {
     // Clear token using the returned function 'clear' from the hook
     clearToken();
-    router.push("/login");
+    router.push("/home");
   };
-
+  const { value: userId } = useLocalStorage<string>("userId", "");
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -74,31 +77,51 @@ const Dashboard: React.FC = () => {
   // read more here: https://react.dev/reference/react/useEffect#specifying-reactive-dependencies
 
   return (
-    <div className="card-container">
-      <Card
-        title="Get all users from secure endpoint:"
-        loading={!users}
-        className="dashboard-container"
-      >
-        {users && (
-          <>
-            {/* antd Table: pass the columns and data, plus a rowKey for stable row identity */}
-            <Table<User>
-              columns={columns}
-              dataSource={users}
-              rowKey="id"
-              onRow={(row) => ({
-                onClick: () => router.push(`/users/${row.id}`),
-                style: { cursor: "pointer" },
-              })}
-            />
-            <Button onClick={handleLogout} type="primary">
-              Logout
-            </Button>
-          </>
-        )}
-      </Card>
+    <>
+    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+ 
+      <Button type="primary" onClick={() => router.push("/home")}>
+        Home
+      </Button>
+
+      
+      <Button style={{
+        backgroundColor: "#274618", // so ein moosgrün
+        color: "black",
+        borderColor: "#274618",
+      }}
+      onClick={() => router.push(`/users/${userId}`)}>
+        Profile
+      </Button>
+
     </div>
+    <div className={styles.scrollTitle}>User Profiles</div>
+
+    {users && (
+      <>
+        <Table<User>
+          columns={columns}
+          dataSource={users}
+          rowKey="id"
+          scroll={{ y: 300 }}
+          pagination={false}
+          showHeader={false}
+          rowClassName={(_, index) =>
+            index % 2 === 0 ? styles.evenRow : styles.oddRow
+          }
+          onRow={(row) => ({
+            onClick: () => router.push(`/users/${row.id}`),
+            style: { cursor: "pointer" },
+          })}
+        />
+       <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}> {/*display flex brauchen wir, um justifyContent überhaupt sinnvoll zu benutzen*/}
+        <Button danger type="primary" onClick={handleLogout}>
+          Logout
+        </Button>
+      </div>
+      </>
+    )}
+  </>
   );
 };
 
