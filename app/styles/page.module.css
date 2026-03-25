@@ -164,23 +164,29 @@ a.secondary {
   }
 }
 .evenRow td { /*td für die zellen einzeln, nicht die ganze zeile*/
-  background-color: #1a1a1a;
+  background-color: #ebe7e7;
 }
 
 .oddRow td {
-  background-color: #141414;
+  background-color: #d4d1d1;
 }
 
 .evenRow td:first-child, /*we don't wan't the zebra style for the first column*/
 .oddRow td:first-child {
-  background-color: #0f0f0f;
+  background-color: #8f8c8c !important;
 }
 .scrollTitle {
-  background: #f4e4c1;
-  border: 2px solid #d2b48c;
-  padding: 10px 20px;
-  border-radius: 10px;
+  background-image: url("@/public/schriftrolle.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 300px;
+  height: 120px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   font-weight: bold;
-  display: inline-block;
-  margin-bottom: 16px;
+  font-size: 20px;
 }
