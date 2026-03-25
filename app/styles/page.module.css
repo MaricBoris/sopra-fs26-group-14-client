@@ -163,3 +163,24 @@ a.secondary {
     filter: invert();
   }
 }
+.evenRow td { /*td für die zellen einzeln, nicht die ganze zeile*/
+  background-color: #1a1a1a;
+}
+
+.oddRow td {
+  background-color: #141414;
+}
+
+.evenRow td:first-child, /*we don't wan't the zebra style for the first column*/
+.oddRow td:first-child {
+  background-color: #0f0f0f;
+}
+.scrollTitle {
+  background: #f4e4c1;
+  border: 2px solid #d2b48c;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  display: inline-block;
+  margin-bottom: 16px;
+}
