@@ -18,10 +18,11 @@ const columns: TableProps<User>["columns"] = [
   {
     title: "#",
     key: "index",
+    width: 70,
     render: (_, __, index) => index + 1, //numbering starts from 1 instead of 0
     onCell: () => ({ //style for the cells of this column
       style: {
-        backgroundColor: "#fafafa", //light gray
+        backgroundColor: "#8f8c8c", //light gray
         fontWeight: "bold",           //makes the numbers bold
         textAlign: "center",          //centers the numbers 
       },
@@ -42,17 +43,27 @@ const Dashboard: React.FC = () => {
   // The hook returns an object with the value and two functions
   // Simply choose what you need from the hook:
   const {
-    // value: token, // is commented out because we dont need to know the token value for logout
+    value: token, // is commented out because we dont need to know the token value for logout
     // set: setToken, // is commented out because we dont need to set or update the token value
     clear: clearToken, // all we need in this scenario is a method to clear the token
   } = useLocalStorage<string>("token", ""); // if you wanted to select a different token, i.e "lobby", useLocalStorage<string>("lobby", "");
+  const { 
+    value: userId,
+    clear: clearId, 
+  } = useLocalStorage<string>("userId", "");
 
-  const handleLogout = (): void => {
-    // Clear token using the returned function 'clear' from the hook
-    clearToken();
-    router.push("/home");
+  const handleLogout = async (): Promise<void> => {
+    try {
+      await apiService.post("/users/logout", {token});
+    } catch (error) {
+      console.log("Logout request failed:", error);
+    } finally {
+      clearToken();
+      clearId();
+      router.push("/home");
+    }
   };
-  const { value: userId } = useLocalStorage<string>("userId", "");
+  
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -78,6 +89,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
+    <div style={{ maxWidth: 800, margin: "0 auto", padding: "24px" }}>
     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
  
       <Button type="primary" onClick={() => router.push("/home")}>
@@ -86,19 +98,21 @@ const Dashboard: React.FC = () => {
 
       
       <Button style={{
-        backgroundColor: "#274618", // so ein moosgrün
+        backgroundColor: "#669d4b", // so ein moosgrün
         color: "black",
-        borderColor: "#274618",
+        borderColor: "#669d4b",
       }}
       onClick={() => router.push(`/users/${userId}`)}>
         Profile
       </Button>
 
     </div>
-    <div className={styles.scrollTitle}>User Profiles</div>
-
+    <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+      <div className={styles.scrollTitle}>User Profiles</div>
+    </div>
     {users && (
       <>
+      
         <Table<User>
           columns={columns}
           dataSource={users}
@@ -114,13 +128,16 @@ const Dashboard: React.FC = () => {
             style: { cursor: "pointer" },
           })}
         />
+        
        <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}> {/*display flex brauchen wir, um justifyContent überhaupt sinnvoll zu benutzen*/}
         <Button danger type="primary" onClick={handleLogout}>
           Logout
         </Button>
       </div>
+     
       </>
     )}
+    </div>
   </>
   );
 };
