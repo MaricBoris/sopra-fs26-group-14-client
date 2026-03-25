@@ -26,10 +26,10 @@ export default function ProfileButton() {
     if (!isMounted) return null;
 
     return (
-        <div style={{ position: "fixed", top: 16, right: 60, zIndex: 1000 }}>
+        <div style={{ position: "fixed", top: 20, right: 60, zIndex: 1000 }}>
             <Button
                 onClick={handleClick}
-                style={{ padding: "8px 28px", fontSize: "20px", height: "auto" }}
+                style={{ width: 110, height: 50, padding: 0, fontSize: "20px" }}
             >Profile</Button>
         </div>
     );

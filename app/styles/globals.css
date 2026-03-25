@@ -58,17 +58,25 @@ a {
   align-items: center;
   min-height: 100vh;
 }
-
+/*📝 Buttons: Background, text, border, click animation*/
 .ant-btn-variant-outlined.ant-btn-color-default {
-  --btn-bg: #0fac5b;
+  font-family: var(--font-cinzel), serif !important;
+  --btn-bg: #6253c6b3;
   color: #ffffff !important;
   border: 2px solid #ffffff !important;
   background: var(--btn-bg) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.512) !important;
+  transition: transform 0.1s, box-shadow 0.1s !important;
 }
-
+/* 📝 Buttons: Hovering colours of text & border */
 .ant-btn-variant-outlined.ant-btn-color-default:hover,
 .ant-btn-variant-outlined.ant-btn-color-default:focus {
-  color: #01ff1f !important;
-  border: 2px solid #01ff1f !important;
+  color: #ffffff !important;
+  border: 2px solid #030d57 !important;
   background: var(--btn-bg) !important;
+}
+/* 📝Buttons: Shadow */
+.ant-btn-variant-outlined.ant-btn-color-default:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 4px rgba(29, 28, 28, 0.478) !important;
 }

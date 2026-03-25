@@ -11,7 +11,7 @@ export default function HomeButton() {
 
     return (
     <div style={{ position: "fixed", top: 16, left: 16, zIndex: 1000 }}>
-        <Button onClick={() => router.push("/")}>Home</Button>
+        <Button onClick={() => router.push("/")} style={{ width: 110, height: 50, padding: 0, fontSize: "20px" }}>Home</Button>
     </div>
     );
 }
