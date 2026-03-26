@@ -5,6 +5,7 @@
 
 
 import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
+import HomeButton from "../../components/HomeButton";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
@@ -32,11 +33,11 @@ const Login: React.FC = () => {
     clear: clearToken, 
   } = useLocalStorage<string>("token", "");
 
-  const {     
+  const {
         value: id,
         set: setId,
         clear: clearId
-      } = useLocalStorage<number>("id", 0);
+      } = useLocalStorage<string>("userId", "");
   
   useEffect(() => {
         
@@ -95,40 +96,76 @@ const Login: React.FC = () => {
   const handleLogout = () => {
     clearId();
     clearToken();
-    router.push("/home");
+    router.push("/");
   };
 
-  
-
   return (
-  
-          <div className="profile-wrapper">
-            <div className="profile-nav">
-              <Button type="primary" onClick={() => router.push("/home")}>Home</Button>
-              <Button type="primary" onClick={() => router.push("/users")}>Users</Button>
-            </div>
+    <>
+      <HomeButton />
+      <div style={{ position: "fixed", top: 20, right: 60, zIndex: 1000 }}>
+        <Button
+          onClick={() => router.push("/users")}
+          style={{ ["--btn-bg" as string]: "#6253c6b3", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}
+        >
+          Users
+        </Button>
+      </div>
 
-            <div className="profile-card-container">
-              <Card
-                title="User Profile"
-                loading={!users}
-                className="profile-card"
-              >
-                {users && (
-                  <Descriptions column={1}>
-                    <Descriptions.Item label="Username">{users.username}</Descriptions.Item>
-                    <Descriptions.Item label="Created">{users.date}</Descriptions.Item>
-                    <Descriptions.Item label="Bio">{users.bio}</Descriptions.Item>
-                  </Descriptions>
-                )}
-              </Card>
-            </div>
+      <div className="login-container">
+        {/* outer frame */}
+        <div style={{
+          width: 480,
+          background: "rgba(255,255,255,0.04)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 1,
+          padding: 24,
+          fontFamily: "var(--font-cinzel), serif",
+          color: "#ffffff",
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+        }}>
 
-            <div className="profile-actions">
-              <Button danger onClick={handleLogout}>Logout</Button>
-            </div>
+          {/* header box */}
+          <div style={{
+            background: "rgba(255,255,255,0.04)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 1,
+            padding: "12px 24px",
+            textAlign: "center",
+          }}>
+            <div style={{ fontSize: 24, fontWeight: "bold" }}>User Profile</div>
           </div>
-        );
+
+          {/* info box */}
+          <div style={{
+            background: "rgba(255,255,255,0.04)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 1,
+            padding: "16px 24px",
+          }}>
+            <Descriptions column={1} styles={{ label: { color: "#aaaaaa", fontFamily: "var(--font-cinzel), serif" }, content: { color: "#ffffff", fontFamily: "var(--font-cinzel), serif" } }}>
+              <Descriptions.Item label="Username">{users?.username ?? "—"}</Descriptions.Item>
+              <Descriptions.Item label="Member since">{users?.creationDate ? new Date(users.creationDate).toLocaleDateString() : "—"}</Descriptions.Item>
+              <Descriptions.Item label="Bio">{users?.bio ?? "—"}</Descriptions.Item>
+            </Descriptions>
+          </div>
+
+          {/* logout */}
+          <Button
+            onClick={handleLogout}
+            style={{ ["--btn-bg" as string]: "#c0392b", width: 110, height: 50, padding: 0, fontSize: "20px", alignSelf: "flex-start" } as React.CSSProperties}
+          >
+            Logout
+          </Button>
+
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default Login;
