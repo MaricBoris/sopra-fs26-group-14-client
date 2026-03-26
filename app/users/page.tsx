@@ -115,7 +115,15 @@ const UsersPage: React.FC = () => {
       <HomeButton />
       <ProfileButton />
 
-      <div style={{ maxWidth: 800, margin: "0 auto", padding: "24px" }}>
+       <div
+      style={{
+        maxWidth: 800,
+        margin: "0 auto",
+        padding: "24px",
+        fontFamily: "var(--font-cinzel), serif",
+        color: "#ffffff",
+      }}
+    >
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
           <div className={styles.scrollTitle}>User Profiles</div>
         </div>
@@ -139,7 +147,19 @@ const UsersPage: React.FC = () => {
             />
 
             <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}>
-              <Button danger type="primary" onClick={handleLogout}>
+              <Button
+                onClick={handleLogout}
+                style={
+                  {
+                    ["--btn-bg" as string]: "#b33a3a",
+                    width: 110,
+                    height: 50,
+                    padding: 0,
+                    fontSize: "20px",
+                    fontFamily: "var(--font-cinzel), serif",
+                  } as React.CSSProperties
+                }
+              >
                 Logout
               </Button>
             </div>
