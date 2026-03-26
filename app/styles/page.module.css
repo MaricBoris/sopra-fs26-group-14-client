@@ -177,11 +177,12 @@ a.secondary {
 }
 .scrollTitle {
   background-image: url("/schriftrolle.png");
-  background-size: contain;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
-  width: 300px;
-  height: 120px;
+
+  width: 500px;
+  height: 160px;
 
   display: flex;
   align-items: center;
@@ -189,8 +190,12 @@ a.secondary {
 
   font-family: var(--font-cinzel), serif;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 24px;
   color: #3b2f1b;
+  text-align: center;
+
+  padding: 0 40px;
+  box-sizing: border-box;
 }
 
 /* Profile page layout */
