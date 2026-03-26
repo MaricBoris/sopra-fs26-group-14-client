@@ -15,16 +15,14 @@ const Redirect: React.FC = () => {
   const apiService = useApi();
 
   const {
-      value: token, 
-      set: setToken, 
+      value: token,
       clear: clearToken,
-    } = useLocalStorage<string>("token", ""); 
+    } = useLocalStorage<string>("token", "");
 
-  const {     
+  const {
       value: id,
-      set: setId,
       clear: clearId
-    } = useLocalStorage<number>("id", 0);
+    } = useLocalStorage<string>("userId", "");
 
   useEffect(() => {
         if (token !="") {
