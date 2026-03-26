@@ -41,6 +41,16 @@ a {
   }
 } */
 
+.ant-form,
+.ant-form input,
+.ant-form textarea,
+.ant-form label,
+.ant-input,
+.ant-input-password input,
+.ant-input-affix-wrapper {
+  font-family: var(--font-cinzel), serif !important;
+}
+
 .login-container {
   display: flex;
   justify-content: center;

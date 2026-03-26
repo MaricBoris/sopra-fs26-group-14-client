@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react"; // useEffect/useState for re
 import { useRouter } from "next/navigation"; // use NextJS router for navigation
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, notification } from "antd";
+import { ApplicationError } from "@/types/error";
 import HomeButton from "../components/HomeButton";
 
 // Optionally, you can import a CSS module or file for additional styling:
@@ -49,7 +50,7 @@ const Login: React.FC = () => {
   useEffect(() => {
     if (!isMounted) return;
 
-    if (token && userId) router.replace(`/users/${userId}`); // redirect logged-in users to their own profile page
+    if (token && userId) router.replace("/"); // redirect logged-in users away from /login
     else if (token && !userId) {
       clearToken(); // if token exists but userId is missing, clear the token to prevent redirect loops to /login, which would happen because the app would keep trying to use the invalid token and getting 401 responses, thus clearing the token ensures that the app will redirect to /login and prompt the user to log in again, thus obtaining a new valid token with a userId.
       clearUserId(); // to clear userId if it exists without token, to prevent redirect loops to /login. This can happen if the token is manually removed from localStorage while the userId remains, which would cause the app to keep trying to redirect to /users/[userId] and getting 401 responses, thus clearing the userId ensures that the app will redirect to /login and prompt the user to log in again, thus obtaining a new valid token with a userId.
@@ -70,13 +71,19 @@ const Login: React.FC = () => {
       setUserId(String(response.id));
 
       // Navigate to the user's profile page — use replace to avoid going back to /login after successful login
-      router.replace(`/users/${response.id}`);
+      router.replace("/");
     } catch (error) {
-      if (error instanceof Error) {
-        alert(`Something went wrong during the login:\n${error.message}`);
-      } else {
-        console.error("An unknown error occurred during login.");
-      }
+      const err = error as ApplicationError;
+      const status = err.status ?? "Error";
+      const descriptions: Record<number, string> = {
+        401: "Invalid username or password.",
+        400: "Username and password cannot be empty.",
+      };
+      notification.error({
+        title: `Login failed (${status})`,
+        description: descriptions[err.status] ?? err.message ?? String(error),
+        placement: "topRight",
+      });
     }
   };
 
@@ -93,7 +100,7 @@ const Login: React.FC = () => {
     return (
       <>
         <HomeButton />
-        <div className="login-container">Redirecting...</div>
+        <div className="login-container">Redirecting to home...</div>
       </>
     );
   }
@@ -102,39 +109,58 @@ const Login: React.FC = () => {
     <>
       <HomeButton />
       <div className="login-container">
-        <Form
-          form={form}
-          name="login"
-          size="large"
-          variant="outlined"
-          onFinish={handleLogin}
-          layout="vertical"
-        >
-          <Form.Item
-            name="username"
-            label="Username:"
-            rules={[{ required: true, message: "Please input your username!" }]}
+        <div style={{
+          width: 480,
+          background: "rgba(255,255,255,0.09)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(255,255,255,0.15)",
+          borderRadius: 1,
+          padding: "12px 24px 16px",
+          fontFamily: "var(--font-cinzel), serif",
+          color: "#ffffff",
+        }}>
+          <div style={{ textAlign: "center", marginBottom: 12 }}>
+            <div style={{ fontSize: 24, fontWeight: "bold" }}>Login</div>
+            <div style={{ fontSize: 16, marginTop: 4 }}>Please enter your credentials:</div>
+          </div>
+          <Form
+            form={form}
+            name="login"
+            size="large"
+            variant="outlined"
+            onFinish={handleLogin}
+            layout="vertical"
           >
-            <Input placeholder="Enter username" />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            label="Password:"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
-            <Input.Password placeholder="Enter password" />
-          </Form.Item>
-          <Form.Item>
-            <Button
-              type="primary"
-              style={{ marginLeft: 0, backgroundColor: "#003983", borderColor: "#ffffff" }}
-              htmlType="submit"
-              className="login-button"
+            <Form.Item
+              name="username"
+              rules={[{ required: true, message: "Please input your username!" }]}
             >
-              Login
-            </Button>
-          </Form.Item>
-        </Form>
+              <Input placeholder="Enter username" />
+            </Form.Item>
+            <Form.Item
+              name="password"
+              rules={[{ required: true, message: "Please input your password!" }]}
+            >
+              <Input.Password placeholder="Enter password" />
+            </Form.Item>
+            <Form.Item>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <Button
+                  style={{ ["--btn-bg" as string]: "#4aa3d4", width: 150, height: 50, padding: 0, fontSize: "17px" } as React.CSSProperties}
+                  onClick={() => router.push("/register")}
+                >
+                  Go to Register
+                </Button>
+                <Button
+                  htmlType="submit"
+                  style={{ ["--btn-bg" as string]: "#0cd244", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}
+                >
+                  Login
+                </Button>
+              </div>
+            </Form.Item>
+          </Form>
+        </div>
       </div>
     </>
   );
