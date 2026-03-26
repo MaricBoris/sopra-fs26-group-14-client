@@ -64,7 +64,7 @@ const UsersPage: React.FC = () => {
 
   
   useEffect(() => {
-   // if (!token) return;
+   if (!token) return;
 
     const fetchUsers = async () => {
       try {
@@ -83,7 +83,7 @@ const UsersPage: React.FC = () => {
   }, [apiService, token]);
 
 
-  /*useEffect(() => {
+  useEffect(() => {
     if (token !== "") {
       const validateToken = async () => {
         try {
@@ -107,7 +107,7 @@ const UsersPage: React.FC = () => {
     } else {
       router.push("/login");
     }
-  }, [token, userId, apiService, router, clearId, clearToken]);*/
+  }, [token, userId, apiService, router, clearId, clearToken]);
 
   return (
     <>
