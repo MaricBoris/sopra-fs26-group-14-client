@@ -1,14 +1,14 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #292c3b;
+  --foreground: #292c3b;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #d90e0e;
     --foreground: #ededed;
   }
-}
+} */
 
 html,
 body {
@@ -35,10 +35,20 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
   }
+} */
+
+.ant-form,
+.ant-form input,
+.ant-form textarea,
+.ant-form label,
+.ant-input,
+.ant-input-password input,
+.ant-input-affix-wrapper {
+  font-family: var(--font-cinzel), serif !important;
 }
 
 .login-container {
@@ -46,7 +56,6 @@ a {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: rgb(41, 44, 59);
 }
 
 .login-button {
@@ -58,7 +67,28 @@ a {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: rgb(41, 44, 59);
+}
+/*📝 Buttons: Background, text, border, click animation*/
+.ant-btn-variant-outlined.ant-btn-color-default {
+  font-family: var(--font-cinzel), serif !important;
+  --btn-bg: #6253c6b3;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  background: var(--btn-bg) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.512) !important;
+  transition: transform 0.1s, box-shadow 0.1s !important;
+}
+/* 📝 Buttons: Hovering colours of text & border */
+.ant-btn-variant-outlined.ant-btn-color-default:hover,
+.ant-btn-variant-outlined.ant-btn-color-default:focus {
+  color: #ffffff !important;
+  border: 2px solid #030d57 !important;
+  background: var(--btn-bg) !important;
+}
+/* 📝Buttons: Shadow */
+.ant-btn-variant-outlined.ant-btn-color-default:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 2px 4px rgba(29, 28, 28, 0.478) !important;
 }
 
 
