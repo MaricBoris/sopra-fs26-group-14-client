@@ -5,4 +5,5 @@ export interface User {
   bio: string | null;
   token: string | null;
   date: string | null;
+  creationDate: string | null;
 }

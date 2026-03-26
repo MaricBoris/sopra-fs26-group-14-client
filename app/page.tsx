@@ -20,7 +20,7 @@ export default function Home() {
 
   const handleLogout = async () => {
     try {
-      await api.post("/logout", {});
+      await api.post("/users/logout", {}, token);
       clearToken();
       clearUserId(); // 📝 also clear stored user id
       // 📝 user stays on home page after logout (no redirect)
