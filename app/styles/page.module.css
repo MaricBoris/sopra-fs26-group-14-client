@@ -163,6 +163,40 @@ a.secondary {
     filter: invert();
   }
 }
+.evenRow td { /*td für die zellen einzeln, nicht die ganze zeile*/
+  background-color: #ebe7e7;
+}
+
+.oddRow td {
+  background-color: #d4d1d1;
+}
+
+.evenRow td:first-child, /*we don't wan't the zebra style for the first column*/
+.oddRow td:first-child {
+  background-color: #8f8c8c !important;
+}
+.scrollTitle {
+  background-image: url("/schriftrolle.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  width: 500px;
+  height: 160px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: var(--font-cinzel), serif;
+  font-weight: bold;
+  font-size: 24px;
+  color: #3b2f1b;
+  text-align: center;
+
+  padding: 0 40px;
+  box-sizing: border-box;
+}
 
 /* Profile page layout */
 .profile-wrapper {
