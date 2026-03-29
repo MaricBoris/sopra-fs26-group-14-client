@@ -22,8 +22,8 @@ interface FormFieldProps {
 
 const Login: React.FC = () => {
   const router = useRouter();
-
-  //const params = useParams<{ id: string }>();   //TO DELETE WHEN LOGIN AND REGISTER SET THE ID
+  const params = useParams<{ id: string }>();
+  const viewedUserId = params?.id;
   const apiService = useApi();
   const [users, setUser] = useState<User | null>(null);
 
@@ -58,13 +58,14 @@ const Login: React.FC = () => {
           const validateToken = async () => {
   
             try {
-              //setId(Number(params.id))  //TO DELETE WHEN LOGIN AND REGISTER IS IMPLEMENTED
-              const response = await apiService.get<User[]>(`/users/${id}`, token); 
+              //setId(Number(params.id))
+              const response = await apiService.get<User[]>(`/users/${id}`, token);
   
               //If token/id mismatch go to login
               if (!response) {
                 router.push(`/login`);
               }
+          [token, id];
      
               //If token is present and valid current page is ok
                     
@@ -86,10 +87,11 @@ const Login: React.FC = () => {
 
 
     useEffect(() => {
+        if (!token || !id) return;
         const fetchUser = async () => {
           try {
-          
-            const response = await apiService.get<User>(`/users/${id}`, token);
+
+            const response = await apiService.get<User>(`/users/${params.id}`, token);
             setUser(response);
             console.log("Fetched user:", response);
 
@@ -103,7 +105,7 @@ const Login: React.FC = () => {
         };
     
         fetchUser();
-      }, [apiService]); 
+      }, [apiService, params.id, token]);
 
   const handleLogout = () => {
     clearId();
@@ -191,7 +193,7 @@ const Login: React.FC = () => {
         </Button>
       </div>
 
-      {users?.id === Number(id) && (
+      {String(users?.id) === String(id) && (
         <div style={{ position: "fixed", bottom: 20, right: 60, zIndex: 1000 }}>
           <Button
             onClick={handleOpenDeleteModal}
@@ -246,7 +248,7 @@ const Login: React.FC = () => {
           </div>
 
           {/* buttons */}
-          {users?.id === Number(id) && (
+          {String(users?.id) === String(id) && (
           <div style={{
             display: "flex",
             justifyContent: "space-between",
