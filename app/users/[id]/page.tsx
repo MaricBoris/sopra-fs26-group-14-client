@@ -45,11 +45,9 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { TextArea } = Input;
 
-  //state variables for password changes
-  const [passwordModal, setPasswordModal] = useState({
-    open: false, loading: false,
-    current: "", next: "", confirm: ""
-  });
+  //state variables for password changes and profile deletion
+  const [passwordModal, setPasswordModal] = useState({open: false, loading: false, current: "", next: "", confirm: ""});
+  const [deleteModal, setDeleteModal] = useState({open: false, loading: false, password: ""});
 
   const isOwnProfile = users?.id === Number(id)
 
@@ -156,6 +154,31 @@ const Login: React.FC = () => {
 
    };
 
+  const handleDeleteAccount = async () => {
+    if (!deleteModal.password) {
+      message.error("Please enter your password.");
+      return;
+    }
+
+    setDeleteModal(prev => ({ ...prev, loading: true }));
+    try {
+      await apiService.delete(`/users/${id}`, { password: deleteModal.password }, token);
+      message.success("Your account has successfully been deleted.");
+      clearId();
+      clearToken();
+      router.push("/login");
+    } catch (error) {
+      console.error("Error:", error);
+      message.error("Incorrect password.");
+    } finally {
+      setDeleteModal(prev => ({ ...prev, loading: false, open: false, password: "" }));
+    }
+  };
+
+  const handleOpenDeleteModal = () => {
+    setDeleteModal({ open: true, loading: false, password: "" });
+  };
+
   return (
     <>
       <HomeButton />
@@ -167,6 +190,17 @@ const Login: React.FC = () => {
           Users
         </Button>
       </div>
+
+      {users?.id === Number(id) && (
+        <div style={{ position: "fixed", bottom: 20, right: 60, zIndex: 1000 }}>
+          <Button
+            onClick={handleOpenDeleteModal}
+            style={{ ["--btn-bg" as string]: "#c0392b", width: 200, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}
+          >
+            Delete Account
+          </Button>
+        </div>
+      )}
 
       <div className="login-container">
         {/* outer frame */}
@@ -239,12 +273,12 @@ const Login: React.FC = () => {
             </div>
             )}
 
-
             {/* Edit Bio Modal */}
             <Modal title="Edit Bio" open={isModalOpen}
 
               onCancel={() => setIsModalOpen(false)}
               onOk={handleSaveBio}
+              okText="Save" okButtonProps={{ style: { fontFamily: "var(--font-cinzel), serif"} }}
               confirmLoading={loading}
             >
               <TextArea
@@ -261,6 +295,7 @@ const Login: React.FC = () => {
 
               onCancel={() => setPasswordModal(p => ({ ...p, open: false }))}
               onOk={handlePasswordEdit}
+              okText="Save" okButtonProps={{ style: { fontFamily: "var(--font-cinzel), serif" } }}
               confirmLoading={passwordModal.loading}>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
@@ -275,6 +310,21 @@ const Login: React.FC = () => {
                 </div>
             </Modal>
             </div>
+
+          {/* Delete Account Modal */}
+          <Modal title="Delete Account" open={deleteModal.open}
+
+            onCancel={() => setDeleteModal(p => ({ ...p, open: false, password: "" }))}
+            onOk={handleDeleteAccount} confirmLoading={deleteModal.loading}
+            okText="Delete" okButtonProps={{ style: { backgroundColor: "#c0392b", color: "white", fontFamily: "var(--font-cinzel), serif", border: "1px solid #c0392b" } }}
+            styles={{ content: { background: "white" }, header: { background: "white" }, body: { background: "white" }, footer: { background: "white" } }}
+          >
+
+            <Input.Password placeholder="Enter password to confirm" value={deleteModal.password}
+              onChange={(e) => setDeleteModal(p => ({ ...p, password: e.target.value }))}
+              style={{ background: "white", border: "1px solid #d9d9d9", color: "black" }}
+            />
+          </Modal>
 
         </div>
 
