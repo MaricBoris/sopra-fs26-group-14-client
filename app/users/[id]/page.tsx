@@ -49,7 +49,7 @@ const Login: React.FC = () => {
   const [passwordModal, setPasswordModal] = useState({open: false, loading: false, current: "", next: "", confirm: ""});
   const [deleteModal, setDeleteModal] = useState({open: false, loading: false, password: ""});
 
-  const isOwnProfile = users?.id === Number(id)
+  const isOwnProfile = String(users?.id) === String(id)
 
   useEffect(() => {
         
