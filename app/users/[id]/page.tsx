@@ -240,7 +240,7 @@ const Login: React.FC = () => {
             borderRadius: 1,
             padding: "16px 24px",
           }}>
-            <Descriptions column={1} styles={{ label: { color: "#aaaaaa", fontFamily: "var(--font-cinzel), serif" }, content: { color: "#ffffff", fontFamily: "var(--font-cinzel), serif" } }}>
+            <Descriptions column={1} styles={{ label: { color: "#aaaaaa", fontFamily: "var(--font-cinzel), serif" },content: { color: "#ffffff", fontFamily: "var(--font-cinzel), serif" } }}>
               <Descriptions.Item label="Username">{users?.username ?? "—"}</Descriptions.Item>
               <Descriptions.Item label="Member since">{users?.creationDate ? new Date(users.creationDate).toLocaleDateString() : "—"}</Descriptions.Item>
               <Descriptions.Item label="Bio">{users?.bio ?? "—"}</Descriptions.Item>
@@ -319,7 +319,7 @@ const Login: React.FC = () => {
             onCancel={() => setDeleteModal(p => ({ ...p, open: false, password: "" }))}
             onOk={handleDeleteAccount} confirmLoading={deleteModal.loading}
             okText="Delete" okButtonProps={{ style: { backgroundColor: "#c0392b", color: "white", fontFamily: "var(--font-cinzel), serif", border: "1px solid #c0392b" } }}
-            styles={{ content: { background: "white" }, header: { background: "white" }, body: { background: "white" }, footer: { background: "white" } }}
+            styles={{ header: { background: "white" }, body: { background: "white" }, footer: { background: "white" } }}
           >
 
             <Input.Password placeholder="Enter password to confirm" value={deleteModal.password}
