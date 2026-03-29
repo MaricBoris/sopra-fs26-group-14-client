@@ -9,7 +9,7 @@ import HomeButton from "../../components/HomeButton";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
-import { Button, Form, Input, Card, Table, Descriptions } from "antd";
+import { Button, Form, Input, Card, Table, Descriptions, Modal, message } from "antd";
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/page.module.css";
 
@@ -38,7 +38,12 @@ const Login: React.FC = () => {
         set: setId,
         clear: clearId
       } = useLocalStorage<string>("userId", "");
-  
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [bio, setBio] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { TextArea } = Input;
+
   useEffect(() => {
         
         if (token !="") {
@@ -99,6 +104,26 @@ const Login: React.FC = () => {
     router.push("/");
   };
 
+  const handleEditBio = () => {
+    setBio(users?.bio || "");
+    setIsModalOpen(true);
+  };
+
+   const handleSaveBio = async () => {
+      setLoading(true);
+      try {
+        await apiService.put(`/users/${id}`, { bio }, token);
+        setUser(prev => prev ? { ...prev, bio } : prev);
+        setIsModalOpen(false);
+        message.success("Bio updated!");
+      } catch (error) {
+            console.error("PUT error:", error);
+            message.error("Failed to update bio.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
   return (
     <>
       <HomeButton />
@@ -154,13 +179,42 @@ const Login: React.FC = () => {
             </Descriptions>
           </div>
 
-          {/* logout */}
-          <Button
-            onClick={handleLogout}
-            style={{ ["--btn-bg" as string]: "#c0392b", width: 110, height: 50, padding: 0, fontSize: "20px", alignSelf: "flex-start" } as React.CSSProperties}
-          >
-            Logout
-          </Button>
+          {/* buttons */}
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: 8,
+          }}>
+            <Button
+              onClick={handleLogout}
+              style={{ ["--btn-bg" as string]: "#c0392b", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}
+            >
+              Logout
+            </Button>
+            <Button
+              onClick={handleEditBio}
+              style={{ ["--btn-bg" as string]: "#4a90e2", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}
+            >
+              Edit Bio
+            </Button>
+
+            {/* Edit Bio Modal */}
+            <Modal
+              title="Edit Bio"
+              open={isModalOpen}
+              onCancel={() => setIsModalOpen(false)}
+              onOk={handleSaveBio}
+              confirmLoading={loading}
+            >
+              <TextArea
+                rows={4}
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="What are you thinking about today?"
+              />
+            </Modal>
+
+          </div>
 
         </div>
       </div>
