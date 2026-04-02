@@ -1,11 +1,20 @@
 
 "use client";
-
+import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
 import React from "react";
 import { Button, Input } from "antd";
 import styles from "@/styles/page.module.css";
+import { useState } from "react";
+import { useApi } from "@/hooks/useApi";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 const GamePage: React.FC = () => {
+
+  const router = useRouter();
+  const params = useParams<{ gameid: string }>();
+  const gameid = params?.gameid;
+  const apiService = useApi();
+
   const { TextArea } = Input;
 
   const panelStyle: React.CSSProperties = {
@@ -32,8 +41,43 @@ const GamePage: React.FC = () => {
     fontFamily: "var(--font-cinzel), serif",
   };
 
-  return (
-    <div
+const {
+  value: token,
+  clear: clearToken,
+} = useLocalStorage<string>("token", "");
+
+const {
+  value: userId,
+  clear: clearId,
+} = useLocalStorage<string>("userId", "");
+const [ wholeStoryText,setStoryyText] = useState<string>("");
+const [TwoInput, setTwoInput] = useState("");
+const [OneInput, setOneInput] = useState("");
+const handleSubmitOne = async (): Promise<void> => {
+  if (!OneInput.trim()) return;
+  try {
+    const response=await apiService.post<{ wholeStoryText: string }>(`/games/${gameid}/input`, {userinputone: OneInput}, token); //remember to model endpoint so that it returns the new wholestory, ask others if ok to change rest spec from whole game to just input
+    const holeStoryText=response.wholeStoryText;
+    setStoryyText(holeStoryText);
+    setOneInput("");
+  } catch (error) {
+    console.log("Saving Player Input failed, pls try again", error);
+  } 
+};
+const handleSubmitTwo = async (): Promise<void> => {
+  if (!TwoInput.trim()) return;
+  try {
+    const response=await apiService.post<{ wholeStoryText: string }>(`/games/${gameid}/input`,{ userinputtwo: TwoInput },token);
+   const holeStoryText=response.wholeStoryText;
+    setStoryyText(holeStoryText);
+    setTwoInput("");
+  } catch (error) {
+    console.log("Saving Player 2 input failed, pls try again", error);
+  }
+};
+
+return (
+  <div
       style={{
         minHeight: "100vh",
         width: "100%",
@@ -203,7 +247,12 @@ const GamePage: React.FC = () => {
                 minWidth: 0,
               }}
             >
-              <TextArea placeholder="Input field P1" style={inputInnerStyle} />
+              <TextArea
+                    style={inputInnerStyle}
+                    value={OneInput} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText. 
+                    onChange={(e) => setOneInput(e.target.value)} //e ist das event objekt, e.target das input feld und e.target.value das was im feld steht
+                    placeholder="Input Field Player 1"
+                  />{/* Bei jedem tippen wird neu gerendert!!*/}
             </div>
 
             <div
@@ -221,6 +270,7 @@ const GamePage: React.FC = () => {
                 style={{ ...smallFieldStyle, textAlign: "center" }}
               />
               <Button
+              onClick={handleSubmitOne}
                 style={{
                   ["--btn-bg" as string]: "#2e9f44",
                   height: 40,
@@ -286,10 +336,12 @@ const GamePage: React.FC = () => {
                 minWidth: 0,
               }}
             >
-              <TextArea
-                placeholder="Text field of active story. All committed messages will show up here."
-                style={inputInnerStyle}
-              />
+                  <TextArea 
+                    style={inputInnerStyle}
+                    value={wholeStoryText} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText. 
+                    readOnly
+                    placeholder="Text Field of active Story"
+                  />{/* Bei jedem change wird neu gerendert!!*/}
             </div>
 
            {/* <div
@@ -380,7 +432,12 @@ const GamePage: React.FC = () => {
                 minWidth: 0,
               }}
             >
-              <TextArea placeholder="Input field P2" style={inputInnerStyle} />
+              <TextArea //controlled input
+                    style={inputInnerStyle}
+                    value={TwoInput} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText. 
+                    onChange={(e) => setTwoInput(e.target.value)} //e ist das event objekt, e.target das input feld und e.target.value das was im feld steht
+                    placeholder="Input Field Player 2"
+                  />{/* Bei jedem tippen wird neu gerendert!!*/}
             </div>
 
             <div
@@ -398,6 +455,7 @@ const GamePage: React.FC = () => {
                 style={{ ...smallFieldStyle, textAlign: "center" }}
               />
               <Button
+              onClick={handleSubmitTwo}
                 style={{
                   ["--btn-bg" as string]: "#2e9f44",
                   height: 40,
