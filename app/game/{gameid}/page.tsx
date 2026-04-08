@@ -1,10 +1,11 @@
 
 "use client";
 import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
-import React from "react";
+
 import { Button, Input } from "antd";
 import styles from "@/styles/page.module.css";
-import { useState } from "react";
+import { Game } from "@/types/game";
+import React, { useEffect, useState } from "react";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
@@ -14,7 +15,8 @@ const GamePage: React.FC = () => {
   const params = useParams<{ gameid: string }>();
   const gameid = params?.gameid;
   const apiService = useApi();
-
+  
+  const [game, setGame] = useState<Game | null>(null); 
   const { TextArea } = Input;
 
   const panelStyle: React.CSSProperties = {
@@ -53,28 +55,49 @@ const {
 const [ wholeStoryText,setStoryyText] = useState<string>("");
 const [TwoInput, setTwoInput] = useState("");
 const [OneInput, setOneInput] = useState("");
-const handleSubmitOne = async (): Promise<void> => {
-  if (!OneInput.trim()) return;
+
+const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
+  if (!input.trim()) return;
   try {
-    const response=await apiService.post<{ wholeStoryText: string }>(`/games/${gameid}/input`, {userinputone: OneInput}, token); //remember to model endpoint so that it returns the new wholestory, ask others if ok to change rest spec from whole game to just input
+    const response=await apiService.post<{ wholeStoryText: string }>(`/games/${gameid}/input`,{ player: player, text: input },token);
     const holeStoryText=response.wholeStoryText;
     setStoryyText(holeStoryText);
-    setOneInput("");
+    if (player==2){
+      setTwoInput("");
+    }
+    else{
+      setOneInput("")
+    }
   } catch (error) {
-    console.log("Saving Player Input failed, pls try again", error);
-  } 
-};
-const handleSubmitTwo = async (): Promise<void> => {
-  if (!TwoInput.trim()) return;
-  try {
-    const response=await apiService.post<{ wholeStoryText: string }>(`/games/${gameid}/input`,{ userinputtwo: TwoInput },token);
-   const holeStoryText=response.wholeStoryText;
-    setStoryyText(holeStoryText);
-    setTwoInput("");
-  } catch (error) {
-    console.log("Saving Player 2 input failed, pls try again", error);
+    console.log("Saving Player input failed, pls try again", error);
   }
 };
+
+useEffect(() => { 
+  
+  if (!token || !gameid) return; 
+  const getGame = async () => { 
+    try { 
+      const ourGame: Game = await apiService.get<Game>(`/games/${gameid}`, token); 
+      setGame(ourGame);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(`Fetching game failed:\n${error.message}`);
+      } else {
+        alert("Fetching game failed (unknown error).");
+        console.error("Unknown error:", error);
+      }
+
+    }
+  } 
+  getGame();
+
+   
+  }, [apiService, token, gameid]);
+
+  if (!game) { //beim ersten rendern ist user noch null, dann zeigen wir erst mal "loading"
+    return <div>Loading Game...</div>;
+  }
 
 return (
   <div
@@ -270,7 +293,7 @@ return (
                 style={{ ...smallFieldStyle, textAlign: "center" }}
               />
               <Button
-              onClick={handleSubmitOne}
+              onClick={() =>handleSubmit(1,OneInput)}
                 style={{
                   ["--btn-bg" as string]: "#2e9f44",
                   height: 40,
@@ -455,7 +478,7 @@ return (
                 style={{ ...smallFieldStyle, textAlign: "center" }}
               />
               <Button
-              onClick={handleSubmitTwo}
+              onClick={() =>handleSubmit(2,TwoInput)}
                 style={{
                   ["--btn-bg" as string]: "#2e9f44",
                   height: 40,
