@@ -2,7 +2,7 @@
 "use client";
 import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
 
-import { Button, Input } from "antd";
+import { Button, Input , message} from "antd";
 import styles from "@/styles/page.module.css";
 import { Game } from "@/types/game";
 import React, { useEffect, useState } from "react";
@@ -69,10 +69,21 @@ const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
       setOneInput("")
     }
   } catch (error) {
-    console.log("Saving Player input failed, pls try again", error);
+    alert(`Saving player input failed, pls try again`);
+    console.log("Saving Player input failed", error);
   }
 };
 
+const handleExit=async() : Promise<void> =>{
+  try{
+    await apiService.post(`/games/${gameid}/leave`, token);
+    router.push("/home");
+  }catch (error){
+    console.log("Closing game failed", error);
+    alert("Exit failed, pls try again");
+  }
+  
+}
 useEffect(() => { 
   
   if (!token || !gameid) return; 
@@ -95,9 +106,42 @@ useEffect(() => {
    
   }, [apiService, token, gameid]);
 
-  if (!game) { //beim ersten rendern ist user noch null, dann zeigen wir erst mal "loading"
-    return <div>Loading Game...</div>;
-  }
+  const [gameEnded, setGameEnded] = useState(false);
+
+  useEffect(() => {
+    if (!token || !gameid) return;
+
+    const checkIfGameStillExists = async () => {
+    try {
+        await apiService.get(`/games/${gameid}`, token);
+      } catch (error: any) {
+        if (error?.status === 404) {
+          setGameEnded(true);
+        
+        }
+      }
+    };
+
+    const id = setInterval(checkIfGameStillExists, 3000); //diese funktion wird unabhängig vom effekt vom browser alle 3 sekunden ausgeführt
+
+    return () => clearInterval(id); //cleanup funktion, wenn die komponente verlassen wird oder der effekt neu läuft, stoppt die ständige funktionsausführung
+  }, [apiService, token, gameid, router]);
+
+  useEffect(() => { //executes the "cleanup", after a writer leave was detected
+  if (!gameEnded) return;
+
+  message.error("Game ended because a writer left.");
+
+  const timeout = setTimeout(() => {
+    router.push("/home");
+  }, 3000);
+
+  return () => clearTimeout(timeout); //in case the component is unmounted (if the user redirects himself or something), before the timer expires, because then we obvioulsy don't want the message anymore
+}, [gameEnded, router]);
+
+if (!game) { //beim ersten rendern ist user noch null, dann zeigen wir erst mal "loading"
+  return <div>Loading Game...</div>;
+}
 
 return (
   <div
@@ -136,6 +180,7 @@ return (
         >
           <div>
             <Button
+             onClick={handleExit}
               style={{
                 ["--btn-bg" as string]: "#c0392b",
                 width: 120,
