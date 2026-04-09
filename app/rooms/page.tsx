@@ -1,5 +1,5 @@
 "use client"; // For components that need React hooks and browser APIs, SSR has to be disabled
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button, Table, Modal, Input, message } from "antd";
@@ -8,15 +8,14 @@ import ProfileButton from "@/components/ProfileButton";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
 
-// Room object shape based on REST spec (7 fields)
 interface Room {
   id: number;
   name: string;
   playerCount: number;
-  lobbyLeader: string;
-  users: string[];
-  writers: string[];
-  judges: string[];
+  lobbyLeader: { id: number; username: string };
+  users: { id: number; username: string }[];
+  writers: { id: number; username: string }[];
+  judges: { id: number; username: string }[];
 }
 
 export default function RoomsPage() {
@@ -33,22 +32,30 @@ export default function RoomsPage() {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
-  // 📝 fetch room list from GET /rooms on mount, redirect to login if not authenticated
+  // 📝 fetch room list from GET /rooms
+  const fetchRooms = useCallback(async () => {
+    if (!token) return;
+    try {
+      const data = await api.get<Room[]>("/rooms", token);
+      setRooms(data);
+    } catch (e) {
+      message.error(`Failed to load rooms: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }, [api, token]);
+
+  // 📝 on mount: redirect if not authenticated, then fetch
   useEffect(() => {
     if (!isMounted) return;
-    if (!token || !userId) {
-      router.push("/login");
-      return;
-    }
-    (async () => {
-      try {
-        const data = await api.get<Room[]>("/rooms", token);
-        setRooms(data);
-      } catch (e) {
-        message.error(`Failed to load rooms: ${e instanceof Error ? e.message : String(e)}`);
-      }
-    })();
-  }, [isMounted, token, userId, api, router]);
+    if (!token || !userId) { router.push("/login"); return; }
+    fetchRooms();
+  }, [isMounted, token, userId, fetchRooms, router]);
+
+  // 📝 poll every 3 seconds so room list stays live for all users
+  useEffect(() => {
+    if (!isMounted || !token) return;
+    const interval = setInterval(fetchRooms, 3000);
+    return () => clearInterval(interval);
+  }, [isMounted, token, fetchRooms]);
 
   // 📝 POST /rooms -> create room with name, redirect creator to /rooms/{roomId}
   const handleCreateRoom = async () => {
@@ -71,8 +78,8 @@ export default function RoomsPage() {
     try {
       await api.put(`/rooms/${room.id}/join`, {}, token);
       router.push(`/rooms/${room.id}`);
-    } catch (e) {
-      message.error(`Could not join room: ${e instanceof Error ? e.message : String(e)}`);
+    } catch {
+      message.error("Room full: unable to join.");
     }
   };
 
@@ -81,10 +88,14 @@ export default function RoomsPage() {
     { title: "Room Name", dataIndex: "name", key: "name", align: "left" as const, width: 120 },
     {
       title: <div style={{ textAlign: "center" }}>Players</div>,
-      dataIndex: "playerCount",
       key: "playerCount",
       width: 120,
-      render: (count: number) => <div style={{ textAlign: "center" }}>{count}/3</div>,
+      // 📝 count all participants: unassigned + writers + judges
+      render: (_: unknown, record: Room) => (
+        <div style={{ textAlign: "center" }}>
+          {(record.users?.length ?? 0) + (record.writers?.length ?? 0) + (record.judges?.length ?? 0)}/3
+        </div>
+      ),
     },
     {
       title: "",
