@@ -2,8 +2,8 @@ import {User} from "@/types/user"
 export interface Story {
   winner: User | null;
   loser: User | null;
-  story: String |null;
-  wingenre: String | null;
-  losegenre: String | null;
+  text: string ;
+  wingenre: string | null;
+  losegenre: string | null;
   judge: User | null;
 }
