@@ -5,6 +5,7 @@ import { useRouter, useParams, } from "next/navigation"; // use NextJS router fo
 import { Button, Input , message} from "antd";
 import styles from "@/styles/page.module.css";
 import { Game } from "@/types/game";
+import { Writer } from "@/types/writer";
 import React, { useEffect, useState } from "react";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -17,6 +18,8 @@ const GamePage: React.FC = () => {
   const apiService = useApi();
   
   const [game, setGame] = useState<Game | null>(null); 
+  const [writer1Genre, setGenre1] = useState<string>("Genre"); 
+  const [writer2Genre, setGenre2] = useState<string>("Genre");  
   const { TextArea } = Input;
 
   const panelStyle: React.CSSProperties = {
@@ -59,10 +62,10 @@ const [OneInput, setOneInput] = useState("");
 const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
   if (!input.trim()) return;
   try {
-    const response=await apiService.post<{ wholeStoryText: string }>(`/games/${gameid}/input`,{ player: player, text: input },token);
-    const holeStoryText=response.wholeStoryText;
+    const response=await apiService.post<Game>(`/games/${gameid}/input`,{ player: player, input: input },token);
+    const holeStoryText=response.story.text;
     setStoryyText(holeStoryText);
-    if (player==2){
+    if (player===2){
       setTwoInput("");
     }
     else{
@@ -76,7 +79,7 @@ const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
 
 const handleExit=async() : Promise<void> =>{
   try{
-    await apiService.post(`/games/${gameid}/leave`, token);
+    await apiService.post(`/games/${gameid}/leave`, {}, token);
     router.push("/home");
   }catch (error){
     console.log("Closing game failed", error);
@@ -91,6 +94,14 @@ useEffect(() => {
     try { 
       const ourGame: Game = await apiService.get<Game>(`/games/${gameid}`, token); 
       setGame(ourGame);
+      const writer1 = ourGame.writers[0];
+      const writer2 = ourGame.writers[1];
+
+      setGenre1(writer1?.genre ?? "Genre");
+      setGenre2(writer2?.genre ?? "Genre");
+
+      setStoryyText(ourGame.story.text);
+      
     } catch (error: unknown) {
       if (error instanceof Error) {
         alert(`Fetching game failed:\n${error.message}`);
@@ -109,7 +120,7 @@ useEffect(() => {
   const [gameEnded, setGameEnded] = useState(false);
 
   useEffect(() => {
-    if (!token || !gameid) return;
+    if (!token || !gameid || !game) return;
 
     const checkIfGameStillExists = async () => {
     try {
@@ -125,12 +136,12 @@ useEffect(() => {
     const id = setInterval(checkIfGameStillExists, 3000); //diese funktion wird unabhängig vom effekt vom browser alle 3 sekunden ausgeführt
 
     return () => clearInterval(id); //cleanup funktion, wenn die komponente verlassen wird oder der effekt neu läuft, stoppt die ständige funktionsausführung
-  }, [apiService, token, gameid, router]);
+  }, [apiService, token, gameid, router, game]);
 
   useEffect(() => { //executes the "cleanup", after a writer leave was detected
   if (!gameEnded) return;
 
-  message.error("Game ended because a writer left.");
+  message.error("Game ended because a writer left or disconnected.");
 
   const timeout = setTimeout(() => {
     router.push("/home");
@@ -331,7 +342,11 @@ return (
                 minWidth: 0,
               }}
             >
-              <Input value="Genre P1" readOnly style={smallFieldStyle} />
+              <Input
+                value={game.writers[0].id === Number(userId) ? writer1Genre : "Genre"}
+                readOnly
+                style={smallFieldStyle}
+              />
               <Input
                 value="Timer"
                 readOnly
@@ -516,7 +531,11 @@ return (
                 minWidth: 0,
               }}
             >
-              <Input value="Genre P2" readOnly style={smallFieldStyle} />
+              <Input
+                value={game.writers[1].id === Number(userId) ? writer2Genre : "Genre"}
+                readOnly
+                style={smallFieldStyle}
+              />
               <Input
                 value="Timer"
                 readOnly
