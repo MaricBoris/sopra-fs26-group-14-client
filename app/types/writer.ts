@@ -1,6 +1,6 @@
 import {User} from "@/types/user"
 export interface Writer extends User{
-    turn: Boolean;
+    turn: boolean;
     genre: string | null;
     text: string | null;
 }
