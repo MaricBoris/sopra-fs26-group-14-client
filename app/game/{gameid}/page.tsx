@@ -152,11 +152,11 @@ useEffect(() => {
         setGame(latestGame);
         setCountdown(latestGame.timer);
         setStoryyText(latestGame.story.text);
-      } catch (error: any) {
-        if (error?.status === 404) {
-          setGameEnded(true);
-        
-        }
+      } catch (error: unknown) {
+        const appError = error as ApplicationError;
+          if (appError?.status === 404) {
+            setGameEnded(true);
+          }
       }
     };
 
