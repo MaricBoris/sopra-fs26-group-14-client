@@ -72,7 +72,7 @@ const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
     const response=await apiService.post<Game>(`/games/${gameid}/input`,{ player: player, input: prettyinput },token);
     setGame(response);
     setCountdown(response.timer);
-    const holeStoryText=response.story.text;
+    const holeStoryText=response.story.storyText;
     setStoryyText(holeStoryText);
     if (player===2){
       setTwoInput("");
@@ -123,7 +123,7 @@ useEffect(() => {
       setGenre1(writer1?.genre ?? "Genre");
       setGenre2(writer2?.genre ?? "Genre");
 
-      setStoryyText(ourGame.story.text);
+      setStoryyText(ourGame.story. storyText);
       
       
     } catch (error: unknown) {
@@ -151,7 +151,7 @@ useEffect(() => {
         const latestGame=await apiService.get<Game>(`/games/${gameid}`, token);
         setGame(latestGame);
         setCountdown(latestGame.timer);
-        setStoryyText(latestGame.story.text);
+        setStoryyText(latestGame.story. storyText);
       } catch (error: unknown) {
         const appError = error as ApplicationError;
           if (appError?.status === 404) {
