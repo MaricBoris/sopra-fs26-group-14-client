@@ -151,7 +151,7 @@ useEffect(() => {
       setGenre1(writer1?.genre ?? "Genre");
       setGenre2(writer2?.genre ?? "Genre");
 
-      setStoryyText(ourGame.story. storyText);
+      setStoryyText(ourGame.story.storyText);
       
       
     } catch (error: unknown) {
