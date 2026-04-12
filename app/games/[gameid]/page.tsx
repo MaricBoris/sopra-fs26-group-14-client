@@ -151,7 +151,13 @@ useEffect(() => {
         const latestGame=await apiService.get<Game>(`/games/${gameid}`, token);
         setGame(latestGame);
         setCountdown(latestGame.timer);
-        setStoryyText(latestGame.story. storyText);
+        setStoryyText(latestGame.story.storyText);
+        if (latestGame.writers[0]?.id === Number(userId) && OneInput === "") {
+          setOneInput(latestGame.writers[0]?.text ?? "");
+        }
+        if (latestGame.writers[1]?.id === Number(userId) && TwoInput === "") {
+          setTwoInput(latestGame.writers[1]?.text ?? "");
+        }
       } catch (error: unknown) {
         const appError = error as ApplicationError;
           if (appError?.status === 404) {
@@ -160,7 +166,7 @@ useEffect(() => {
       }
     };
 
-    const id = setInterval(checkIfGameStillExists, 3000); //diese funktion wird unabhängig vom effekt vom browser alle 3 sekunden ausgeführt
+    const id = setInterval(checkIfGameStillExists, 1000); //diese funktion wird unabhängig vom effekt vom browser alle 3 sekunden ausgeführt
 
     return () => clearInterval(id); //cleanup funktion, wenn die komponente verlassen wird oder der effekt neu läuft, stoppt die ständige funktionsausführung
   }, [apiService, token, gameid]);
