@@ -66,6 +66,7 @@ const isPlayer1Active = !!game?.writers[0]?.turn;
 const isPlayer2Active = !!game?.writers[1]?.turn;
 const isUserPlayer1 = game?.writers[0].id === Number(userId);
 const isUserPlayer2 = game?.writers[1].id === Number(userId);
+const [activeTurn, setActiveTurn] = useState<number | null>(null);
 const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
   const prettyinput=input.trim();
   try {
@@ -150,14 +151,9 @@ useEffect(() => {
     try {
         const latestGame=await apiService.get<Game>(`/games/${gameid}`, token);
         setGame(latestGame);
-        setCountdown(latestGame.timer);
+        
         setStoryyText(latestGame.story.storyText);
-        if (latestGame.writers[0]?.id === Number(userId) && OneInput === "") {
-          setOneInput(latestGame.writers[0]?.text ?? "");
-        }
-        if (latestGame.writers[1]?.id === Number(userId) && TwoInput === "") {
-          setTwoInput(latestGame.writers[1]?.text ?? "");
-        }
+        
       } catch (error: unknown) {
         const appError = error as ApplicationError;
           if (appError?.status === 404) {
@@ -170,7 +166,17 @@ useEffect(() => {
 
     return () => clearInterval(id); //cleanup funktion, wenn die komponente verlassen wird oder der effekt neu läuft, stoppt die ständige funktionsausführung
   }, [apiService, token, gameid]);
+  useEffect(() => {
+    if (!game?.writers) return;
 
+    if (game.writers[0]?.id === Number(userId) && OneInput === "") {
+      setOneInput(game.writers[0]?.text ?? "");
+    }
+
+    if (game.writers[1]?.id === Number(userId) && TwoInput === "") {
+      setTwoInput(game.writers[1]?.text ?? "");
+    }
+  }, [game, userId, OneInput, TwoInput]);
   useEffect(() => {
     if (!token || !gameid || !game) return;
     if (!isUserPlayer1 || !isPlayer1Active) return;
@@ -218,16 +224,19 @@ useEffect(() => {
 }, [gameEnded, router]);
 
 useEffect(() => {
-  if (!game) return;
-  if (countdown <= 0) return;
+  if (!game?.turnStartedAt) return;
 
-  const id = setTimeout(() => {
-    setCountdown((x) => x - 1);
-  }, 1000);
+  const updateCountdown = () => {
+    const elapsed = Math.floor((Date.now() - game.turnStartedAt) / 1000);
+    const remaining = Math.max(0, game.timer - elapsed);
+    setCountdown(remaining);
+  };
 
-  return () => clearTimeout(id);
-}, [countdown, game]);
+  updateCountdown();
+  const id = setInterval(updateCountdown, 250);
 
+  return () => clearInterval(id);
+}, [game?.turnStartedAt, game?.timer]);
 
 
 
