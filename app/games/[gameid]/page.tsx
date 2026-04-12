@@ -340,7 +340,7 @@ return (
                 fontSize: 20,
               }}
             >
-            {game.currentRound}
+            {game.currentRound} / 20
 
             </div>
           </div>
@@ -395,7 +395,7 @@ return (
               }}
             >
               <TextArea
-                    disabled={!isUserPlayer1 || !game.writers[0].turn}
+                    disabled={!isUserPlayer1 || !game.writers[0].turn || game.phase === "EVALUATION"}
                     style={inputInnerStyle}
                     value={OneInput} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText. 
                     onChange={(e) => setOneInput(e.target.value)} //e ist das event objekt, e.target das input feld und e.target.value das was im feld steht
@@ -423,7 +423,7 @@ return (
               />
               <Button
               onClick={() =>handleSubmit(1,OneInput)}
-              disabled={!isUserPlayer1 || !game.writers[0].turn}
+              disabled={!isUserPlayer1 || !game.writers[0].turn || game.phase === "EVALUATION"}
                 style={{
                   ["--btn-bg" as string]: "#2e9f44",
                   height: 40,
@@ -560,7 +560,7 @@ return (
                 marginTop: 2,
               }}
             >
-              Game Status
+              {game.phase === "EVALUATION" ? "The judge must now make his decision!" : "Game Status"}
             </div>
           </div>
 
@@ -587,7 +587,7 @@ return (
               }}
             >
               <TextArea //controlled input
-                    disabled={!isUserPlayer2 || !game.writers[1].turn}
+                    disabled={!isUserPlayer2 || !game.writers[1].turn || game.phase === "EVALUATION"}
                     style={inputInnerStyle}
                     value={TwoInput} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText. 
                     onChange={(e) => setTwoInput(e.target.value)} //e ist das event objekt, e.target das input feld und e.target.value das was im feld steht
@@ -615,7 +615,7 @@ return (
               />
               <Button
               onClick={() =>handleSubmit(2,TwoInput)}
-              disabled={!isUserPlayer2 || !game.writers[1].turn}
+              disabled={!isUserPlayer2 || !game.writers[1].turn || game.phase === "EVALUATION"}
                 style={{
                   ["--btn-bg" as string]: "#2e9f44",
                   height: 40,
