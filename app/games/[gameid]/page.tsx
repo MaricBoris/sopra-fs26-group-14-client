@@ -122,6 +122,21 @@ const handleExit=async() : Promise<void> =>{
   }
   
 }
+
+const [quotedP1, setQuotedP1] = useState(false);
+const [quotedP2, setQuotedP2] = useState(false);
+
+const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
+    try {
+        const response = await apiService.get<Game>(`/games/${gameid}/quotes?player=${player}`, token);
+        setGame(response);
+        if (player === 1) setQuotedP1(true);
+        else setQuotedP2(true);
+    } catch (error) {
+        message.error("Failed to fetch quote.");
+    }
+};
+
 useEffect(() => { 
   
   if (!token || !gameid) return; 
@@ -434,6 +449,7 @@ return (
               </Button>
             </div>
 
+           {(isUserPlayer1 || (!isUserPlayer1 && !isUserPlayer2)) && (
             <div
               style={{
                 background: "rgba(255,255,255,0.018)",
@@ -447,6 +463,8 @@ return (
             >
               <TextArea
                 placeholder="Quote field P1"
+                value={game.writers[0]?.quote ?? ""}
+                readOnly
                 style={{
                   height: "100%",
                   background: "rgba(255,255,255,0.045)",
@@ -457,8 +475,10 @@ return (
                 }}
               />
             </div>
-
+            )}
+          {(isUserPlayer1 || (!isUserPlayer1 && !isUserPlayer2)) && (
             <Button
+              onClick={() => navigator.clipboard.writeText(game.writers[0]?.quote ?? "")}
               style={{
                 ["--btn-bg" as string]: "#7ea6e0",
                 width: 118,
@@ -470,6 +490,7 @@ return (
             >
               Copy
             </Button>
+            )}
           </div>
 
           {/* Judge Spalte */}
@@ -491,7 +512,7 @@ return (
             >
                   <TextArea 
                     style={inputInnerStyle}
-                    value={wholeStoryText} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText. 
+                    value={wholeStoryText} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText.
                     readOnly
                     placeholder="Text Field of active Story"
                   />{/* Bei jedem change wird neu gerendert!!*/}
@@ -520,6 +541,8 @@ return (
               }}
             >
               <Button
+                disabled={quotedP1}
+                onClick={() => handleQuoteFetch(1)}
                 style={{
                   ["--btn-bg" as string]: "#3d8da8",
                   height: 44,
@@ -540,6 +563,8 @@ return (
               </Button>
 
               <Button
+                disabled={quotedP2}
+                onClick={() => handleQuoteFetch(2)}
                 style={{
                   ["--btn-bg" as string]: "#3d8da8",
                   height: 44,
@@ -625,7 +650,7 @@ return (
                 Submit
               </Button>
             </div>
-
+           {(isUserPlayer2 || (!isUserPlayer1 && !isUserPlayer2)) && (
             <div
               style={{
                 background: "rgba(255,255,255,0.018)",
@@ -639,6 +664,8 @@ return (
             >
               <TextArea
                 placeholder="Quote field P2"
+                value={game.writers[1]?.quote ?? ""}
+                readOnly
                 style={{
                   height: "100%",
                   background: "rgba(255,255,255,0.045)",
@@ -649,8 +676,10 @@ return (
                 }}
               />
             </div>
-
+            )}
+          {(isUserPlayer2 || (!isUserPlayer1 && !isUserPlayer2)) && (
             <Button
+              onClick={() => navigator.clipboard.writeText(game.writers[1]?.quote ?? "")}
               style={{
                 ["--btn-bg" as string]: "#7ea6e0",
                 width: 118,
@@ -662,6 +691,7 @@ return (
             >
               Copy
             </Button>
+            )}
           </div>
         </div>
       </div>
