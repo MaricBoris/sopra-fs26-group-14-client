@@ -8,4 +8,5 @@ export interface Game {
   judges: Judge[];
   story: Story ;
   currentRound: number;
+  phase: string;
 }
