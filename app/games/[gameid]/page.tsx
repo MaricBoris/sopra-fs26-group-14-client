@@ -47,6 +47,19 @@ const GamePage: React.FC = () => {
     fontFamily: "var(--font-cinzel), serif",
   };
 
+ const activePlayerStyle: React.CSSProperties = {
+   boxShadow: "0 0 0 2px #25d366, 0 0 18px 2px rgba(37,211,102,0.25)",
+   borderRadius: 4,
+   padding: 6,
+   transition: "box-shadow 0.4s",
+ };
+ const inactivePlayerStyle: React.CSSProperties = {
+   boxShadow: "none",
+   borderRadius: 4,
+   padding: 6,
+   transition: "box-shadow 0.4s",
+ };
+
 const {
   value: token,
   clear: clearToken,
@@ -160,7 +173,7 @@ useEffect(() => {
       }
     };
 
-    const id = setInterval(checkIfGameStillExists, 3000); //diese funktion wird unabhängig vom effekt vom browser alle 3 sekunden ausgeführt
+    const id = setInterval(checkIfGameStillExists, 1000); //diese funktion wird unabhängig vom effekt vom browser alle 3 sekunden ausgeführt
 
     return () => clearInterval(id); //cleanup funktion, wenn die komponente verlassen wird oder der effekt neu läuft, stoppt die ständige funktionsausführung
   }, [apiService, token, gameid]);
@@ -327,7 +340,8 @@ return (
                 fontSize: 20,
               }}
             >
-              1 / 20
+            {game.currentRound}
+
             </div>
           </div>
 
@@ -365,6 +379,7 @@ return (
               flexDirection: "column",
               gap: 8,
               minWidth: 0,
+              ...(isPlayer1Active ? activePlayerStyle : inactivePlayerStyle),
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
@@ -556,6 +571,7 @@ return (
               flexDirection: "column",
               gap: 8,
               minWidth: 0,
+              ...(isPlayer2Active ? activePlayerStyle : inactivePlayerStyle),
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
