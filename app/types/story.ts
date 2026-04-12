@@ -1,9 +1,9 @@
-import {User} from "@/types/user"
+
 export interface Story {
-  winner: User | null;
-  loser: User | null;
+  winnerUsername: string | null;
+  loserUsername: string | null;
+  hasWinner: Boolean;
   storyText: string ;
   wingenre: string | null;
   losegenre: string | null;
-  judge: User | null;
 }

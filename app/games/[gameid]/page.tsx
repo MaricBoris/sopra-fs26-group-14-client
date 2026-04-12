@@ -2,7 +2,7 @@
 "use client";
 import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
 
-import { Button, Input , message} from "antd";
+import { Button, Input , message, Modal } from "antd";
 import styles from "@/styles/page.module.css";
 import { Game } from "@/types/game";
 import { Writer } from "@/types/writer";
@@ -69,6 +69,7 @@ const {
   value: userId,
   clear: clearId,
 } = useLocalStorage<string>("userId", "");
+
 const [ wholeStoryText,setStoryyText] = useState<string>("");
 const [TwoInput, setTwoInput] = useState("");
 const [OneInput, setOneInput] = useState("");
@@ -79,6 +80,12 @@ const isPlayer1Active = !!game?.writers[0]?.turn;
 const isPlayer2Active = !!game?.writers[1]?.turn;
 const isUserPlayer1 = game?.writers?.[0]?.id === Number(userId);
 const isUserPlayer2 = game?.writers?.[1]?.id === Number(userId);
+const isJudge = !isUserPlayer1 && !isUserPlayer2;
+const [declareModalVisible, setDeclareModalVisible] = useState(false);
+const [resultModalVisible, setResultModalVisible] = useState(false);
+const [resultGame, setResultGame] = useState<Game | null>(null);
+const votingInProgress = useRef(false);
+
 const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
   const prettyinput=input.trim();
   try {
@@ -104,7 +111,7 @@ const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
         }
       
       }
-};
+    };
 }
 useEffect(() => {
   if (!game) return;
@@ -112,6 +119,7 @@ useEffect(() => {
     autoSubmitted.current = false;
   }
 }, [countdown, game]);
+
 const handleExit=async() : Promise<void> =>{
   try{
     await apiService.post(`/games/${gameid}/leave`, {}, token);
@@ -175,17 +183,27 @@ useEffect(() => {
     if (!token || !gameid ) return;
 
     const checkIfGameStillExists = async () => {
+    if (resultModalVisible || votingInProgress.current) return;
     try {
         const latestGame=await apiService.get<Game>(`/games/${gameid}`, token);
         setGame(latestGame);
         
         setStoryyText(latestGame.story.storyText);
+
+        if (latestGame.story.winnerUsername !== null || latestGame.story.hasWinner !== undefined) {
+          if (latestGame.story.hasWinner && !resultModalVisible) {
+            setResultGame(latestGame);
+            setResultModalVisible(true);
+          }
+        }
         
       } catch (error: unknown) {
-        const appError = error as ApplicationError;
-          if (appError?.status === 404) {
-            setGameEnded(true);
-          }
+          const appError = error as ApplicationError;
+            if (appError?.status === 404) {
+              if (!resultModalVisible && !votingInProgress.current) {
+                setGameEnded(true);
+              }
+            }
       }
     };
 
@@ -193,6 +211,7 @@ useEffect(() => {
 
     return () => clearInterval(id); 
   }, [apiService, token, gameid]);
+
   useEffect(() => {
     if (!game?.writers) return;
 
@@ -204,6 +223,7 @@ useEffect(() => {
       setTwoInput(game.writers[1]?.text ?? "");
     }
   }, [game, userId, OneInput, TwoInput]);
+
   useEffect(() => {
     if (!token || !gameid || !game) return;
     if (!isUserPlayer1 || !isPlayer1Active) return;
@@ -265,6 +285,52 @@ useEffect(() => {
   return () => clearInterval(id);
 }, [game?.turnStartedAt, game?.timer]);
 
+const handleVoteWinner = async (player: 1 | 2): Promise<void> => {
+  const writer = game?.writers[player - 1];
+  votingInProgress.current = true;
+  setDeclareModalVisible(false);
+  console.log("writers:", game?.writers);
+  console.log("writer[0] id:", game?.writers[0]?.id);
+  console.log("writer[1] id:", game?.writers[1]?.id);
+  try {
+    const response = await apiService.post<Game>(
+      `/games/${gameid}/vote`,
+      writer?.id,
+      token
+    );
+    console.log("Vote response:", response);
+    console.log("hasWinner:", response.story?.hasWinner);
+    console.log("winner:", response.story.winnerUsername);
+    setGame(response);
+    setResultGame(response);
+    setResultModalVisible(true);
+    console.log("Result modal should be visible now");
+  } catch (error) {
+    votingInProgress.current = false;
+    console.error("Declare winner failed", error);
+    message.error("Failed to declare winner, please try again.");
+  }
+};
+
+
+
+
+
+useEffect(() => {
+  if (!resultModalVisible) return;
+
+  const timeout = setTimeout(async () => {
+    try {
+      await apiService.delete(`/games/${gameid}`, {}, token);
+    } catch (e) {
+      
+    }
+    setResultModalVisible(false);
+    router.push("/");
+  }, 20000);
+
+  return () => clearTimeout(timeout);
+}, [resultModalVisible, router]);
 
 
 useEffect(() => {
@@ -603,6 +669,8 @@ return (
               </Button>
 
               <Button
+                disabled={!isJudge || game.phase !== "EVALUATION"}
+                onClick={() => setDeclareModalVisible(true)}
                 style={{
                   ["--btn-bg" as string]: "#c0392b",
                   height: 44,
@@ -746,6 +814,89 @@ return (
           </div>
         </div>
       </div>
+      <Modal
+        open={declareModalVisible}
+        footer={null}
+        closable={true}
+        onCancel={() => setDeclareModalVisible(false)}
+        centered
+        width={420}
+        styles={{
+          body: {
+            background: "#1a1a2e",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: 8,
+            color: "#fff",
+            fontFamily: "var(--font-cinzel), serif",
+            padding: "32px 24px",
+          }
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+          <div style={{ fontSize: 22, fontWeight: "bold" }}>
+            Who is the winner?
+          </div>
+          <div style={{ display: "flex", gap: 20 }}>
+            <Button
+              onClick={() => handleVoteWinner(1)}
+              style={{
+                ["--btn-bg" as string]: "#2e9f44",
+                height: 48,
+                fontSize: 17,
+                width: 150,
+              }}
+            >
+              Player 1
+            </Button>
+            <Button
+              onClick={() => handleVoteWinner(2)}
+              style={{
+                ["--btn-bg" as string]: "#3d8da8",
+                height: 48,
+                fontSize: 17,
+                width: 150,
+              }}
+            >
+              Player 2
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={resultModalVisible}
+        footer={null}
+        closable={false}
+        centered
+        width={500}
+        styles={{
+          body: {
+            background: "#1a1a2e",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: 8,
+            color: "#fff",
+            fontFamily: "var(--font-cinzel), serif",
+            padding: "40px 24px",
+          }
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
+          <div style={{ fontSize: 26, fontWeight: "bold" }}>
+            {resultGame?.story.hasWinner
+              ? `Winner is ${resultGame.story.winnerUsername ?? "unknown"}!`
+              : "Winner undefined"
+            }
+          </div>
+          {resultGame?.story.hasWinner && (
+            <div style={{ fontSize: 16, color: "rgba(255,255,255,0.7)" }}>
+              Genre: {resultGame.story.wingenre ?? "—"}
+            </div>
+          )}
+          <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 8 }}>
+            Redirecting to home in 20 seconds...
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
