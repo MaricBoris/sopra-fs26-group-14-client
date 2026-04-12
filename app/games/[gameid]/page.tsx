@@ -144,7 +144,7 @@ useEffect(() => {
   const [gameEnded, setGameEnded] = useState(false);
 
   useEffect(() => {
-    if (!token || !gameid || !game) return;
+    if (!token || !gameid ) return;
 
     const checkIfGameStillExists = async () => {
     try {
@@ -164,6 +164,40 @@ useEffect(() => {
 
     return () => clearInterval(id); //cleanup funktion, wenn die komponente verlassen wird oder der effekt neu läuft, stoppt die ständige funktionsausführung
   }, [apiService, token, gameid]);
+
+  useEffect(() => {
+    if (!token || !gameid || !game) return;
+    if (!isUserPlayer1 || !isPlayer1Active) return;
+
+    const timeout = setTimeout(() => {
+      apiService.post<Game>(
+        `/games/${gameid}/draft`,
+        { player: 1, input: OneInput },
+        token
+      ).catch((error) => {
+        console.log("Saving Player 1 draft failed", error);
+      });
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [OneInput, token, gameid, game, isUserPlayer1, isPlayer1Active, apiService]);
+
+  useEffect(() => {
+    if (!token || !gameid || !game) return;
+    if (!isUserPlayer2 || !isPlayer2Active) return;
+
+    const timeout = setTimeout(() => {
+      apiService.post<Game>(
+        `/games/${gameid}/draft`,
+        { player: 2, input: TwoInput },
+        token
+      ).catch((error) => {
+        console.log("Saving Player 2 draft failed", error);
+      });
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [TwoInput, token, gameid, game, isUserPlayer2, isPlayer2Active, apiService]);
 
   useEffect(() => { //executes the "cleanup", after a writer leave was detected
   if (!gameEnded) return;
@@ -187,6 +221,7 @@ useEffect(() => {
 
   return () => clearTimeout(id);
 }, [countdown, game]);
+
 
 
 
@@ -380,12 +415,12 @@ return (
               }}
             >
               <TextArea
-                    disabled={!isUserPlayer1 || !game.writers[0].turn}
-                    style={inputInnerStyle}
-                    value={OneInput} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText. 
-                    onChange={(e) => setOneInput(e.target.value)} //e ist das event objekt, e.target das input feld und e.target.value das was im feld steht
-                    placeholder="Input Field Player 1"
-                  />{/* Bei jedem tippen wird neu gerendert!!*/}
+                disabled={!isUserPlayer1 || !game.writers[0].turn}
+                style={inputInnerStyle}
+                value={isUserPlayer1 ? OneInput : (game.writers[0]?.text ?? "")}
+                onChange={(e) => setOneInput(e.target.value)}
+                placeholder="Input Field Player 1"
+              />
             </div>
 
             <div
@@ -570,13 +605,13 @@ return (
                 minWidth: 0,
               }}
             >
-              <TextArea //controlled input
-                    disabled={!isUserPlayer2 || !game.writers[1].turn}
-                    style={inputInnerStyle}
-                    value={TwoInput} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText. 
-                    onChange={(e) => setTwoInput(e.target.value)} //e ist das event objekt, e.target das input feld und e.target.value das was im feld steht
-                    placeholder="Input Field Player 2"
-                  />{/* Bei jedem tippen wird neu gerendert!!*/}
+              <TextArea
+                disabled={!isUserPlayer2 || !game.writers[1].turn}
+                style={inputInnerStyle}
+                value={isUserPlayer2 ? TwoInput : (game.writers[1]?.text ?? "")}
+                onChange={(e) => setTwoInput(e.target.value)}
+                placeholder="Input Field Player 2"
+              />
             </div>
 
             <div
