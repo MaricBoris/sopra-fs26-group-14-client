@@ -60,7 +60,7 @@ const UsersPage: React.FC = () => {
     } finally {
       clearToken();
       clearId();
-      router.push("/home");
+      router.push("/");
     }
   };
 

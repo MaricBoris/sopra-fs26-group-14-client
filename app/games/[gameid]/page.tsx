@@ -73,7 +73,6 @@ const {
 const [ wholeStoryText,setStoryyText] = useState<string>("");
 const [TwoInput, setTwoInput] = useState("");
 const [OneInput, setOneInput] = useState("");
-const autoSubmitted = useRef(false);
 const activeWriter = game?.writers.find((writer) => writer.turn);
 const CurrentUserisActiveWriter= activeWriter?.id===Number(userId);
 const isPlayer1Active = !!game?.writers[0]?.turn;
@@ -113,12 +112,7 @@ const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
       }
     };
 }
-useEffect(() => {
-  if (!game) return;
-  if (countdown > 0) {
-    autoSubmitted.current = false;
-  }
-}, [countdown, game]);
+
 
 const handleExit=async() : Promise<void> =>{
   try{
@@ -280,7 +274,7 @@ useEffect(() => {
   };
 
   updateCountdown();
-  const id = setInterval(updateCountdown, 250);
+  const id = setInterval(updateCountdown, 1000);
 
   return () => clearInterval(id);
 }, [game?.turnStartedAt, game?.timer]);
@@ -333,18 +327,6 @@ useEffect(() => {
 }, [resultModalVisible, router]);
 
 
-useEffect(() => {
-  if (!game) return;
-  if (countdown !== 0) return;
-  if (autoSubmitted.current) return;
-  if (!CurrentUserisActiveWriter) return;
-
-  const activePlayer = game.writers[0].turn ? 1 : 2;
-  const activeInput = activePlayer === 1 ? OneInput : TwoInput;
-
-  autoSubmitted.current = true;
-  handleSubmit(activePlayer, activeInput);
-}, [countdown, game, CurrentUserisActiveWriter, OneInput, TwoInput]);
 
 if (!game) { //beim ersten rendern ist user noch null, dann zeigen wir erst mal "loading"
   return <div>Loading Game...</div>;
