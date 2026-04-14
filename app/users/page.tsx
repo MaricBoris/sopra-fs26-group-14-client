@@ -22,9 +22,11 @@ const columns: TableProps<User>["columns"] = [
     render: (_, __, index) => index + 1,
     onCell: () => ({
       style: {
-        backgroundColor: "#8f8c8c",
+        backgroundColor: "rgba(255,255,255,0.10)",
+        color: "#ffffff",
         fontWeight: "bold",
         textAlign: "center",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
       },
     }),
   },
@@ -58,7 +60,7 @@ const UsersPage: React.FC = () => {
     } finally {
       clearToken();
       clearId();
-      router.push("/home");
+      router.push("/");
     }
   };
 
@@ -115,38 +117,46 @@ const UsersPage: React.FC = () => {
       <HomeButton />
       <ProfileButton />
 
-       <div
-      style={{
-        maxWidth: 800,
-        margin: "0 auto",
-        padding: "24px",
-        fontFamily: "var(--font-cinzel), serif",
-        color: "#ffffff",
-      }}
-    >
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+      <div className="login-container">
+        <div
+          className={styles.glassCard}
+          style={{
+            width: 800,
+            maxWidth: "90%",
+            padding: 24,
+            fontFamily: "var(--font-cinzel), serif",
+            color: "#ffffff",
+            display: "flex",
+            flexDirection: "column",
+            gap: 16,
+          }}
+        >
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
           <div className={styles.scrollTitle}>User Profiles</div>
         </div>
 
-        {users && (
+       {users && (
           <>
-            <Table<User>
-              columns={columns}
-              dataSource={users}
-              rowKey="id"
-              scroll={{ y: 300 }}
-              pagination={false}
-              showHeader={false}
-              rowClassName={(_, index) =>
-                index % 2 === 0 ? styles.evenRow : styles.oddRow
-              }
-              onRow={(row) => ({
-                onClick: () => router.push(`/users/${row.id}`),
-                style: { cursor: "pointer" },
-              })}
-            />
+            
+              <Table<User>
+                className={styles.usersTable}
+                columns={columns}
+                dataSource={users}
+                rowKey="id"
+                scroll={{ y: 300 }}
+                pagination={false}
+                showHeader={false}
+                rowClassName={(_, index) =>
+                  index % 2 === 0 ? styles.evenRow : styles.oddRow
+                }
+                onRow={(row) => ({
+                  onClick: () => router.push(`/users/${row.id}`),
+                  style: { cursor: "pointer" },
+                })}
+              />
+            
 
-            <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}>
+            <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
               <Button
                 onClick={handleLogout}
                 style={
@@ -165,6 +175,7 @@ const UsersPage: React.FC = () => {
             </div>
           </>
         )}
+      </div>
       </div>
     </>
   );
