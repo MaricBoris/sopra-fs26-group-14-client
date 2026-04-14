@@ -20,7 +20,9 @@ const GamePage: React.FC = () => {
   const [countdown, setCountdown] = useState<number>(0);
   const [game, setGame] = useState<Game | null>(null); 
   const [writer1Genre, setGenre1] = useState<string>("Genre"); 
-  const [writer2Genre, setGenre2] = useState<string>("Genre");  
+  const [writer2Genre, setGenre2] = useState<string>("Genre");
+  const [quoteUsedP1, setQuoteUsedP1] = useState(false);
+  const [quoteUsedP2, setQuoteUsedP2] = useState(false);
   const { TextArea } = Input;
 
   const panelStyle: React.CSSProperties = {
@@ -90,7 +92,11 @@ const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
   try {
     const response=await apiService.post<Game>(`/games/${gameid}/input`,{ player: player, input: prettyinput },token);
     setGame(response);
-    
+    const quote = game?.writers[player - 1]?.quote;
+    if (quote && prettyinput.toLowerCase().includes(quote.toLowerCase())) {
+        if (player === 1) setQuoteUsedP1(true);
+        else setQuoteUsedP2(true);
+    }
     const holeStoryText=response.story.storyText;
     setStoryyText(holeStoryText);
     if (player===2){
@@ -153,7 +159,7 @@ useEffect(() => {
       setGenre1(writer1?.genre ?? "Genre");
       setGenre2(writer2?.genre ?? "Genre");
 
-      setStoryyText(ourGame.story. storyText);
+      setStoryyText(ourGame.story.storyText);
       
       
     } catch (error: unknown) {
@@ -572,6 +578,15 @@ return (
                   fontFamily: "var(--font-cinzel), serif",
                 }}
               />
+
+              {game.writers[0]?.quote && !quoteUsedP1 && isUserPlayer1 && (
+                  <div style={{ fontSize: 11, color: "#f0c040", marginTop: 2 }}>
+                      Incorporate in your next 2 turns
+                  </div>
+              )}
+              {quoteUsedP1 && isUserPlayer1 && (
+                  <div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
+              )}
             </div>
             )}
           {(isUserPlayer1 || (!isUserPlayer1 && !isUserPlayer2)) && (
@@ -776,6 +791,13 @@ return (
                   fontFamily: "var(--font-cinzel), serif",
                 }}
               />
+              {game.writers[1]?.quote && !quoteUsedP2 && isUserPlayer2 && (
+                  <div style={{ fontSize: 11, color: "#f0c040", marginTop: 2 }}>
+                      To incorporate in your next 2 turns
+                  </div>
+              )}
+              {quoteUsedP2 && isUserPlayer2 && (<div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
+              )}
             </div>
             )}
           {(isUserPlayer2 || (!isUserPlayer1 && !isUserPlayer2)) && (
