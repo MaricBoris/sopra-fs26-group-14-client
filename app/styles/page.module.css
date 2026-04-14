@@ -163,17 +163,27 @@ a.secondary {
     filter: invert();
   }
 }
-.evenRow td { /*td für die zellen einzeln, nicht die ganze zeile*/
-  background-color: #ebe7e7;
+.evenRow td {
+  background-color: rgba(255, 255, 255, 0.11) !important;
 }
 
 .oddRow td {
-  background-color: #d4d1d1;
+  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-.evenRow td:first-child, /*we don't wan't the zebra style for the first column*/
+.evenRow td:first-child,
 .oddRow td:first-child {
-  background-color: #8f8c8c !important;
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  font-weight: bold;
+}
+
+.usersTable :global(.ant-table-tbody > tr:hover > td) {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+.usersTable :global(.ant-table-tbody > tr:hover > td:first-child) {
+  background-color: rgba(255, 255, 255, 0.22) !important;
 }
 .scrollTitle {
   background-image: url("/schriftrolle.png");
@@ -197,8 +207,54 @@ a.secondary {
   padding: 0 40px;
   box-sizing: border-box;
 }
+.scrollTitle3 {
+  background-image: url("/schriftrolle.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  width: 540px;
+  max-width: 100%;
+  height: 110px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: var(--font-cinzel), serif;
+  font-weight: bold;
+  font-size: 26px;
+  color: #3b2f1b;
+  text-align: center;
+
+  padding: 0 48px;
+  box-sizing: border-box;
+}
+.scrollTitle2 {
+  background-image: url("/schriftrolle.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 420px;
+  height: 140px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: var(--font-cinzel), serif;
+  font-weight: bold;
+  font-size: 32px;
+  color: #3b2f1b;
+  text-align: center;
+  padding: 0 48px;
+  box-sizing: border-box;
+
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.35));
+}
 
 /* Profile page layout */
+
 .profile-wrapper {
   display: flex;
   flex-direction: column;
@@ -233,4 +289,96 @@ a.secondary {
   display: flex;
   justify-content: center;
   gap: 12px;
+}
+.glassCard {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1px;
+}
+
+.sectionCard {
+  background: transparent;
+  backdrop-filter: none;
+  border: none;
+  padding: 0;
+}
+
+.usersTable :global(.ant-table-wrapper) {
+  background: transparent !important;
+  border: none !important;
+}
+
+.usersTable :global(.ant-table) {
+  background: transparent !important;
+  border: none !important;
+}
+
+.usersTable :global(.ant-table-container) {
+  background: transparent !important;
+  border: none !important;
+}
+
+.usersTable :global(.ant-table-content) {
+  background: transparent !important;
+}
+
+.usersTable :global(.ant-table-body) {
+  background: transparent !important;
+}
+
+.usersTable :global(.ant-table-container::before),
+.usersTable :global(.ant-table-container::after) {
+  display: none !important;
+}
+
+.usersTable :global(.ant-table-tbody > tr > td) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  font-family: var(--font-cinzel), serif !important;
+  transition: background-color 0.2s ease;
+}
+
+.evenRow td {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.oddRow td {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.evenRow td:first-child,
+.oddRow td:first-child {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.usersTable :global(.ant-table-tbody > tr:hover > td) {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.usersTable :global(.ant-table-tbody > tr:hover > td:first-child) {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+}
+.scrollTitleJudge {
+  background-image: url("/schriftrolle.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  width: 280px;
+  max-width: 100%;
+  height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: var(--font-cinzel), serif;
+  font-weight: bold;
+  font-size: 20px;
+  color: #3b2f1b;
+  text-align: center;
+
+  padding: 0 28px;
+  box-sizing: border-box;
 }

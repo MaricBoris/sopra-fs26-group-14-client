@@ -134,7 +134,8 @@ export default function PreGameRoomPage() {
   };
 
   const isLobbyLeader = room?.lobbyLeader?.id === parseInt(userId ?? "0");
-  const rolesReady = room ? room.writers.length === 2 && room.judges.length === 1 : false;
+  ///const rolesReady = room ? room.writers.length === 2 && room.judges.length === 1 : false;
+  const rolesReady = true; //comment out before deployment, this serves solely to test gameroom with 1 player
   // 📝 track which role the current user holds to highlight button
   const myRole = room
     ? room.writers.some((w) => w.id === parseInt(userId ?? "0")) ? "WRITER"
