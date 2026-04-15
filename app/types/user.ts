@@ -1,7 +1,9 @@
 export interface User {
-  id: string | null;
+  id: number | null;
   name: string | null;
   username: string | null;
+  bio: string | null;
   token: string | null;
-  status: string | null;
+  date: string | null;
+  creationDate: string | null;
 }
