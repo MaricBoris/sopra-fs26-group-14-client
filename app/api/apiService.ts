@@ -58,13 +58,17 @@ export class ApiService {
   /**
    * GET request.
    * @param endpoint - The API endpoint (e.g. "/users").
+   * @param token
    * @returns JSON data of type T.
    */
-  public async get<T>(endpoint: string): Promise<T> {
+  public async get<T>(endpoint: string, token?: string): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "GET",
-      headers: this.defaultHeaders,
+      headers: {
+        ...this.defaultHeaders,
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
     });
     return this.processResponse<T>(
       res,
@@ -76,13 +80,17 @@ export class ApiService {
    * POST request.
    * @param endpoint - The API endpoint (e.g. "/users").
    * @param data - The payload to post.
+   * @param token
    * @returns JSON data of type T.
    */
-  public async post<T>(endpoint: string, data: unknown): Promise<T> {
+  public async post<T>(endpoint: string, data: unknown, token?: string): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "POST",
-      headers: this.defaultHeaders,
+      headers: {
+        ...this.defaultHeaders,
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
       body: JSON.stringify(data),
     });
     return this.processResponse<T>(
@@ -95,13 +103,17 @@ export class ApiService {
    * PUT request.
    * @param endpoint - The API endpoint (e.g. "/users/123").
    * @param data - The payload to update.
+   * @param token
    * @returns JSON data of type T.
    */
-  public async put<T>(endpoint: string, data: unknown): Promise<T> {
+  public async put<T>(endpoint: string, data: unknown, token?: string): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "PUT",
-      headers: this.defaultHeaders,
+      headers: {
+        ...this.defaultHeaders,
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
       body: JSON.stringify(data),
     });
     return this.processResponse<T>(
@@ -113,17 +125,23 @@ export class ApiService {
   /**
    * DELETE request.
    * @param endpoint - The API endpoint (e.g. "/users/123").
+   * @param data - The payload to delete.
+   * @param token
    * @returns JSON data of type T.
    */
-  public async delete<T>(endpoint: string): Promise<T> {
+  public async delete<T>(endpoint: string, data: unknown, token?: string): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const res = await fetch(url, {
       method: "DELETE",
-      headers: this.defaultHeaders,
+      headers: {
+        ...this.defaultHeaders,
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: JSON.stringify(data),
     });
     return this.processResponse<T>(
       res,
-      "An error occurred while deleting the data.\n",
+      "An error occurred while updating the data.\n",
     );
   }
 }
