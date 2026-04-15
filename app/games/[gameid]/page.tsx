@@ -531,7 +531,11 @@ return (
               }}
             >
               <Input
-                value={isUserPlayer1 ? writer1Genre : "Genre"}
+                value={isUserPlayer1
+                        ? writer1Genre
+                        : isUserPlayer2
+                        ? "Genre"
+                        : writer1Genre}
                 readOnly
                 style={smallFieldStyle}
               />
@@ -745,7 +749,11 @@ return (
               }}
             >
               <Input
-                value={isUserPlayer2 ? writer2Genre : "Genre"}
+                value={isUserPlayer2
+                        ? writer2Genre
+                        : isUserPlayer1
+                        ? "Genre"
+                        : writer2Genre}
                 readOnly
                 style={smallFieldStyle}
               />
