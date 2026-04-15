@@ -10,4 +10,5 @@ export function getApiDomain(): string {
     "https://sopra-fs26-group14-server.oa.r.appspot.com"; // TODO: update with your production URL as needed.
   const devUrl = "http://localhost:8080";
   return isProduction() ? prodUrl : devUrl;
+  
 }
