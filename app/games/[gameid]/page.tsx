@@ -893,7 +893,7 @@ return (
           </div>
           {resultGame?.story.hasWinner && (
             <div style={{ fontSize: 16, color: "rgba(255,255,255,0.7)" }}>
-              Genre: {resultGame.story.wingenre ?? "—"}
+              Genre: {resultGame.story.winGenre ?? "—"}
             </div>
           )}
           <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 8 }}>
