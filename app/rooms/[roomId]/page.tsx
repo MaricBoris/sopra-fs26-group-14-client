@@ -134,8 +134,8 @@ export default function PreGameRoomPage() {
   };
 
   const isLobbyLeader = room?.lobbyLeader?.id === parseInt(userId ?? "0");
-  ///const rolesReady = room ? room.writers.length === 2 && room.judges.length === 1 : false;
-  const rolesReady = true; //comment out before deployment, this serves solely to test gameroom with 1 player
+  // 📝 all roles must be filled before the lobby leader can start the game
+  const rolesReady = room ? room.writers.length === 2 && room.judges.length === 1 : false;
   // 📝 track which role the current user holds to highlight button
   const myRole = room
     ? room.writers.some((w) => w.id === parseInt(userId ?? "0")) ? "WRITER"
@@ -184,17 +184,28 @@ export default function PreGameRoomPage() {
       key: "select",
       width: 100,
       align: "right" as const,
-      render: (_: unknown, record: RoleRow) => (
-        <Button
-          onClick={(e) => { e.stopPropagation(); handleSelectRole(record.role); }}
-          style={{
-            width: 70, height: 30, fontSize: 13, padding: 0,
-            ...(myRole === record.role && { ["--btn-bg" as string]: "#25d366" }),
-          } as React.CSSProperties}
-        >
-          {myRole === record.role ? "Selected" : "Select"}
-        </Button>
-      ),
+      render: (_: unknown, record: RoleRow) => {
+        const isMyRole = myRole === record.role;
+        const isFull = record.count >= record.max;
+        const isDisabled = !isMyRole && isFull;
+        return (
+          <Button
+            disabled={isDisabled}
+            onClick={(e) => {
+              e.stopPropagation();
+              // 📝 clicking own role deselects (sends NONE → backend puts user back in unassigned)
+              handleSelectRole(isMyRole ? "NONE" : record.role);
+            }}
+            style={{
+              width: 80, height: 30, fontSize: 13, padding: 0,
+              ...(isMyRole && { ["--btn-bg" as string]: "#25d366" }),
+              ...(isDisabled && { opacity: 0.4 }),
+            } as React.CSSProperties}
+          >
+            {isMyRole ? "Deselect" : "Select"}
+          </Button>
+        );
+      },
     },
   ];
 
