@@ -24,6 +24,8 @@ const GamePage: React.FC = () => {
   const [quoteUsedP1, setQuoteUsedP1] = useState(false);
   const [quoteUsedP2, setQuoteUsedP2] = useState(false);
   const { TextArea } = Input;
+  const [starting, setStarting] = useState(true);
+  const [startCountdown, setStartCountdown] = useState(5);
 
   const panelStyle: React.CSSProperties = {
     background: "rgba(255,255,255,0.025)",
@@ -138,8 +140,12 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
     try {
         const response = await apiService.get<Game>(`/games/${gameid}/quotes?player=${player}`, token);
         setGame(response);
-        if (player === 1) setQuotedP1(true);
-        else setQuotedP2(true);
+        if (player === 1) {
+            setQuotedP1(true);
+            }
+        else {
+            setQuotedP2(true);
+            }
     } catch (error) {
         message.error("Failed to fetch quote.");
     }
@@ -189,6 +195,9 @@ useEffect(() => {
         setGame(latestGame);
         
         setStoryyText(latestGame.story.storyText);
+
+        setGenre1(latestGame.writers[0]?.genre ?? "Genre");
+        setGenre2(latestGame.writers[1]?.genre ?? "Genre");
 
         if (latestGame.story.winnerUsername !== null || latestGame.story.hasWinner !== undefined) {
           if (latestGame.story.hasWinner && !resultModalVisible) {
@@ -270,8 +279,19 @@ useEffect(() => {
   return () => clearTimeout(timeout); //in case the component is unmounted (if the user redirects himself or something), before the timer expires, because then we obvioulsy don't want the message anymore
 }, [gameEnded, router]);
 
+useEffect(() => { //pre game countdown
+  if (!starting) return;
+  if (startCountdown <= 0) {
+    setStarting(false);
+    return;
+  }
+  const id = setTimeout(() => setStartCountdown(x => x - 1), 1000);
+  return () => clearTimeout(id);
+}, [startCountdown, starting]);
+
 useEffect(() => {
   if (!game?.turnStartedAt) return;
+   if (starting) return;
 
   const updateCountdown = () => {
     const elapsed = Math.floor((Date.now() - game.turnStartedAt) / 1000);
@@ -283,7 +303,7 @@ useEffect(() => {
   const id = setInterval(updateCountdown, 1000);
 
   return () => clearInterval(id);
-}, [game?.turnStartedAt, game?.timer]);
+}, [game?.turnStartedAt, game?.timer, starting]);
 
 const handleVoteWinner = async (player: 1 | 2): Promise<void> => {
   const writer = game?.writers[player - 1];
@@ -332,7 +352,7 @@ useEffect(() => {
   return () => clearTimeout(timeout);
 }, [resultModalVisible, router]);
 
-
+//countdown
 
 if (!game) { //beim ersten rendern ist user noch null, dann zeigen wir erst mal "loading"
   return <div>Loading Game...</div>;
@@ -352,6 +372,22 @@ return (
         overflowY: "auto",
       }}
     >
+        {starting && ( //countdown
+          <div style={{
+            position: "fixed",
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(0,0,0,0.7)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 120,
+            color: "#ffffff",
+            zIndex: 999,
+            fontFamily: "var(--font-cinzel), serif",
+          }}>
+            {startCountdown}
+          </div>
+        )}
       <div
         style={{
           maxWidth: 1400,
@@ -501,7 +537,7 @@ return (
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
-              <div className={styles.scrollTitle3}>Player 1</div>
+              <div className={styles.scrollTitle3}>{game.writers[0]?.username ?? "Player 1"}</div>
             </div>
 
             <div
@@ -531,7 +567,7 @@ return (
               }}
             >
               <Input
-                value={isUserPlayer1 ? writer1Genre : "Genre"}
+                value={isUserPlayer1 || (!isUserPlayer1 && !isUserPlayer2) ? writer1Genre : "Genre"}
                 readOnly
                 style={smallFieldStyle}
               />
@@ -644,7 +680,7 @@ return (
               Judge
             </div>*/}
             <div style={{ display: "flex", justifyContent: "center", marginTop: 2, marginBottom: 2 }}>
-              <div className={styles.scrollTitleJudge}>Judge</div>
+              <div className={styles.scrollTitleJudge}>{game.judges[0]?.username ?? "Judge"}</div>
             </div>
             <div
               style={{
@@ -723,7 +759,7 @@ return (
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
-              <div className={styles.scrollTitle3}>Player 2</div>
+              <div className={styles.scrollTitle3}>{game.writers[1]?.username ?? "Player 2"}</div>
             </div>
 
             <div
@@ -753,7 +789,7 @@ return (
               }}
             >
               <Input
-                value={isUserPlayer2 ? writer2Genre : "Genre"}
+                value={isUserPlayer2 || (!isUserPlayer1 && !isUserPlayer2) ? writer2Genre : "Genre"}
                 readOnly
                 style={smallFieldStyle}
               />
@@ -802,7 +838,7 @@ return (
               />
               {game.writers[1]?.quote && !quoteUsedP2 && isUserPlayer2 && (
                   <div style={{ fontSize: 11, color: "#f0c040", marginTop: 2 }}>
-                      To incorporate in your next 2 turns
+                      Incorporate in your next 2 turns
                   </div>
               )}
               {quoteUsedP2 && isUserPlayer2 && (<div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
