@@ -547,6 +547,7 @@ return (
                   ["--btn-bg" as string]: "#2e9f44",
                   height: 40,
                   fontSize: 17,
+                  opacity: !isUserPlayer1 || !game.writers[0].turn || game.phase === "EVALUATION" ? 0.4 : 1,
                 }}
               >
                 Submit
@@ -647,23 +648,26 @@ return (
             </div>
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                display: "flex",
+                justifyContent: "center",
                 gap: 10,
                 minWidth: 0,
               }}
             >
-              <Button
-                disabled={quotedP1}
-                onClick={() => handleQuoteFetch(1)}
-                style={{
-                  ["--btn-bg" as string]: "#3d8da8",
-                  height: 44,
-                  fontSize: 17,
-                }}
-              >
-                Quote P1
-              </Button>
+              {isJudge && (
+                <Button
+                  disabled={quotedP1}
+                  onClick={() => handleQuoteFetch(1)}
+                  style={{
+                    ["--btn-bg" as string]: "#3d8da8",
+                    height: 44,
+                    fontSize: 17,
+                    width: 120,
+                  }}
+                >
+                  Quote P1
+                </Button>
+              )}
 
               <Button
                 disabled={!isJudge || game.phase !== "EVALUATION"}
@@ -672,22 +676,26 @@ return (
                   ["--btn-bg" as string]: "#c0392b",
                   height: 44,
                   fontSize: 17,
+                  width: 120,
                 }}
               >
                 Declare
               </Button>
 
-              <Button
-                disabled={quotedP2}
-                onClick={() => handleQuoteFetch(2)}
-                style={{
-                  ["--btn-bg" as string]: "#3d8da8",
-                  height: 44,
-                  fontSize: 17,
-                }}
-              >
-                Quote P2
-              </Button>
+              {isJudge && (
+                <Button
+                  disabled={quotedP2}
+                  onClick={() => handleQuoteFetch(2)}
+                  style={{
+                    ["--btn-bg" as string]: "#3d8da8",
+                    height: 44,
+                    fontSize: 17,
+                    width: 120,
+                  }}
+                >
+                  Quote P2
+                </Button>
+              )}
             </div>
 
             <div
@@ -761,6 +769,7 @@ return (
                   ["--btn-bg" as string]: "#2e9f44",
                   height: 40,
                   fontSize: 17,
+                  opacity: !isUserPlayer2 || !game.writers[1].turn || game.phase === "EVALUATION" ? 0.4 : 1,
                 }}
               >
                 Submit
@@ -893,7 +902,7 @@ return (
           </div>
           {resultGame?.story.hasWinner && (
             <div style={{ fontSize: 16, color: "rgba(255,255,255,0.7)" }}>
-              Genre: {resultGame.story.wingenre ?? "—"}
+              Genre: {resultGame.story.winGenre ?? "—"}
             </div>
           )}
           <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 8 }}>
