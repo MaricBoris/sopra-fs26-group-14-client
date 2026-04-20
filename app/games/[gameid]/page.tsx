@@ -616,14 +616,18 @@ return (
                 }}
               />
 
-              {game.writers[0]?.quote && !quoteUsedP1 && isUserPlayer1 && (
-                  <div style={{ fontSize: 11, color: "#f0c040", marginTop: 2 }}>
-                      Incorporate in your next 2 turns
+              {game.writers[0]?.quote && !quoteUsedP1 && isUserPlayer1 && (() => {
+                const assigned = game.writers[0].quoteAssignedRound ?? game.currentRound;
+                const turnsLeft = 2 - Math.floor((game.currentRound - assigned) / 2);
+                const expired = turnsLeft <= 0;
+                return (
+                  <div style={{ fontSize: 11, color: expired ? "#e74c3c" : "#f0c040", marginTop: 2 }}>
+                    {expired ? "Quote window expired!" : `Incorporate in your next ${turnsLeft} turn${turnsLeft !== 1 ? "s" : ""}`}
                   </div>
-              )}
-              {quoteUsedP1 && isUserPlayer1 && (
-                  <div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
-              )}
+                );
+              })()}
+            {quoteUsedP1 && isUserPlayer1 && (<div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
+                )}
             </div>
             )}
           {(isUserPlayer1 || (!isUserPlayer1 && !isUserPlayer2)) && (
@@ -836,11 +840,16 @@ return (
                   fontFamily: "var(--font-cinzel), serif",
                 }}
               />
-              {game.writers[1]?.quote && !quoteUsedP2 && isUserPlayer2 && (
-                  <div style={{ fontSize: 11, color: "#f0c040", marginTop: 2 }}>
-                      Incorporate in your next 2 turns
+              {game.writers[1]?.quote && !quoteUsedP2 && isUserPlayer2 && (() => {
+                const assigned = game.writers[1].quoteAssignedRound ?? game.currentRound;
+                const turnsLeft = 2 - Math.floor((game.currentRound - assigned) / 2);
+                const expired = turnsLeft <= 0;
+                return (
+                  <div style={{ fontSize: 11, color: expired ? "#e74c3c" : "#f0c040", marginTop: 2 }}>
+                    {expired ? "Quote window expired!" : `Incorporate in your next ${turnsLeft} turn${turnsLeft !== 1 ? "s" : ""}`}
                   </div>
-              )}
+                );
+              })()}
               {quoteUsedP2 && isUserPlayer2 && (<div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
               )}
             </div>
