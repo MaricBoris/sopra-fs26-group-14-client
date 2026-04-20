@@ -285,26 +285,18 @@ useEffect(() => {
   return () => clearInterval(id);
 }, [game?.turnStartedAt, game?.timer]);
 
-const handleVoteWinner = async (player: 1 | 2): Promise<void> => {
-  const writer = game?.writers[player - 1];
+const handleVoteWinner = async (writerId: number): Promise<void> => {
   votingInProgress.current = true;
   setDeclareModalVisible(false);
-  console.log("writers:", game?.writers);
-  console.log("writer[0] id:", game?.writers[0]?.id);
-  console.log("writer[1] id:", game?.writers[1]?.id);
   try {
     const response = await apiService.post<Game>(
       `/games/${gameid}/vote`,
-      writer?.id,
+      writerId,
       token
     );
-    console.log("Vote response:", response);
-    console.log("hasWinner:", response.story?.hasWinner);
-    console.log("winner:", response.story.winnerUsername);
     setGame(response);
     setResultGame(response);
     setResultModalVisible(true);
-    console.log("Result modal should be visible now");
   } catch (error) {
     votingInProgress.current = false;
     console.error("Declare winner failed", error);
@@ -313,7 +305,20 @@ const handleVoteWinner = async (player: 1 | 2): Promise<void> => {
 };
 
 
+const autoVoteFired = useRef(false);
 
+useEffect(() => {
+  if (!game || !isJudge) return;
+  if (game.phase !== "EVALUATION") return;
+  if (autoVoteFired.current) return;
+  if (!game.turnStartedAt || !game.timer) return; // new guard
+  
+  const elapsed = Math.floor((Date.now() - game.turnStartedAt) / 1000); //Could autotrigger effect (Async problems)
+  if (elapsed < game.timer) return;
+
+  autoVoteFired.current = true;
+  handleVoteWinner(-1);
+}, [countdown, game, isJudge]);
 
 
 useEffect(() => {
@@ -497,11 +502,11 @@ return (
               flexDirection: "column",
               gap: 8,
               minWidth: 0,
-              ...(isPlayer1Active ? activePlayerStyle : inactivePlayerStyle),
+              ...(isPlayer1Active && game.phase !== "EVALUATION" ? activePlayerStyle : inactivePlayerStyle),
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
-              <div className={styles.scrollTitle3}>Player 1</div>
+              <div className={styles.scrollTitle3}>{game.writers[0]?.username ?? "Player 1"}</div>
             </div>
 
             <div
@@ -536,7 +541,7 @@ return (
                 style={smallFieldStyle}
               />
               <Input
-                value={isPlayer1Active ? countdown : "Timer" }
+                value={isPlayer1Active && game.phase !== "EVALUATION" ? countdown : "Timer"}
                 readOnly
                 style={{ ...smallFieldStyle, textAlign: "center" }}
               />
@@ -708,7 +713,9 @@ return (
                 marginTop: 2,
               }}
             >
-              {game.phase === "EVALUATION" ? "The judge must now make his decision!" : "Game Status"}
+              {game.phase === "EVALUATION"
+                ? `The judge must decide! ${countdown}s remaining`
+                : "The writers are creating the story."}
             </div>
           </div>
 
@@ -719,11 +726,11 @@ return (
               flexDirection: "column",
               gap: 8,
               minWidth: 0,
-              ...(isPlayer2Active ? activePlayerStyle : inactivePlayerStyle),
+              ...(isPlayer2Active && game.phase !== "EVALUATION" ? activePlayerStyle : inactivePlayerStyle),
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
-              <div className={styles.scrollTitle3}>Player 2</div>
+              <div className={styles.scrollTitle3}>{game.writers[1]?.username ?? "Player 2"}</div>
             </div>
 
             <div
@@ -758,7 +765,7 @@ return (
                 style={smallFieldStyle}
               />
               <Input
-                value={isPlayer2Active ? countdown : "Timer" }
+                value={isPlayer2Active && game.phase !== "EVALUATION" ? countdown : "Timer"}
                 readOnly
                 style={{ ...smallFieldStyle, textAlign: "center" }}
               />
@@ -851,7 +858,7 @@ return (
           </div>
           <div style={{ display: "flex", gap: 20 }}>
             <Button
-              onClick={() => handleVoteWinner(1)}
+              onClick={() => handleVoteWinner(game?.writers[0]?.id ?? -1)}
               style={{
                 ["--btn-bg" as string]: "#2e9f44",
                 height: 48,
@@ -859,10 +866,10 @@ return (
                 width: 150,
               }}
             >
-              Player 1
+               {game?.writers[0]?.username ?? "Player 1"}
             </Button>
             <Button
-              onClick={() => handleVoteWinner(2)}
+              onClick={() => handleVoteWinner(game?.writers[1]?.id ?? -1)}
               style={{
                 ["--btn-bg" as string]: "#3d8da8",
                 height: 48,
@@ -870,7 +877,7 @@ return (
                 width: 150,
               }}
             >
-              Player 2
+              {game?.writers[1]?.username ?? "Player 2"}
             </Button>
           </div>
         </div>
