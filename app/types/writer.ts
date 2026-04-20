@@ -4,4 +4,5 @@ export interface Writer extends User{
     genre: string | null;
     text: string | null;
     quote?: string;
+    quoteAssignedRound?: number;
 }
