@@ -212,7 +212,7 @@ useEffect(() => {
     return () => clearInterval(id); 
   }, [apiService, token, gameid]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (!game?.writers) return;
 
     if (game.writers?.[0]?.id === Number(userId) && OneInput === "") {
@@ -222,7 +222,7 @@ useEffect(() => {
     if (game.writers?.[1]?.id === Number(userId) && TwoInput === "") {
       setTwoInput(game.writers[1]?.text ?? "");
     }
-  }, [game, userId, OneInput, TwoInput]);
+  }, [game, userId, OneInput, TwoInput]);*/
 
   useEffect(() => {
     if (!token || !gameid || !game) return;
@@ -536,7 +536,11 @@ return (
               }}
             >
               <Input
-                value={isUserPlayer1 ? writer1Genre : "Genre"}
+                value={isUserPlayer1
+                        ? writer1Genre
+                        : isUserPlayer2
+                        ? "Genre"
+                        : writer1Genre}
                 readOnly
                 style={smallFieldStyle}
               />
@@ -760,7 +764,11 @@ return (
               }}
             >
               <Input
-                value={isUserPlayer2 ? writer2Genre : "Genre"}
+                value={isUserPlayer2
+                        ? writer2Genre
+                        : isUserPlayer1
+                        ? "Genre"
+                        : writer2Genre}
                 readOnly
                 style={smallFieldStyle}
               />
