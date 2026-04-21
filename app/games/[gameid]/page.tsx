@@ -10,6 +10,7 @@ import { ApplicationError } from "@/types/error";
 import React, { useEffect, useState, useRef } from "react";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { getApiDomain } from "@/utils/domain";
 
 const GamePage: React.FC = () => {
 
@@ -75,6 +76,8 @@ const {
 const [ wholeStoryText,setStoryyText] = useState<string>("");
 const [TwoInput, setTwoInput] = useState("");
 const [OneInput, setOneInput] = useState("");
+const lastDraftSentAtP1 = useRef(0);
+const lastDraftSentAtP2 = useRef(0);
 const activeWriter = game?.writers.find((writer) => writer.turn);
 const CurrentUserisActiveWriter= activeWriter?.id===Number(userId);
 const isPlayer1Active = !!game?.writers[0]?.turn;
@@ -177,85 +180,90 @@ useEffect(() => {
    
   }, [apiService, token, gameid]);
 
-  const [gameEnded, setGameEnded] = useState(false);
-
   useEffect(() => {
-    if (!token || !gameid ) return;
+    if (!token || !gameid) return;
 
-    const checkIfGameStillExists = async () => {
-    if (resultModalVisible || votingInProgress.current) return;
-    try {
-        const latestGame=await apiService.get<Game>(`/games/${gameid}`, token);
-        setGame(latestGame);
-        
-        setStoryyText(latestGame.story.storyText);
+    const streamUrl = `${getApiDomain()}/games/${gameid}/stream?token=${encodeURIComponent(token)}`;
+    const eventSource = new EventSource(streamUrl);
 
-        if (latestGame.story.winnerUsername !== null || latestGame.story.hasWinner !== undefined) {
-          if (latestGame.story.hasWinner && !resultModalVisible) {
-            setResultGame(latestGame);
-            setResultModalVisible(true);
-          }
-        }
-        
-      } catch (error: unknown) {
-          const appError = error as ApplicationError;
-            if (appError?.status === 404) {
-              if (!resultModalVisible && !votingInProgress.current) {
-                setGameEnded(true);
-              }
-            }
+    const handleGameUpdate = (event: MessageEvent) => {
+      const latestGame: Game = JSON.parse(event.data);
+
+      setGame(latestGame);
+      setStoryyText(latestGame.story.storyText);
+
+      setGenre1(latestGame.writers[0]?.genre ?? "Genre");
+      setGenre2(latestGame.writers[1]?.genre ?? "Genre");
+
+      if (latestGame.story.hasWinner && !resultModalVisible) {
+        setResultGame(latestGame);
+        setResultModalVisible(true);
       }
     };
 
-    const id = setInterval(checkIfGameStillExists, 1000); 
+    const handleGameDeleted = () => {
+      if (!resultModalVisible && !votingInProgress.current) {
+        setGameEnded(true);
+      }
+    };
 
-    return () => clearInterval(id); 
-  }, [apiService, token, gameid]);
+    eventSource.addEventListener("game-update", handleGameUpdate as EventListener);
+    eventSource.addEventListener("game-deleted", handleGameDeleted as EventListener);
 
-  /*useEffect(() => {
-    if (!game?.writers) return;
+    eventSource.onerror = () => {
+      eventSource.close();
+    };
 
-    if (game.writers?.[0]?.id === Number(userId) && OneInput === "") {
-      setOneInput(game.writers[0]?.text ?? "");
-    }
+    return () => {
+      eventSource.removeEventListener("game-update", handleGameUpdate as EventListener);
+      eventSource.removeEventListener("game-deleted", handleGameDeleted as EventListener);
+      eventSource.close();
+    };
+  }, [token, gameid, resultModalVisible]);
 
-    if (game.writers?.[1]?.id === Number(userId) && TwoInput === "") {
-      setTwoInput(game.writers[1]?.text ?? "");
-    }
-  }, [game, userId, OneInput, TwoInput]);*/
+  const [gameEnded, setGameEnded] = useState(false);
+
 
   useEffect(() => {
     if (!token || !gameid || !game) return;
     if (!isUserPlayer1 || !isPlayer1Active) return;
 
-    const timeout = setTimeout(() => {
-      apiService.post<Game>(
-        `/games/${gameid}/draft`,
-        { player: 1, input: OneInput },
-        token
-      ).catch((error) => {
-        console.log("Saving Player 1 draft failed", error);
-      });
-    }, 400);
+    const now = Date.now();
 
-    return () => clearTimeout(timeout);
+    if (now - lastDraftSentAtP1.current < 100) {
+      return;
+    }
+
+    lastDraftSentAtP1.current = now;
+
+    apiService.post<Game>(
+      `/games/${gameid}/draft`,
+      { player: 1, input: OneInput },
+      token
+    ).catch((error) => {
+      console.log("Saving Player 1 draft failed", error);
+    });
   }, [OneInput, token, gameid, game, isUserPlayer1, isPlayer1Active, apiService]);
 
   useEffect(() => {
     if (!token || !gameid || !game) return;
     if (!isUserPlayer2 || !isPlayer2Active) return;
 
-    const timeout = setTimeout(() => {
-      apiService.post<Game>(
-        `/games/${gameid}/draft`,
-        { player: 2, input: TwoInput },
-        token
-      ).catch((error) => {
-        console.log("Saving Player 2 draft failed", error);
-      });
-    }, 400);
+    const now = Date.now();
 
-    return () => clearTimeout(timeout);
+    if (now - lastDraftSentAtP2.current < 100) {
+      return;
+    }
+
+    lastDraftSentAtP2.current = now;
+
+    apiService.post<Game>(
+      `/games/${gameid}/draft`,
+      { player: 2, input: TwoInput },
+      token
+    ).catch((error) => {
+      console.log("Saving Player 2 draft failed", error);
+    });
   }, [TwoInput, token, gameid, game, isUserPlayer2, isPlayer2Active, apiService]);
 
   useEffect(() => { //executes the "cleanup", after a writer leave was detected
