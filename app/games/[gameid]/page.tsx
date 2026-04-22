@@ -615,7 +615,7 @@ return (
                 minWidth: 0,
               }}
             >
-              <Tooltip title={game.writers[0]?.genreDescription ?? ""}>
+              <Tooltip title={!isUserPlayer2 ? (game.writers[0]?.genreDescription ?? "") : ""}>
                 <Input
                   value={isUserPlayer1
                           ? writer1Genre
@@ -873,7 +873,7 @@ return (
                 minWidth: 0,
               }}
             >
-              <Tooltip title={game.writers[1]?.genreDescription ?? ""}>
+              <Tooltip title={!isUserPlayer1 ? (game.writers[1]?.genreDescription ?? "") : ""}>
                 <Input
                   value={isUserPlayer2
                           ? writer2Genre
