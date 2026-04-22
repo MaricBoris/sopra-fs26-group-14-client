@@ -2,7 +2,7 @@
 "use client";
 import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
 
-import { Button, Input , message, Modal } from "antd";
+import { Button, Input , message, Modal, Tooltip } from "antd";
 import styles from "@/styles/page.module.css";
 import { Game } from "@/types/game";
 import { Writer } from "@/types/writer";
@@ -615,15 +615,17 @@ return (
                 minWidth: 0,
               }}
             >
-              <Input
-                value={isUserPlayer1
-                        ? writer1Genre
-                        : isUserPlayer2
-                        ? "Genre"
-                        : writer1Genre}
-                readOnly
-                style={smallFieldStyle}
-              />
+              <Tooltip title={game.writers[0]?.genreDescription ?? ""}>
+                <Input
+                  value={isUserPlayer1
+                          ? writer1Genre
+                          : isUserPlayer2
+                          ? "Genre"
+                          : writer1Genre}
+                  readOnly
+                  style={smallFieldStyle}
+                />
+              </Tooltip>
               <Input
                 value={isPlayer1Active && game.phase !== "EVALUATION" ? countdown : "Timer"}
                 readOnly
@@ -871,15 +873,17 @@ return (
                 minWidth: 0,
               }}
             >
-              <Input
-                value={isUserPlayer2
-                        ? writer2Genre
-                        : isUserPlayer1
-                        ? "Genre"
-                        : writer2Genre}
-                readOnly
-                style={smallFieldStyle}
-              />
+              <Tooltip title={game.writers[1]?.genreDescription ?? ""}>
+                <Input
+                  value={isUserPlayer2
+                          ? writer2Genre
+                          : isUserPlayer1
+                          ? "Genre"
+                          : writer2Genre}
+                  readOnly
+                  style={smallFieldStyle}
+                />
+              </Tooltip>
               <Input
                 value={isPlayer2Active && game.phase !== "EVALUATION" ? countdown : "Timer"}
                 readOnly
