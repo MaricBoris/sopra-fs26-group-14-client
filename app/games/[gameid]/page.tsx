@@ -542,7 +542,7 @@ return (
                 fontSize: 20,
               }}
             >
-            {game.currentRound} / 20
+            {game.currentRound} / 4
 
             </div>
           </div>
