@@ -10,6 +10,7 @@ import { ApplicationError } from "@/types/error";
 import React, { useEffect, useState, useRef } from "react";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { getApiDomain } from "@/utils/domain";
 
 const GamePage: React.FC = () => {
 
@@ -183,55 +184,51 @@ useEffect(() => {
    
   }, [apiService, token, gameid]);
 
+  useEffect(() => {
+    if (!token || !gameid) return;
+
+    const streamUrl = `${getApiDomain()}/games/${gameid}/stream?token=${encodeURIComponent(token)}`;
+    const eventSource = new EventSource(streamUrl);
+
+    const handleGameUpdate = (event: MessageEvent) => {
+      const latestGame: Game = JSON.parse(event.data);
+
+      setGame(latestGame);
+      setStoryyText(latestGame.story.storyText);
+
+      setGenre1(latestGame.writers[0]?.genre ?? "Genre");
+      setGenre2(latestGame.writers[1]?.genre ?? "Genre");
+
+      if (latestGame.story.hasWinner && !resultModalVisible) {
+        setResultGame(latestGame);
+        setResultModalVisible(true);
+      }
+    };
+
+    const handleGameDeleted = () => {
+      if (!resultModalVisible && !votingInProgress.current) {
+        setGameEnded(true);
+      }
+    };
+
+    eventSource.addEventListener("game-update", handleGameUpdate as EventListener);
+    eventSource.addEventListener("game-deleted", handleGameDeleted as EventListener);
+
+    eventSource.onerror = (error) => {
+      console.error("SSE connection error", error);
+    };
+
+    return () => {
+      eventSource.removeEventListener("game-update", handleGameUpdate as EventListener);
+      eventSource.removeEventListener("game-deleted", handleGameDeleted as EventListener);
+      eventSource.close();
+    };
+  }, [token, gameid]);
+
   const [gameEnded, setGameEnded] = useState(false);
 
   useEffect(() => {
     if (!token || !gameid ) return;
-
-    const checkIfGameStillExists = async () => {
-    if (resultModalVisible || votingInProgress.current) return;
-    try {
-        const latestGame=await apiService.get<Game>(`/games/${gameid}`, token);
-        setGame(latestGame);
-        
-        setStoryyText(latestGame.story.storyText);
-
-        if (latestGame.story.winnerUsername !== null || latestGame.story.hasWinner !== undefined) {
-          if (latestGame.story.hasWinner && !resultModalVisible) {
-            setResultGame(latestGame);
-            setResultModalVisible(true);
-          }
-        }
-        
-      } catch (error: unknown) {
-          const appError = error as ApplicationError;
-            if (appError?.status === 404) {
-              if (!resultModalVisible && !votingInProgress.current) {
-                setGameEnded(true);
-              }
-            }
-      }
-    };
-
-    const id = setInterval(checkIfGameStillExists, 1000); 
-
-    return () => clearInterval(id); 
-  }, [apiService, token, gameid]);
-
-  useEffect(() => {
-    if (!game?.writers) return;
-
-    if (game.writers?.[0]?.id === Number(userId) && OneInput === "") {
-      setOneInput(game.writers[0]?.text ?? "");
-    }
-
-    if (game.writers?.[1]?.id === Number(userId) && TwoInput === "") {
-      setTwoInput(game.writers[1]?.text ?? "");
-    }
-  }, [game, userId, OneInput, TwoInput]);
-
-  useEffect(() => {
-    if (!token || !gameid || !game) return;
     if (!isUserPlayer1 || !isPlayer1Active) return;
 
     const timeout = setTimeout(() => {
@@ -242,13 +239,13 @@ useEffect(() => {
       ).catch((error) => {
         console.log("Saving Player 1 draft failed", error);
       });
-    }, 400);
+    }, 100);
 
     return () => clearTimeout(timeout);
-  }, [OneInput, token, gameid, game, isUserPlayer1, isPlayer1Active, apiService]);
+  }, [OneInput, token, gameid, isUserPlayer1, isPlayer1Active, apiService]);
 
   useEffect(() => {
-    if (!token || !gameid || !game) return;
+    if (!token || !gameid ) return;
     if (!isUserPlayer2 || !isPlayer2Active) return;
 
     const timeout = setTimeout(() => {
@@ -259,10 +256,12 @@ useEffect(() => {
       ).catch((error) => {
         console.log("Saving Player 2 draft failed", error);
       });
-    }, 400);
+    }, 100);
 
     return () => clearTimeout(timeout);
-  }, [TwoInput, token, gameid, game, isUserPlayer2, isPlayer2Active, apiService]);
+  }, [TwoInput, token, gameid, isUserPlayer2, isPlayer2Active, apiService]);
+
+ 
 
   useEffect(() => { //executes the "cleanup", after a writer leave was detected
   if (!gameEnded) return;
