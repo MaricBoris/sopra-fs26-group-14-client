@@ -585,7 +585,8 @@ return (
               }}
             >
               <TextArea
-
+                maxLength={2000}
+                showCount
                 disabled={!isUserPlayer1 || !game.writers[0].turn}
                 style={inputInnerStyle}
                 value={isUserPlayer1 ? OneInput : (game.writers[0]?.text ?? "")}
@@ -687,7 +688,7 @@ return (
             )}
           </div>
 
-          {/* Judge Spalte */}
+         {/* Judge Spalte */}
           <div
             style={{
               display: "flex",
@@ -702,15 +703,37 @@ return (
                 padding: 14,
                 height: 400,
                 minWidth: 0,
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
               }}
             >
-                  <TextArea 
-                    style={inputInnerStyle}
-                    value={wholeStoryText} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText.
-                    readOnly
-                    placeholder="Text Field of active Story"
-                  />{/* Bei jedem change wird neu gerendert!!*/}
+              {game.story.objective && (
+                <div
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 16,
+                    color: "#ffffff",
+                    padding: "6px 10px",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.10)",
+                    borderRadius: 2,
+                    textAlign: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  Story Objective: {game.story.objective}
+                </div>
+              )}
+              <TextArea 
+                style={{ ...inputInnerStyle, flex: 1 }}
+                value={wholeStoryText}
+                readOnly
+                placeholder="Text Field of active Story"
+              />
             </div>
+  
+
 
            {/* <div
               style={{
@@ -817,6 +840,8 @@ return (
               }}
             >
               <TextArea
+                maxLength={2000}
+                showCount
                 disabled={!isUserPlayer2 || !game.writers[1].turn}
                 style={inputInnerStyle}
                 value={isUserPlayer2 ? TwoInput : (game.writers[1]?.text ?? "")}
