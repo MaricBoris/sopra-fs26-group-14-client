@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Cinzel } from "next/font/google";
 import { App as AntdApp, ConfigProvider, theme } from "antd";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "@/styles/globals.css";
@@ -11,6 +11,11 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
 });
 
@@ -26,16 +31,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable}`}>
         <ConfigProvider
           theme={{
             algorithm: theme.defaultAlgorithm,
             token: {
               // general theme options are set in token, meaning all primary elements (button, menu, ...) will have this color
               colorPrimary: "#22426b", // selected input field boarder will have this color as well
-              borderRadius: 8,
+              borderRadius: 1,
               colorText: "#fff",
-              fontSize: 16,
+              fontSize: 18,
 
               // Alias Token
               colorBgContainer: "#16181D",
@@ -46,6 +51,11 @@ export default function RootLayout({
                 colorPrimary: "#75bd9d", // this will color all buttons in #75bd9d, overriding the default primaryColor #22426b set in token line 35
                 algorithm: true, // enable algorithm (redundant with line 33 but here for demo purposes)
                 controlHeight: 38,
+                colorBorder: "#ffffff",       // white border
+                lineWidth: 1,                 // thicker border
+                colorText: "#ffffff",         // white text for default buttons
+                defaultColor: "#ffffff",      // white text
+                defaultBorderColor: "#ffffff", // white border for default buttons
               },
               Input: {
                 colorBorder: "gray", // color boarder selected is not overridden but instead is set by primary color in line 35
