@@ -290,6 +290,18 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
     return () => clearTimeout(timeout);
   }, [TwoInput, token, gameid, isUserPlayer2, isPlayer2Active, apiService]);
 
+  useEffect(() => {
+    if (isUserPlayer1 && !isPlayer1Active) {
+      setOneInput("");
+    }
+  }, [isUserPlayer1, isPlayer1Active]);
+
+  useEffect(() => {
+    if (isUserPlayer2 && !isPlayer2Active) {
+      setTwoInput("");
+    }
+  }, [isUserPlayer2, isPlayer2Active]);
+
  
 
   useEffect(() => { //executes the "cleanup", after a writer leave was detected
