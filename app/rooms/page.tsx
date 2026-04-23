@@ -125,7 +125,7 @@ export default function RoomsPage() {
           <h1 style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", margin: 0, fontSize: 40, fontFamily: "var(--font-cinzel), serif", color: "#3b2a1a", whiteSpace: "nowrap" }}>Lobby</h1>
         </div>
 
-        <div style={{ width: 660, maxWidth: "100%", background: "rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", borderRadius: 1, border: "1px solid rgba(255,255,255,0.15)", padding: 24 }}>
+        <div style={{ width: 680, maxWidth: "100%", background: "rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", borderRadius: 1, border: "1px solid rgba(255,255,255,0.15)", padding: 24 }}>
           {/* 📝 Available Matches heading */}
           <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 2, padding: "10px 0", textAlign: "center", marginBottom: 16 }}>
             <h2 style={{ margin: 0, fontFamily: "var(--font-cinzel), serif" }}>Available Matches</h2>
