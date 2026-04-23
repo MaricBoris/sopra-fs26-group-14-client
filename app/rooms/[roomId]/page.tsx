@@ -259,7 +259,7 @@ export default function PreGameRoomPage() {
 
         {/* 📝 Main glass box */}
         <div style={{
-          width: 560,
+          width: 680,
           maxWidth: "100%",
           background: "rgba(255,255,255,0.09)",
           backdropFilter: "blur(12px)",
