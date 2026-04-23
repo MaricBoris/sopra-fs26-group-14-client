@@ -164,7 +164,7 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
       setGame(latestGame);
       setStoryyText(latestGame.story.storyText);
 
-      if (latestGame.story.hasWinner) {
+      if (latestGame.story.hasWinner || latestGame.phase === "FINISHED") {
         setResultModalVisible(prev => {
           if (!prev) {
             setResultGame(latestGame);
