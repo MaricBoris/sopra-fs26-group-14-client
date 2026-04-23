@@ -5,6 +5,7 @@
 
 
 import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
+import Image from "next/image";
 import HomeButton from "../../components/HomeButton";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -135,28 +136,38 @@ const Login: React.FC = () => {
   const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
 
   // 📝 table columns — opponent/genre/outcome resolved relative to viewed user
+  const headerCell = () => ({ style: { fontSize: 16 } });
+
   const storyColumns: ColumnsType<Story> = [
     {
       title: "Date",
       dataIndex: "creationDate",
       key: "creationDate",
+      width: "25%",
+      onHeaderCell: headerCell,
       render: (v: string | null) => v ? new Date(v).toLocaleDateString() : "—",
     },
     {
       title: "Opponent",
       key: "opponent",
+      width: "25%",
+      onHeaderCell: headerCell,
       render: (_: unknown, s: Story) =>
         s.winnerUsername === users?.username ? (s.loserUsername ?? "—") : (s.winnerUsername ?? "—"),
     },
     {
       title: "Genre",
       key: "genre",
+      width: "25%",
+      onHeaderCell: headerCell,
       render: (_: unknown, s: Story) =>
         s.winnerUsername === users?.username ? (s.winGenre ?? "—") : (s.loseGenre ?? "—"),
     },
     {
       title: "Outcome",
       key: "outcome",
+      width: "25%",
+      onHeaderCell: headerCell,
       render: (_: unknown, s: Story) => {
         if (!s.hasWinner) return <span style={{ color: "#aaaaaa" }}>Tie</span>;
         if (s.winnerUsername === users?.username) return <span style={{ color: "#4caf50" }}>Win</span>;
@@ -264,9 +275,11 @@ const Login: React.FC = () => {
         <div style={{ position: "fixed", bottom: 20, right: 60, zIndex: 1000 }}>
           <Button
             onClick={handleOpenDeleteModal}
-            style={{ ["--btn-bg" as string]: "#c0392b", width: 200, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}
+            style={{ ["--btn-bg" as string]: "#c0392b", width: 110, height: 50, padding: 0, fontSize: "15px" } as React.CSSProperties}
           >
-            Delete Account
+            <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}>
+              <span>Delete</span><span>Account</span>
+            </span>
           </Button>
         </div>
       )}
@@ -276,7 +289,7 @@ const Login: React.FC = () => {
 
           {/* left panel — profile info */}
           <div style={{
-            width: 576,
+            width: 680,
             background: "rgba(255,255,255,0.04)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(255,255,255,0.08)",
@@ -290,8 +303,11 @@ const Login: React.FC = () => {
           }}>
 
             {/* header box */}
-            <div style={{ ...glassBox, textAlign: "center" }}>
-              <div style={{ fontSize: 24, fontWeight: "bold" }}>User Profile</div>
+            <div style={{ ...glassBox, textAlign: "center", padding: 0, overflow: "hidden", position: "relative" }}>
+              <Image src="/title_template_flattest_darkblue_genres.png" alt="User Profile" width={3072} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 9, pointerEvents: "none" }}>
+                <span style={{ fontFamily: "var(--font-cinzel), serif", fontSize: 28, fontWeight: "bold", color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>User Profile</span>
+              </div>
             </div>
 
             {/* info box */}
@@ -306,22 +322,26 @@ const Login: React.FC = () => {
             {/* buttons */}
             {String(users?.id) === String(id) && (
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                <Button onClick={handleLogout} style={{ ["--btn-bg" as string]: "#c0392b", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}>
+                <Button onClick={handleLogout} style={{ ["--btn-bg" as string]: "#c0392b", width: 110, height: 50, padding: 0, fontSize: "15px" } as React.CSSProperties}>
                   Logout
                 </Button>
-                <Button onClick={handleEditBio} style={{ ["--btn-bg" as string]: "#6253c6b3", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}>
+                <div style={{ display: "flex", gap: 8 }}>
+                <Button onClick={handleEditBio} style={{ ["--btn-bg" as string]: "#6253c6b3", width: 110, height: 50, padding: 0, fontSize: "15px" } as React.CSSProperties}>
                   Edit Bio
                 </Button>
-                <Button onClick={handleEditPassword} style={{ ["--btn-bg" as string]: "#6253c6b3", width: 180, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}>
-                  Edit Password
+                <Button onClick={handleEditPassword} style={{ ["--btn-bg" as string]: "#6253c6b3", width: 110, height: 50, padding: 0, fontSize: "13px" } as React.CSSProperties}>
+                  <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}>
+                    <span>Edit</span><span>Password</span>
+                  </span>
                 </Button>
+                </div>
               </div>
             )}
           </div>
 
           {/* stats + match history */}
           <div style={{
-            width: 576,
+            width: 680,
             background: "rgba(255,255,255,0.04)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(255,255,255,0.08)",
@@ -331,35 +351,40 @@ const Login: React.FC = () => {
             color: "#ffffff",
             display: "flex",
             flexDirection: "column",
-            gap: 16,
+            gap: 10,
           }}>
 
             {/* header */}
-            <div style={{ ...glassBox, textAlign: "center" }}>
-              <div style={{ fontSize: 24, fontWeight: "bold" }}>Match History</div>
+            <div style={{ ...glassBox, textAlign: "center", padding: 0, overflow: "hidden", position: "relative" }}>
+              <Image src="/title_template_flattest_darkblue_genres.png" alt="Match History" width={3072} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 9, pointerEvents: "none" }}>
+                <span style={{ fontFamily: "var(--font-cinzel), serif", fontSize: 28, fontWeight: "bold", color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Match History</span>
+              </div>
             </div>
 
             {/* stats row */}
-            <div style={{ display: "flex", gap: 12 }}>
+            <div style={{ display: "flex", gap: 10 }}>
               {[
                 { label: "Games Played", value: totalGames },
                 { label: "Wins", value: wins },
                 { label: "Win Rate", value: `${winRate}%` },
               ].map(({ label, value }) => (
-                <div key={label} style={{ ...glassBox, flex: 1, textAlign: "center", padding: "12px 8px" }}>
-                  <div style={{ fontSize: 22, fontWeight: "bold", color: "#a89cf7" }}>{value}</div>
-                  <div style={{ fontSize: 11, color: "#aaaaaa", marginTop: 4 }}>{label}</div>
+                <div key={label} style={{ ...glassBox, flex: 1, textAlign: "center", padding: "3px 4px" }}>
+                  <div style={{ fontSize: 18, fontWeight: "bold", color: "#a89cf7" }}>{value}</div>
+                  <div style={{ fontSize: 12, color: "#aaaaaa", marginTop: 1 }}>{label}</div>
                 </div>
               ))}
             </div>
 
             {/* table */}
-            <div style={{ ...glassBox, padding: 0, overflow: "hidden" }}>
+            <div style={{ ...glassBox, padding: 0, overflow: "hidden", fontSize: 12 }}>
               <Table<Story>
                 dataSource={stories}
                 columns={storyColumns}
                 rowKey="id"
                 pagination={false}
+                tableLayout="fixed"
+                style={{ width: "100%" }}
                 scroll={{ y: 300 }}
                 locale={{ emptyText: <span style={{ color: "#aaaaaa", fontFamily: "var(--font-cinzel), serif" }}>No matches yet</span> }}
                 onRow={(record) => ({
