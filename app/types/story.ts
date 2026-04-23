@@ -8,4 +8,5 @@ export interface Story {
   winGenre: string | null;
   loseGenre: string | null;
   creationDate: string | null;
+  objective: string | null;
 }

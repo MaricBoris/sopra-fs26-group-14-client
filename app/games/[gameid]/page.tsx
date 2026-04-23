@@ -2,7 +2,7 @@
 "use client";
 import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
 
-import { Button, Input , message, Modal } from "antd";
+import { Button, Input , message, Modal, Tooltip } from "antd";
 import styles from "@/styles/page.module.css";
 import { Game } from "@/types/game";
 import { Writer } from "@/types/writer";
@@ -89,19 +89,19 @@ const [declareModalVisible, setDeclareModalVisible] = useState(false);
 const [resultModalVisible, setResultModalVisible] = useState(false);
 const [resultGame, setResultGame] = useState<Game | null>(null);
 const votingInProgress = useRef(false);
+const [gameEnded, setGameEnded] = useState(false);
 
 const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
   const prettyinput=input.trim();
   try {
-    const response=await apiService.post<Game>(`/games/${gameid}/input`,{ player: player, input: prettyinput },token);
-    setGame(response);
+    await apiService.post<Game>(`/games/${gameid}/input`,{ player: player, input: prettyinput },token);
+    
     const quote = game?.writers[player - 1]?.quote;
     if (quote && prettyinput.toLowerCase().includes(quote.toLowerCase())) {
         if (player === 1) setQuoteUsedP1(true);
         else setQuoteUsedP2(true);
     }
-    const holeStoryText=response.story.storyText;
-    setStoryyText(holeStoryText);
+    
     if (player===2){
       setTwoInput("");
     }
@@ -139,8 +139,7 @@ const [quotedP2, setQuotedP2] = useState(false);
 
 const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
     try {
-        const response = await apiService.get<Game>(`/games/${gameid}/quotes?player=${player}`, token);
-        setGame(response);
+        await apiService.get<Game>(`/games/${gameid}/quotes?player=${player}`, token);
         if (player === 1) {
             setQuotedP1(true);
             }
@@ -152,43 +151,12 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
     }
 };
 
-useEffect(() => { 
-  
-  if (!token || !gameid) return; 
-  const getGame = async () => { 
-    try { 
-      const ourGame: Game = await apiService.get<Game>(`/games/${gameid}`, token); 
-      setGame(ourGame);
-      
-      const writer1 = ourGame.writers[0];
-      const writer2 = ourGame.writers[1];
-
-      setGenre1(writer1?.genre ?? "Genre");
-      setGenre2(writer2?.genre ?? "Genre");
-
-      setStoryyText(ourGame.story.storyText);
-      
-      
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        alert(`Fetching game failed:\n${error.message}`);
-      } else {
-        alert("Fetching game failed (unknown error).");
-        console.error("Unknown error:", error);
-      }
-
-    }
-  } 
-  getGame();
-
-   
-  }, [apiService, token, gameid]);
-
   useEffect(() => {
     if (!token || !gameid) return;
 
-    const streamUrl = `${getApiDomain()}/games/${gameid}/stream?token=${encodeURIComponent(token)}`;
-    const eventSource = new EventSource(streamUrl);
+    let eventSource: EventSource | null = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
 
     const handleGameUpdate = (event: MessageEvent) => {
       const latestGame: Game = JSON.parse(event.data);
@@ -196,36 +164,97 @@ useEffect(() => {
       setGame(latestGame);
       setStoryyText(latestGame.story.storyText);
 
-      setGenre1(latestGame.writers[0]?.genre ?? "Genre");
-      setGenre2(latestGame.writers[1]?.genre ?? "Genre");
-
-      if (latestGame.story.hasWinner && !resultModalVisible) {
-        setResultGame(latestGame);
-        setResultModalVisible(true);
+      if (latestGame.story.hasWinner) {
+        setResultModalVisible(prev => {
+          if (!prev) {
+            setResultGame(latestGame);
+            return true;
+          }
+          return prev;
+        });
       }
     };
 
     const handleGameDeleted = () => {
-      if (!resultModalVisible && !votingInProgress.current) {
-        setGameEnded(true);
+      setResultModalVisible(prev => {
+        if (!prev && !votingInProgress.current) {
+          setGameEnded(true);
+        }
+        return prev; 
+      });
+    };
+
+    const connect = async () => {
+      let initialGame: Game | null = null;
+      try { //initial fetch +  give up immediately if the token is wrong or we don't have a game and trying to reconnect would be useless
+        initialGame = await apiService.get<Game>(`/games/${gameid}`, token);
+      } catch (error) {
+        const appError = error as ApplicationError;
+        if (appError.status === 401 || appError.status === 403) {
+          message.error("Session expired. Please log in again.");
+          clearToken();
+          router.push("/login");
+          return;
+        }
+        if (appError.status === 404) {
+          message.error("Game no longer exists.");
+          router.push("/");
+          return;
+        }
+        
       }
+       if (initialGame) {
+          setGame(initialGame);
+          setStoryyText(initialGame.story.storyText);
+          setGenre1(initialGame.writers[0]?.genre ?? "Genre");
+          setGenre2(initialGame.writers[1]?.genre ?? "Genre");
+        }
+      const streamUrl = `${getApiDomain()}/games/${gameid}/stream?token=${encodeURIComponent(token)}`;
+      eventSource = new EventSource(streamUrl);
+
+      eventSource.onopen = async () => {
+        reconnectAttempts = 0;
+        try {
+          const currentGame = await apiService.get<Game>(`/games/${gameid}`, token);
+          setGame(currentGame);
+          setStoryyText(currentGame.story.storyText);
+          if (currentGame.story.hasWinner) {
+            setResultModalVisible(prev => {
+              if (!prev) {
+                setResultGame(currentGame);
+                return true;
+              }
+              return prev;
+            });
+          }
+        } catch {
+          
+        }
+      };
+
+      eventSource.addEventListener("game-update", handleGameUpdate);
+      eventSource.addEventListener("game-deleted", handleGameDeleted);
+
+      eventSource.onerror = () => {
+        reconnectAttempts++;
+        
+        if (
+          eventSource?.readyState === EventSource.CLOSED || //browser gave up himself 
+          reconnectAttempts >= maxReconnectAttempts        
+        ) {
+          eventSource?.close();
+          message.error("Lost connection to game. Please reload.");
+        }
+      };
     };
 
-    eventSource.addEventListener("game-update", handleGameUpdate as EventListener);
-    eventSource.addEventListener("game-deleted", handleGameDeleted as EventListener);
-
-    eventSource.onerror = (error) => {
-      console.error("SSE connection error", error);
-    };
+    connect();
 
     return () => {
-      eventSource.removeEventListener("game-update", handleGameUpdate as EventListener);
-      eventSource.removeEventListener("game-deleted", handleGameDeleted as EventListener);
-      eventSource.close();
+      eventSource?.close();
     };
   }, [token, gameid]);
 
-  const [gameEnded, setGameEnded] = useState(false);
 
   useEffect(() => {
     if (!token || !gameid ) return;
@@ -260,6 +289,18 @@ useEffect(() => {
 
     return () => clearTimeout(timeout);
   }, [TwoInput, token, gameid, isUserPlayer2, isPlayer2Active, apiService]);
+
+  useEffect(() => {
+    if (isUserPlayer1 && !isPlayer1Active) {
+      setOneInput("");
+    }
+  }, [isUserPlayer1, isPlayer1Active]);
+
+  useEffect(() => {
+    if (isUserPlayer2 && !isPlayer2Active) {
+      setTwoInput("");
+    }
+  }, [isUserPlayer2, isPlayer2Active]);
 
  
 
@@ -501,7 +542,7 @@ return (
                 fontSize: 20,
               }}
             >
-            {game.currentRound} / 20
+            {game.currentRound} / 4
 
             </div>
           </div>
@@ -556,7 +597,8 @@ return (
               }}
             >
               <TextArea
-
+                maxLength={2000}
+                showCount
                 disabled={!isUserPlayer1 || !game.writers[0].turn}
                 style={inputInnerStyle}
                 value={isUserPlayer1 ? OneInput : (game.writers[0]?.text ?? "")}
@@ -573,15 +615,17 @@ return (
                 minWidth: 0,
               }}
             >
-              <Input
-                value={isUserPlayer1
-                        ? writer1Genre
-                        : isUserPlayer2
-                        ? "Genre"
-                        : writer1Genre}
-                readOnly
-                style={smallFieldStyle}
-              />
+              <Tooltip title={!isUserPlayer2 ? (game.writers[0]?.genreDescription ?? "") : ""}>
+                <Input
+                  value={isUserPlayer1
+                          ? writer1Genre
+                          : isUserPlayer2
+                          ? "Genre"
+                          : writer1Genre}
+                  readOnly
+                  style={smallFieldStyle}
+                />
+              </Tooltip>
               <Input
                 value={isPlayer1Active && game.phase !== "EVALUATION" ? countdown : "Timer"}
                 readOnly
@@ -658,7 +702,7 @@ return (
             )}
           </div>
 
-          {/* Judge Spalte */}
+         {/* Judge Spalte */}
           <div
             style={{
               display: "flex",
@@ -673,15 +717,37 @@ return (
                 padding: 14,
                 height: 400,
                 minWidth: 0,
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
               }}
             >
-                  <TextArea 
-                    style={inputInnerStyle}
-                    value={wholeStoryText} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText.
-                    readOnly
-                    placeholder="Text Field of active Story"
-                  />{/* Bei jedem change wird neu gerendert!!*/}
+              {game.story.objective && (
+                <div
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 16,
+                    color: "#ffffff",
+                    padding: "6px 10px",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.10)",
+                    borderRadius: 2,
+                    textAlign: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  Story Objective: {game.story.objective}
+                </div>
+              )}
+              <TextArea 
+                style={{ ...inputInnerStyle, flex: 1 }}
+                value={wholeStoryText}
+                readOnly
+                placeholder="Text Field of active Story"
+              />
             </div>
+  
+
 
            {/* <div
               style={{
@@ -788,6 +854,8 @@ return (
               }}
             >
               <TextArea
+                maxLength={2000}
+                showCount
                 disabled={!isUserPlayer2 || !game.writers[1].turn}
                 style={inputInnerStyle}
                 value={isUserPlayer2 ? TwoInput : (game.writers[1]?.text ?? "")}
@@ -805,15 +873,17 @@ return (
                 minWidth: 0,
               }}
             >
-              <Input
-                value={isUserPlayer2
-                        ? writer2Genre
-                        : isUserPlayer1
-                        ? "Genre"
-                        : writer2Genre}
-                readOnly
-                style={smallFieldStyle}
-              />
+              <Tooltip title={!isUserPlayer1 ? (game.writers[1]?.genreDescription ?? "") : ""}>
+                <Input
+                  value={isUserPlayer2
+                          ? writer2Genre
+                          : isUserPlayer1
+                          ? "Genre"
+                          : writer2Genre}
+                  readOnly
+                  style={smallFieldStyle}
+                />
+              </Tooltip>
               <Input
                 value={isPlayer2Active && game.phase !== "EVALUATION" ? countdown : "Timer"}
                 readOnly
