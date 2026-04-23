@@ -617,7 +617,7 @@ return (
               flexDirection: "column",
               gap: 8,
               minWidth: 0,
-              ...(isPlayer1Active && game.phase !== "EVALUATION" ? activePlayerStyle : inactivePlayerStyle),
+              ...(isPlayer1Active && game.phase !== "EVALUATION" && !resultModalVisible ? activePlayerStyle : inactivePlayerStyle),
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
@@ -635,7 +635,7 @@ return (
               <TextArea
                 maxLength={2000}
                 showCount
-                disabled={!isUserPlayer1 || !game.writers[0].turn}
+                disabled={!isUserPlayer1 || !game.writers[0].turn || game.phase === "EVALUATION"}
                 style={inputInnerStyle}
                 value={isUserPlayer1 ? OneInput : (game.writers[0]?.text ?? "")}
                 onChange={(e) => setOneInput(e.target.value)}
@@ -874,7 +874,7 @@ return (
               flexDirection: "column",
               gap: 8,
               minWidth: 0,
-              ...(isPlayer2Active && game.phase !== "EVALUATION" ? activePlayerStyle : inactivePlayerStyle),
+              ...(isPlayer2Active && game.phase !== "EVALUATION" && !resultModalVisible ? activePlayerStyle : inactivePlayerStyle),
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
@@ -892,7 +892,7 @@ return (
               <TextArea
                 maxLength={2000}
                 showCount
-                disabled={!isUserPlayer2 || !game.writers[1].turn}
+                disabled={!isUserPlayer2 || !game.writers[1].turn || game.phase === "EVALUATION"}
                 style={inputInnerStyle}
                 value={isUserPlayer2 ? TwoInput : (game.writers[1]?.text ?? "")}
                 onChange={(e) => setTwoInput(e.target.value)}
