@@ -255,6 +255,42 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
     };
   }, [token, gameid]);
 
+  // Polling fallback
+  useEffect(() => {
+    if (!token || !gameid) return;
+    if (gameEnded) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const latestGame = await apiService.get<Game>(`/games/${gameid}`, token);
+        setGame(latestGame);
+        setStoryyText(latestGame.story.storyText);
+        if (latestGame.story.hasWinner) {
+          setResultModalVisible(prev => {
+            if (!prev) {
+              setResultGame(latestGame);
+              return true;
+            }
+            return prev;
+          });
+        }
+      } catch (error) {
+        const appError = error as ApplicationError;
+        if (appError?.status === 404) {
+          setResultModalVisible(prev => {
+            if (!prev && !votingInProgress.current) {
+              setGameEnded(true);
+            }
+            return prev;
+          });
+        }
+        
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [token, gameid, gameEnded]);
+
 
   useEffect(() => {
     if (!token || !gameid ) return;
