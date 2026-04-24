@@ -86,9 +86,20 @@ reason).
 
 ---
 
-## Contributions Week 4 - [Begin Date] to [End Date]
+## Contributions Week 4 - [22.04.2026] to [28.04.2026]
 
-_Continue with the same table format as above._
+| **Student** | **Date** | **Link to Commit** | **Description** | **Relevance** |
+|---|---|---|---|---|
+| **[@Monato11]** | [Date] | [Link] | [Description] | [Relevance] |
+| | [Date] | [Link] | [Description] | [Relevance] |
+| **[@thomashonzi]** | [23.04.2026] | [https://github.com/MaricBoris/sopra-fs26-group-14-client/commit/61bf980c597394d2378f1d16c34fc162145588f5] | [Add match history to user profile page.  Shows table with all played games of user. Additional info is display such as: played, wins, opponent, genre, outcome. (functional version, scuffed design)] | [Users can now see a table with their match history, see some stats in relation to it and can navigate to their individual results.] |
+| | [23.04.2026] | [https://github.com/MaricBoris/sopra-fs26-group-14-client/commit/45a0c05cd4948f5b571f367cbfc6e1b897710527] | [Design adjustments: New Frontpage banner. New Title banners for User Profile and Match History. Fixed Button size, adjusted text to fit. Adjustments in Match history table. Moved things around. All glass boxes in users, users/id, rooms, rooms/id set to same size.] | [Updates in regard to consistency create a better user experience. Starting to re-design the page to upgrade the feel and perception of the page.] |
+| **[@AntoGrgic49]** | [Date] | [Link] | [Description] | [Relevance] |
+| | [Date] | [Link] | [Description] | [Relevance] |
+| **[@elvivbert]** | [Date] | [Link] | [Description] | [Relevance] |
+| | [Date] | [Link] | [Description] | [Relevance] |
+| **[@MaricBoris]** | [Date] | [Link] | [Description] | [Relevance] |
+| | [Date] | [Link] | [Description] | [Relevance] |
 
 ---
 
