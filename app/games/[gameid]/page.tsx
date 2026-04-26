@@ -90,6 +90,7 @@ const [resultModalVisible, setResultModalVisible] = useState(false);
 const [resultGame, setResultGame] = useState<Game | null>(null);
 const votingInProgress = useRef(false);
 const [gameEnded, setGameEnded] = useState(false);
+const [redirectCountdown, setRedirectCountdown] = useState(20);
 
 const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
   const prettyinput=input.trim();
@@ -418,7 +419,20 @@ useEffect(() => {
 
 
 useEffect(() => {
-  if (!resultModalVisible) return;
+   if (!resultModalVisible) {
+    setRedirectCountdown(20); 
+    return;
+  }
+
+  const countdownInterval = setInterval(() => {
+    setRedirectCountdown(prev => {
+      if (prev <= 1) {
+        clearInterval(countdownInterval);
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
 
   const timeout = setTimeout(async () => {
     try {
@@ -430,7 +444,10 @@ useEffect(() => {
     router.push("/");
   }, 20000);
 
-  return () => clearTimeout(timeout);
+  return () => {
+    clearTimeout(timeout);
+    clearInterval(countdownInterval);
+  };
 }, [resultModalVisible, router]);
 
 
@@ -1074,7 +1091,7 @@ return (
             </div>
           )}
           <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 8 }}>
-            Redirecting to home in 20 seconds...
+            Redirecting to home in {redirectCountdown} seconds...
           </div>
         </div>
       </Modal>
