@@ -685,7 +685,7 @@ return (
             <div
               style={{
                 ...panelStyle,
-                padding: 12,
+                padding: 20,
                 height: 190,
                 minWidth: 0,
               }}
@@ -880,7 +880,7 @@ return (
                 </Button>
               )}
 
-              <Button
+              {isJudge && <Button
                 disabled={!isJudge || game.phase !== "EVALUATION"}
                 onClick={() => setDeclareModalVisible(true)}
                 style={{
@@ -891,7 +891,7 @@ return (
                 }}
               >
                 Declare
-              </Button>
+              </Button>}
 
               {isJudge && (
                 <Button
@@ -942,7 +942,7 @@ return (
             <div
               style={{
                 ...panelStyle,
-                padding: 12,
+                padding: 20,
                 height: 190,
                 minWidth: 0,
               }}
