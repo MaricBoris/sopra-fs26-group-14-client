@@ -68,6 +68,13 @@ a {
   align-items: center;
   min-height: 100vh;
 }
+/* 📝 Buttons: prevent buttons from growing beyond their set width/height */
+.ant-btn {
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
+}
+
 /*📝 Buttons: Background, text, border, click animation*/
 .ant-btn-variant-outlined.ant-btn-color-default {
   font-family: var(--font-cinzel), serif !important;
