@@ -41,7 +41,7 @@ export default function Home() {
   if (!isMounted) return null;
 
   return (
-      <div style={{ minHeight: "100vh" }}>
+      <div style={{ height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", overflow: "hidden" }}>
       <ProfileButton />
       {/* 📝 Login + Register buttons: only shown when not logged in */}
       {!token && !userId && (
@@ -56,23 +56,23 @@ export default function Home() {
           <Button onClick={handleLogout} style={{ ["--btn-bg" as string]: "#c0392b", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}>Logout</Button>
         </div>
       )}
-      <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20 }}>
-        <div style={{ width: 660, maxWidth: "100%", background: "rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", borderRadius: 1, border: "1px solid rgba(255,255,255,0.15)", padding: 24 }}>
+      <main style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div style={{ width: "min(660px, 95vw)", boxSizing: "border-box", maxWidth: "100%", background: "rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", borderRadius: 1, border: "1px solid rgba(255,255,255,0.15)", padding: 24 }}>
           {/* 📝 Framing box: */}
-          <Image src="/frontpage_banner.png" alt="banner" width={660} height={300} style={{ maxWidth: "100%", height: "auto" }} />
-          <p style={{ textAlign: "center", maxWidth: 600, margin: "5px auto 0", fontFamily: "var(--font-cinzel), serif", fontSize: "16px" }}>
+          <Image src="/frontpage_banner.png" alt="banner" width={660} height={300} style={{ maxWidth: "100%", height: "auto", display: "block" }} />
+          <p style={{ textAlign: "center", maxWidth: 600, margin: "2px auto 0", fontFamily: "var(--font-cinzel), serif", fontSize: "16px" }}>
             Face one another in a collaborative and competitive writing game!<br />
             Try to steer the story towards your assigned literature genre<br />and convince the judge that you shall be crowned the winner!<br />
             <strong>Register and join the lobby to face other users now!</strong>
           </p>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 35 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12 }}>
             <Button
               onClick={() => router.push("/results")}
-              style={{ ["--btn-bg" as string]: "#6253c6b3", width: 220, height: 80, fontSize: "34px", padding: 0, borderColor: "#ffffff" } as React.CSSProperties}
+              style={{ ["--btn-bg" as string]: "#6253c6b3", width: "clamp(140px, 30vw, 220px)",fontSize: "clamp(20px, 3vw, 34px)", height: 60, fontSize: "34px", padding: 0, borderColor: "#ffffff" } as React.CSSProperties}
             >Stories</Button>
             <Button
               onClick={handleLobbyClick}
-              style={{ ["--btn-bg" as string]: "#6253c6b3", width: 220, height: 80, fontSize: "34px", padding: 0, borderColor: "#ffffff" } as React.CSSProperties}
+              style={{ ["--btn-bg" as string]: "#6253c6b3",width: "clamp(140px, 30vw, 220px)",fontSize: "clamp(20px, 3vw, 34px)", height: 60, fontSize: "34px", padding: 0, borderColor: "#ffffff" } as React.CSSProperties}
             >Lobby</Button>
           </div>
         </div>
