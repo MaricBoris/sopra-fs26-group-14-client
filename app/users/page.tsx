@@ -121,7 +121,7 @@ const UsersPage: React.FC = () => {
         <div
           className={styles.glassCard}
           style={{
-            width: 800,
+            width: 680,
             maxWidth: "90%",
             padding: 24,
             fontFamily: "var(--font-cinzel), serif",
