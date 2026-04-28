@@ -75,6 +75,13 @@ const {
   clear: clearId,
 } = useLocalStorage<string>("userId", "");
 
+const RuleItem: React.FC<{ icon: string; text: string }> = ({ icon, text }) => (
+  <div style={{ display: "flex", gap: 12, alignItems: "flex-start", fontSize: 14, lineHeight: 1.6 }}>
+    <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
+    <span style={{ color: "rgba(255,255,255,0.85)" }}>{text}</span>
+  </div>
+);
+
 const [ wholeStoryText,setStoryyText] = useState<string>("");
 const [TwoInput, setTwoInput] = useState("");
 const [OneInput, setOneInput] = useState("");
@@ -90,6 +97,7 @@ const [resultModalVisible, setResultModalVisible] = useState(false);
 const [resultGame, setResultGame] = useState<Game | null>(null);
 const votingInProgress = useRef(false);
 const [gameEnded, setGameEnded] = useState(false);
+const [rulesVisible, setRulesVisible] = useState(false);
 
 const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
   const prettyinput=input.trim();
@@ -523,8 +531,21 @@ return (
             Game Room
           </div>
 
-          <div />
-        </div>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Button
+                        onClick={() => setRulesVisible(true)}
+                        style={{
+                          ["--btn-bg" as string]: "rgba(255,255,255,0.08)",
+                          width: 120,
+                          height: 52,
+                          fontSize: 18,
+                          border: "1px solid rgba(255,255,255,0.15)",
+                        }}
+                      >
+                      Help
+                      </Button>
+                    </div>
+                  </div>
 
         {/* Live story titel */}
         <div
@@ -1078,7 +1099,90 @@ return (
           </div>
         </div>
       </Modal>
-    </div>
+    {rulesVisible && (
+            <div
+              onClick={() => setRulesVisible(false)}
+              style={{
+                position: "fixed",
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: "rgba(0,0,0,0.45)",
+                backdropFilter: "blur(6px)",
+                zIndex: 998,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  background: "rgba(20,20,35,0.75)",
+                  backdropFilter: "blur(18px)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  borderRadius: 4,
+                  padding: "36px 40px",
+                  maxWidth: 540,
+                  width: "90%",
+                  color: "#ffffff",
+                  fontFamily: "var(--font-cinzel), serif",
+                  position: "relative",
+                }}
+              >
+                <Button
+                  onClick={() => setRulesVisible(false)}
+                  style={{
+                    position: "absolute",
+                    top: 14, right: 14,
+                    ["--btn-bg" as string]: "transparent",
+                    border: "none",
+                    color: "rgba(255,255,255,0.5)",
+                    fontSize: 20,
+                  }}
+                >✕</Button>
+
+                <div style={{ fontSize: 22, fontWeight: "bold", marginBottom: 20, textAlign: "center" }}>
+                  How to Play
+                </div>
+
+                <div style={{
+                  display: "inline-block",
+                  padding: "4px 14px",
+                  borderRadius: 20,
+                  fontSize: 13,
+                  marginBottom: 20,
+                  background: game.phase === "EVALUATION" ? "rgba(192,57,43,0.3)" : "rgba(46,159,68,0.3)",
+                  border: `1px solid ${game.phase === "EVALUATION" ? "#c0392b" : "#2e9f44"}`,
+                }}>
+                  Phase: {game.phase}
+                </div>
+
+                {isJudge ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    <RuleItem icon="⚖️" text="You are the Judge. You observe the story but do not write." />
+                    <RuleItem icon="💬" text="Assign a quote to either writer via Quote P1 / Quote P2. Each writer must incorporate it within 2 of their own turns." />
+                    <RuleItem icon="🚫" text="You can only assign one quote per writer." />
+                    <RuleItem icon="🏆" text="After 20 rounds the game enters Evaluation. Use the Declare button to pick the winner — the writer whose genre best shaped the story." />
+                    <RuleItem icon="⏱️" text="If you don't vote before the timer expires, a tie is recorded automatically." />
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    <RuleItem icon="✍️" text="Writers alternate turns building a shared story. Steer it toward your secret genre." />
+                    <RuleItem icon="🎭" text="Your genre is shown in your genre field — hover onto it to see the full description. The opponent does not know your genre!" />
+                    <RuleItem icon="💬" text="The Judge may assign you a quote. Weave it into the story within 2 of your own turns or face a penalty." />
+                    <RuleItem icon="⏱️" text="Each turn has a timer. If it expires your turn is skipped — submit before time runs out." />
+                    <RuleItem icon="🏆" text="After 20 rounds the Judge decides whose genre dominated the story. Write convincingly!" />
+                  </div>
+                )}
+
+
+
+                <div style={{ textAlign: "center", marginTop: 18, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>
+                  Click anywhere outside to close
+                </div>
+              </div>
+            </div>
+          )}
+      </div>
   );
 };
 
