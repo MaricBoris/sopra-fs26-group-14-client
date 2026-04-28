@@ -70,7 +70,6 @@ const Login: React.FC = () => {
               if (!response) {
                 router.push(`/login`);
               }
-          [token, id];
      
               //If token is present and valid current page is ok
                     
