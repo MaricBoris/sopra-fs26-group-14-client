@@ -606,7 +606,7 @@ return (
             style={{
               width: 200,
               height: "100%",
-              Height: 56,
+              height: 56,
               borderRight: "1px solid rgba(255,255,255,0.06)",
               display: "flex",
               alignItems: "center",
