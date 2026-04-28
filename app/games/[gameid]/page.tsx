@@ -363,8 +363,8 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
 useEffect(() => { //pre game countdown
   if (!starting) return;
   if (startCountdown <= 0) {
-    setStarting(false);
-    return;
+    const id = setTimeout(() => setStarting(false), 1000);
+    return () => clearTimeout(id);
   }
   const id = setTimeout(() => setStartCountdown(x => x - 1), 1000);
   return () => clearTimeout(id);
@@ -468,8 +468,10 @@ return (
           <div style={{
             position: "fixed",
             top: 0, left: 0, right: 0, bottom: 0,
-            background: "rgba(0,0,0,0.7)",
+            background: "rgba(0,0,0,0.75)",
+            backdropFilter: "blur(8px)",
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             fontSize: 120,
@@ -477,8 +479,35 @@ return (
             zIndex: 999,
             fontFamily: "var(--font-cinzel), serif",
           }}>
-            {startCountdown}
-          </div>
+      {startCountdown === 0 ? (
+              <div style={{ fontSize: 64, fontWeight: "bold", letterSpacing: 6, color: "#ffffff" }}>
+                Game Start!
+              </div>
+            ) : (
+              <>
+                <div style={{ fontSize: 16, letterSpacing: 3, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                  You are a
+                </div>
+                <div style={{ fontSize: 36, fontWeight: "bold", letterSpacing: 4 }}>
+                  {isJudge ? "Judge" : "Writer"}
+                </div>
+                {game?.story?.objective && (
+                  <div style={{ marginTop: 8, fontSize: 15, letterSpacing: 1 }}>
+                    Story's theme: <span style={{ color: "#ffffff", fontWeight: "bold" }}>{game.story.objective}</span>
+                  </div>
+                )}
+                {!isJudge && (
+                  <div style={{ fontSize: 15, color: "rgba(255,255,255,0.7)", letterSpacing: 1 }}>
+                    Your Secret Genre: <span style={{ color: "#f0c040", fontWeight: "bold" }}>{isUserPlayer1 ? writer1Genre : writer2Genre}</span>
+                  </div>
+                )}
+                <div style={{ fontSize: 100, fontWeight: "bold", lineHeight: 1, marginTop: 16 }}>
+                  {startCountdown}
+                </div>
+
+              </>
+            )}
+        </div>
         )}
       <div
         style={{
@@ -613,7 +642,7 @@ return (
             <div
               style={{
                 marginLeft: "auto",
-                width: 100,
+                width: 200,
                 height: "100%",
                 minHeight: 56,
                 borderLeft: "1px solid rgba(255,255,255,0.06)",
@@ -623,25 +652,9 @@ return (
                 fontSize: 20,
               }}
             >
-            {game.currentRound} / 4
+            {game.currentRound} / 4 rounds
 
             </div>
-          </div>
-
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 18,
-              minWidth: 0,
-            }}
-          >
-            Round
           </div>
         </div>
 
