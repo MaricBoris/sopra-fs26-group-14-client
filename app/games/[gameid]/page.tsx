@@ -493,7 +493,7 @@ return (
                 </div>
                 {game?.story?.objective && (
                   <div style={{ marginTop: 8, fontSize: 15, letterSpacing: 1 }}>
-                    Story's theme: <span style={{ color: "#ffffff", fontWeight: "bold" }}>{game.story.objective}</span>
+                    Story&apos;s theme: <span style={{ color: "#ffffff", fontWeight: "bold" }}>{game.story.objective}</span>
                   </div>
                 )}
                 {!isJudge && (
