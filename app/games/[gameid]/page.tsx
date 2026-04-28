@@ -567,10 +567,34 @@ return (
               border: "1px solid rgba(255,255,255,0.06)",
               borderRadius: 1,
               minWidth: 0,
-              minHeight: 56,
+              height: 56,
+              display: "flex",
+              alignItems: "center",
               overflow: "hidden",
             }}
           >
+          <div
+            style={{
+              width: 200,
+              height: "100%",
+              Height: 56,
+              borderRight: "1px solid rgba(255,255,255,0.06)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 13,
+              fontWeight: "bold",
+              letterSpacing: 2,
+              color: game.phase === "EVALUATION" ? "#e74c3c"
+                : game.phase === "TIEBREAKER" ? "#c39bd3"
+                : "#2e9f44",
+            }}
+          >
+            {game.phase === "EVALUATION" ? "EVALUATION PHASE"
+              : game.phase === "TIEBREAKER" ? "TIEBREAKER PHASE"
+              : "WRITING PHASE"}
+          </div>
+
             <div
               style={{
                 position: "absolute",
@@ -1144,18 +1168,6 @@ return (
                   How to Play
                 </div>
 
-                <div style={{
-                  display: "inline-block",
-                  padding: "4px 14px",
-                  borderRadius: 20,
-                  fontSize: 13,
-                  marginBottom: 20,
-                  background: game.phase === "EVALUATION" ? "rgba(192,57,43,0.3)" : "rgba(46,159,68,0.3)",
-                  border: `1px solid ${game.phase === "EVALUATION" ? "#c0392b" : "#2e9f44"}`,
-                }}>
-                  Phase: {game.phase}
-                </div>
-
                 {isJudge ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                     <RuleItem icon="⚖️" text="You are the Judge. You observe the story but do not write." />
@@ -1167,9 +1179,9 @@ return (
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                     <RuleItem icon="✍️" text="Writers alternate turns building a shared story. Steer it toward your secret genre." />
-                    <RuleItem icon="🎭" text="Your genre is shown in your genre field — hover onto it to see the full description. The opponent does not know your genre!" />
+                    <RuleItem icon="🎭" text="Your genre is shown in your genre field, hover onto it to see the full description. The opponent does not know your genre!" />
                     <RuleItem icon="💬" text="The Judge may assign you a quote. Weave it into the story within 2 of your own turns or face a penalty." />
-                    <RuleItem icon="⏱️" text="Each turn has a timer. If it expires your turn is skipped — submit before time runs out." />
+                    <RuleItem icon="⏱️" text="Each turn has a timer. If it expires your turn is skipped. Submit before time runs out." />
                     <RuleItem icon="🏆" text="After 20 rounds the Judge decides whose genre dominated the story. Write convincingly!" />
                   </div>
                 )}
