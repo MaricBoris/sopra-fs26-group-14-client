@@ -8,6 +8,7 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
 import { Story } from "@/types/story";
 import { User } from "@/types/user";
+import { GenreRating } from "@/types/genreRating";
 
 export default function StoryDetailPage() {
   const router = useRouter();
@@ -21,6 +22,9 @@ export default function StoryDetailPage() {
   const [winnerUser, setWinnerUser] = useState<User | null>(null);
   const [loserUser, setLoserUser] = useState<User | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [rating, setRating] = useState<GenreRating | null>(null);
+  const [voting, setVoting] = useState(false);
+
   useEffect(() => setIsMounted(true), []);
 
   useEffect(() => {
@@ -29,10 +33,12 @@ export default function StoryDetailPage() {
 
     const load = async () => {
       try {
-        const [found, users] = await Promise.all([
+        const [found, users, rate] = await Promise.all([
           api.get<Story>(`/results/story/${storyId}`, token),
           api.get<User[]>("/users", token),
+          api.get<GenreRating>(`/stories/${storyId}/genre-rating`, token),
         ]);
+        setRating(rate);
         setStory(found);
         if (found.winnerUsername) {
           setWinnerUser(users.find((u) => u.username === found.winnerUsername) ?? null);
@@ -53,6 +59,24 @@ export default function StoryDetailPage() {
       router.push(`/users/${user.id}`);
     } else {
       router.push("/login");
+    }
+  };
+
+  const handleVote = async (votedForUserId: number | null) => {
+    if (!votedForUserId || !token) return;
+    setVoting(true);
+    try {
+      const updated = await api.post<GenreRating>(
+        `/stories/${storyId}/genre-rating`,
+        { votedForUserId },
+        token,
+      );
+      setRating(updated);
+      message.success("Vote recorded");
+    } catch (e) {
+      message.error(`Failed to vote: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setVoting(false);
     }
   };
 
@@ -128,6 +152,50 @@ export default function StoryDetailPage() {
 
         </div>
 
+        {/* Genre voting  */}
+        {rating && (rating.winnerUserId || rating.loserUserId) && (
+          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
+            <div style={{ fontFamily: "var(--font-cinzel), serif", fontSize: 14, color: "rgba(255,255,255,0.85)" }}>
+              {rating.canVote
+                ? (rating.userVotedForId ? "You can change your vote:" : "Whose genre fits the story best?")
+                : "Voting unavailable — you participated in this story."}
+            </div>
+            <div style={{ display: "flex", gap: 12 }}>
+              {[
+                { id: rating.winnerUserId, name: rating.winnerUsername, genre: rating.winnerGenre, votes: rating.winnerVotes },
+                { id: rating.loserUserId, name: rating.loserUsername, genre: rating.loserGenre, votes: rating.loserVotes },
+              ].map((p) => {
+                if (!p.id) return null;
+                const isMyVote = rating.userVotedForId === p.id;
+                return (
+                  <Button
+                    key={p.id}
+                    onClick={() => handleVote(p.id)}
+                    disabled={!rating.canVote || voting}
+                    style={{
+                      height: "auto",
+                      padding: "8px 14px",
+                      background: isMyVote ? "#d4a44a" : "rgba(255,255,255,0.12)",
+                      color: isMyVote ? "#3b2a1a" : "#fff",
+                      border: isMyVote ? "1px solid #d4a44a" : "1px solid rgba(255,255,255,0.2)",
+                      fontFamily: "var(--font-cinzel), serif",
+                      fontWeight: isMyVote ? 600 : 400,
+                      minWidth: 180,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    <span>{p.name ?? "Player"}</span>
+                    <span style={{ fontSize: 12, opacity: 0.8 }}>{p.genre ?? "—"}</span>
+                    <span style={{ fontSize: 12, marginTop: 2 }}>{p.votes} vote{p.votes === 1 ? "" : "s"}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        )}
         {/* 📝 Return button */}
         <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
           <Button style={{ width: 180, height: 38, fontSize: 14 }} onClick={() => router.push("/results")}>
