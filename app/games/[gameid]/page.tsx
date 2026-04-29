@@ -297,7 +297,7 @@ const GamePage: React.FC = () => {
     }, 100);
 
     return () => clearTimeout(timeout);
-  }, [OneInput, token, gameid, isUserPlayer1, isPlayer1Active, apiService]);
+  }, [OneInput, token, gameid, isUserPlayer1, isPlayer1Active]);
 
   useEffect(() => {
     if (!token || !gameid) return;
@@ -312,7 +312,7 @@ const GamePage: React.FC = () => {
     }, 100);
 
     return () => clearTimeout(timeout);
-  }, [TwoInput, token, gameid, isUserPlayer2, isPlayer2Active, apiService]);
+  }, [TwoInput, token, gameid, isUserPlayer2, isPlayer2Active]);
 
   useEffect(() => {
     if (isUserPlayer1 && !isPlayer1Active) setOneInput("");
@@ -406,7 +406,7 @@ const GamePage: React.FC = () => {
     }, 20000);
 
     return () => clearTimeout(timeout);
-  }, [resultModalVisible, router, apiService, gameid, token]);
+  }, [resultModalVisible, router, gameid, token]);
 
   if (!game) {
     return (
