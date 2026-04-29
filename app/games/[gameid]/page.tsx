@@ -139,7 +139,7 @@ const GamePage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (!token || !gameid) return;
 
     let eventSource: EventSource | null = null;
@@ -246,7 +246,7 @@ const GamePage: React.FC = () => {
     return () => {
       eventSource?.close();
     };
-  }, [token, gameid, apiService, clearToken, router]);
+  }, [token, gameid, apiService, clearToken, router]);*/
 
   useEffect(() => {
     if (!token || !gameid) return;
