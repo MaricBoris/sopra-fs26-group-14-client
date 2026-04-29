@@ -571,7 +571,7 @@ const GamePage: React.FC = () => {
           }}
         >
           <Button
-            onClick={() => handleSubmit(playerNum, draftValue)}
+            onClick={() => {console.log("clicked"); handleSubmit(playerNum, draftValue); }}
             disabled={!isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION"}
             className="goldButton"
             style={{
