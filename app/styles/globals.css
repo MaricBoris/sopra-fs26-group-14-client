@@ -42,7 +42,8 @@ a {
   font-family: var(--font-cinzel), serif !important;
 }
 
-.login-container {
+.login-container,
+.card-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -53,20 +54,12 @@ a {
   width: 100%;
 }
 
-.card-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-/* 📝 Buttons: prevent buttons from growing beyond their set width/height */
 .ant-btn {
   overflow: hidden !important;
   white-space: nowrap !important;
   min-width: 0 !important;
 }
 
-/*📝 Buttons: Background, text, border, click animation*/
 .ant-btn-variant-outlined.ant-btn-color-default {
   font-family: var(--font-cinzel), serif !important;
   --btn-bg: #6253c6b3;
@@ -76,62 +69,58 @@ a {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.512) !important;
   transition: transform 0.1s, box-shadow 0.1s !important;
 }
-/* 📝 Buttons: Hovering colours of text & border */
+
 .ant-btn-variant-outlined.ant-btn-color-default:hover,
 .ant-btn-variant-outlined.ant-btn-color-default:focus {
   color: #ffffff !important;
   border: 2px solid #030d57 !important;
   background: var(--btn-bg) !important;
 }
-/* 📝 Table: hide internal measure row added by Ant Design when scroll.y is set */
+
 .ant-table-measure-row {
   display: none !important;
 }
 
-/* 📝 Table: remove column separator lines */
 .ant-table-thead > tr > th::before {
   display: none !important;
 }
 
-/* 📝 Table: uniform row height via padding */
 .ant-table-thead > tr > th,
 .ant-table-tbody > tr > td {
   padding: 4px 16px !important;
 }
 
-/* 📝 Table: alternating row colours to match page theme */
 .ant-table-tbody > tr:nth-child(odd) > td {
   background: rgba(41, 44, 59, 0.9) !important;
 }
+
 .ant-table-tbody > tr:nth-child(even) > td {
   background: rgba(50, 54, 72, 0.9) !important;
 }
+
 .ant-table-thead > tr > th {
   background: rgba(35, 38, 52, 0.95) !important;
 }
+
 .ant-table-tbody > tr:hover > td {
   background: rgba(65, 70, 95, 0.9) !important;
 }
 
-/* 📝 Table: apply Cinzel font to all cells and headers */
 .ant-table,
 .ant-table-thead > tr > th,
 .ant-table-tbody > tr > td {
   font-family: var(--font-cinzel), serif !important;
 }
 
-/* 📝Buttons: Shadow */
 .ant-btn-variant-outlined.ant-btn-color-default:active {
   transform: translateY(2px) !important;
   box-shadow: 0 2px 4px rgba(29, 28, 28, 0.478) !important;
 }
 
-
 /* ============================================ */
-/* GAME PAGE — Starry sky design                */
+/* GAME PAGE                                    */
 /* ============================================ */
 
-/* Starry background wrapper */
 .gameStarryBg {
   position: relative;
   min-height: 100vh;
@@ -143,32 +132,32 @@ a {
   background-attachment: fixed;
 }
 
-/* The three decorative panels (PNG as background, content on top) */
-.panelLeft,
-.panelRight,
-.panelMiddle {
+/* Main wrapper tighter than before */
+.gameContentWrapper {
+  max-width: 1500px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+}
+
+/* Top area reduced to save vertical space */
+.topGameRow {
+  display: grid;
+  grid-template-columns: 180px 1fr 180px;
+  align-items: start;
+  gap: 16px;
+  width: 100%;
+  padding-top: 4px;
   position: relative;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  background-position: center;
+  z-index: 20;
 }
 
-.panelLeft {
-  background-image: url("/panel-left.png");
-}
-
-.panelRight {
-  background-image: url("/panel-right.png");
-}
-
-.panelMiddle {
-  background-image: url("/panel-middle.png");
-}
-
-/* Title styles */
 .gameRoomTitle {
   font-family: var(--font-cinzel), serif;
-  font-size: 56px;
+  font-size: clamp(36px, 4.3vw, 48px);
   font-weight: 400;
   color: var(--gold);
   letter-spacing: 6px;
@@ -176,55 +165,184 @@ a {
   text-shadow: 0 0 18px rgba(212, 168, 87, 0.4);
   margin: 0;
   padding: 0;
+  line-height: 1.08;   /* etwas luftiger */
 }
 
-.liveStorySubtitle {
-  font-family: var(--font-cinzel), serif;
-  font-size: 18px;
-  letter-spacing: 8px;
-  color: var(--gold-soft);
-  text-align: center;
-  margin-top: 4px;
+.statusPillRow {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 14px;    /* vorher 8 */
 }
+
+.storyObjectiveWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;    /* vorher 2 */
+  margin-bottom: -26px; /* etwas weniger aggressiv als -30 */
+  position: relative;
+  z-index: 12;
+}
+
+/* LIVE STORY removed in JSX. This class can stay unused safely. */
+.liveStorySubtitle {
+  display: none;
+}
+
+
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 15px;
+  background: rgba(10, 14, 40, 0.6);
+  border: 1px solid rgba(212, 168, 87, 0.4);
+  border-radius: 20px;
+  color: var(--gold);
+  font-family: var(--font-cinzel), serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+
+
+.storyObjectiveRibbon {
+  display: inline-block;
+  padding: 7px 28px;
+  background: rgba(10, 14, 40, 0.62);
+  border: 1px solid rgba(212, 168, 87, 0.5);
+  border-radius: 2px;
+  color: var(--gold);
+  font-family: var(--font-cinzel), serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  max-width: 760px;
+}
+
+/* ============================================ */
+/* PANELS GRAPHIC                               */
+/* ============================================ */
+
+.panelsGraphic {
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  aspect-ratio: 2.582;
+  background-image: url("/all-panels.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+  z-index: 5;
+}
+
+/* Content slots made taller */
+.slotLeft,
+.slotMiddle,
+.slotRight {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.slotLeft {
+  left: 3.5%;
+  right: 73%;
+  top: 18%;
+  bottom: 15.5%;
+}
+
+.slotMiddle {
+  left: 34.7%;
+  right: 34.7%;
+  top: 20%;
+  bottom: 16.5%;
+}
+
+.slotRight {
+  left: 73%;
+  right: 3.5%;
+  top: 18%;
+  bottom: 15.5%;
+}
+
+/* Bullauge larger */
+.bullauge {
+  position: absolute;
+  width: 29%;
+  height: 74.9%;
+  top: 12.5%;
+  background-image: url("/bullauge.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 8;
+  filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.6));
+}
+
+.bullaugeLeft {
+  left: 0.8%;
+}
+
+.bullaugeRight {
+  right: 0.8%;
+}
+
+/* ============================================ */
+/* TYPOGRAPHY                                   */
+/* ============================================ */
 
 .playerNameTitle {
   font-family: var(--font-cinzel), serif;
-  font-size: 38px;
+  font-size: clamp(16px, 1.5vw, 24px);
   font-weight: 400;
   color: var(--gold);
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-align: center;
   margin: 0;
   text-shadow: 0 0 12px rgba(212, 168, 87, 0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .playerSubtitle {
   font-family: var(--font-cinzel), serif;
-  font-size: 13px;
-  letter-spacing: 4px;
+  font-size: 10px;
+  letter-spacing: 3px;
   color: var(--gold-soft);
   text-align: center;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .sectionLabel {
   font-family: var(--font-cinzel), serif;
-  font-size: 12px;
-  letter-spacing: 3px;
+  font-size: 10px;
+  letter-spacing: 2px;
   color: var(--gold-soft);
   text-transform: uppercase;
 }
 
-/* Inputs themed for the panels */
+/* ============================================ */
+/* INPUTS                                       */
+/* ============================================ */
+
 .goldInput,
 .goldInput .ant-input,
 .goldInput textarea.ant-input {
-  background: rgba(10, 14, 40, 0.5) !important;
+  background: rgba(10, 14, 40, 0.45) !important;
   border: 1px solid rgba(212, 168, 87, 0.35) !important;
   color: #f5e6c8 !important;
   border-radius: 4px !important;
   font-family: var(--font-cinzel), serif !important;
   resize: none !important;
+  font-size: 12px !important;
 }
 
 .goldInput .ant-input::placeholder,
@@ -236,62 +354,100 @@ a {
 .goldInput .ant-input-data-count {
   color: rgba(212, 168, 87, 0.5) !important;
   font-family: var(--font-cinzel), serif !important;
-  font-size: 11px !important;
+  font-size: 10px !important;
 }
 
-/* Story Objective ribbon */
-.storyObjectiveRibbon {
-  display: inline-block;
-  padding: 10px 32px;
-  background: rgba(10, 14, 40, 0.6);
-  border: 1px solid rgba(212, 168, 87, 0.5);
-  border-radius: 2px;
-  color: var(--gold);
-  font-family: var(--font-cinzel), serif;
-  font-size: 15px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+.goldInputFlex,
+.goldInputFlex .ant-input-textarea-show-count,
+.goldInputFlex .ant-input,
+.goldInputFlex textarea.ant-input {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.goldInputFlex {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.genreBox {
+  padding: 4px 10px;
+  background: rgba(10, 14, 40, 0.45);
+  border: 1px solid rgba(212, 168, 87, 0.35);
+  border-radius: 14px;
   text-align: center;
-  position: relative;
-}
-
-/* Status pill (players counter, timer) */
-.statusPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 18px;
-  background: rgba(10, 14, 40, 0.6);
-  border: 1px solid rgba(212, 168, 87, 0.4);
-  border-radius: 20px;
   color: var(--gold);
-  font-family: var(--font-cinzel), serif;
-  font-size: 16px;
+  font-size: 12px;
   letter-spacing: 1px;
+  font-family: var(--font-cinzel), serif;
 }
 
-/* Active Story story-text styling */
+.assignQuoteButton {
+  background: transparent;
+  border: 1px solid rgba(212, 168, 87, 0.5);
+  border-radius: 10px;
+  color: var(--gold);
+  font-size: 9px;
+  letter-spacing: 1px;
+  font-family: var(--font-cinzel), serif;
+  padding: 2px 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.assignQuoteButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ============================================ */
+/* ACTIVE STORY                                 */
+/* ============================================ */
+
 .storyText {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 16px;
-  line-height: 1.7;
+  font-size: 14px;
+  line-height: 1.6;
   color: #e8e4d8;
   white-space: pre-wrap;
 }
 
-/* Footer pill bar (Quote P1 / Declare / Quote P2) */
+.storyTextEmpty {
+  color: rgba(245, 230, 200, 0.4);
+  font-style: italic;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+  padding: 0 12px;
+}
+
+/* ============================================ */
+/* FOOTER / JUDGE BUTTONS                       */
+/* ============================================ */
+
+.footerPillWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  margin-top: -44px;
+  position: relative;
+  z-index: 14;
+}
+
 .footerPill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 12px 28px;
-  background: rgba(10, 14, 40, 0.55);
+  padding: 8px 22px;
+  background: rgba(10, 14, 40, 0.6);
   border: 1px solid rgba(212, 168, 87, 0.45);
   border-radius: 30px;
   color: var(--gold);
   font-family: var(--font-cinzel), serif;
-  font-size: 15px;
+  font-size: 12px;
   letter-spacing: 3px;
   cursor: pointer;
   transition: all 0.2s;
@@ -310,22 +466,40 @@ a {
 }
 
 .footerPillCenter {
-  background: rgba(10, 14, 40, 0.7);
+  background: rgba(10, 14, 40, 0.72);
   border: 1.5px solid var(--gold);
   box-shadow: 0 0 18px rgba(212, 168, 87, 0.35);
 }
 
-/* Submit button — golden */
+.bottomPhaseStatus {
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--gold-soft);
+  margin-top: 10px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 10;
+}
+
+/* ============================================ */
+/* BUTTONS                                      */
+/* ============================================ */
+
 .goldButton {
-  background: linear-gradient(180deg, rgba(212, 168, 87, 0.15) 0%, rgba(212, 168, 87, 0.05) 100%) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(212, 168, 87, 0.18) 0%,
+    rgba(212, 168, 87, 0.05) 100%
+  ) !important;
   border: 1px solid var(--gold) !important;
   color: var(--gold) !important;
   font-family: var(--font-cinzel), serif !important;
   letter-spacing: 3px !important;
-  border-radius: 20px !important;
-  height: 38px !important;
-  padding: 0 22px !important;
-  font-size: 14px !important;
+  border-radius: 18px !important;
+  height: 32px !important;
+  padding: 0 20px !important;
+  font-size: 12px !important;
   text-transform: uppercase;
   transition: all 0.2s !important;
 }
@@ -337,18 +511,17 @@ a {
   box-shadow: 0 0 14px rgba(212, 168, 87, 0.4) !important;
 }
 
-/* Top corner buttons (Exit, Profile/Help) */
 .cornerButton {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 20px;
+  padding: 6px 16px;
   background: transparent;
   border: none;
   border-bottom: 1px solid rgba(212, 168, 87, 0.5);
   color: var(--gold);
   font-family: var(--font-cinzel), serif;
-  font-size: 16px;
+  font-size: 14px;
   letter-spacing: 4px;
   cursor: pointer;
   transition: all 0.2s;
@@ -357,4 +530,106 @@ a {
 .cornerButton:hover {
   color: var(--gold-bright);
   border-bottom-color: var(--gold-bright);
+}
+
+/* ============================================ */
+/* START OVERLAY                                */
+/* ============================================ */
+
+.startOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(5, 8, 25, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  font-family: var(--font-cinzel), serif;
+}
+
+.startOverlayTitle {
+  font-size: 64px;
+  font-weight: bold;
+  letter-spacing: 6px;
+  color: var(--gold);
+}
+
+.startOverlaySmall {
+  font-size: 16px;
+  letter-spacing: 3px;
+  color: rgba(212, 168, 87, 0.5);
+  text-transform: uppercase;
+}
+
+.startOverlayRole {
+  font-size: 36px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  color: var(--gold);
+}
+
+.startOverlayText {
+  margin-top: 8px;
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: #e8e4d8;
+}
+
+.startOverlayCountdown {
+  font-size: 100px;
+  font-weight: bold;
+  line-height: 1;
+  margin-top: 16px;
+  color: var(--gold);
+}
+
+/* ============================================ */
+/* RULES MODAL                                  */
+/* ============================================ */
+
+.rulesOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(5, 8, 25, 0.6);
+  backdrop-filter: blur(6px);
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rulesModal {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%);
+  border: 1px solid rgba(212, 168, 87, 0.5);
+  border-radius: 8px;
+  padding: 36px 40px;
+  max-width: 540px;
+  width: 90%;
+  color: #f5e6c8;
+  font-family: var(--font-cinzel), serif;
+  position: relative;
+}
+
+.rulesTitle {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--gold);
+  letter-spacing: 3px;
+}
+
+.rulesCloseHint {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 12px;
+  color: rgba(245, 230, 200, 0.3);
 }
