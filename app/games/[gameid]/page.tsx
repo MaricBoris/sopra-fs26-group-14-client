@@ -2,7 +2,7 @@
 "use client";
 import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
 
-import { Button, Input , message, Modal } from "antd";
+import { Button, Input , message, Modal, Tooltip } from "antd";
 import styles from "@/styles/page.module.css";
 import { Game } from "@/types/game";
 import { Writer } from "@/types/writer";
@@ -10,6 +10,7 @@ import { ApplicationError } from "@/types/error";
 import React, { useEffect, useState, useRef } from "react";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { getApiDomain } from "@/utils/domain";
 
 const GamePage: React.FC = () => {
 
@@ -24,6 +25,8 @@ const GamePage: React.FC = () => {
   const [quoteUsedP1, setQuoteUsedP1] = useState(false);
   const [quoteUsedP2, setQuoteUsedP2] = useState(false);
   const { TextArea } = Input;
+  const [starting, setStarting] = useState(true);
+  const [startCountdown, setStartCountdown] = useState(5);
 
   const panelStyle: React.CSSProperties = {
     background: "rgba(255,255,255,0.025)",
@@ -86,19 +89,19 @@ const [declareModalVisible, setDeclareModalVisible] = useState(false);
 const [resultModalVisible, setResultModalVisible] = useState(false);
 const [resultGame, setResultGame] = useState<Game | null>(null);
 const votingInProgress = useRef(false);
+const [gameEnded, setGameEnded] = useState(false);
 
 const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
   const prettyinput=input.trim();
   try {
-    const response=await apiService.post<Game>(`/games/${gameid}/input`,{ player: player, input: prettyinput },token);
-    setGame(response);
+    await apiService.post<Game>(`/games/${gameid}/input`,{ player: player, input: prettyinput },token);
+    
     const quote = game?.writers[player - 1]?.quote;
     if (quote && prettyinput.toLowerCase().includes(quote.toLowerCase())) {
         if (player === 1) setQuoteUsedP1(true);
         else setQuoteUsedP2(true);
     }
-    const holeStoryText=response.story.storyText;
-    setStoryyText(holeStoryText);
+    
     if (player===2){
       setTwoInput("");
     }
@@ -136,96 +139,125 @@ const [quotedP2, setQuotedP2] = useState(false);
 
 const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
     try {
-        const response = await apiService.get<Game>(`/games/${gameid}/quotes?player=${player}`, token);
-        setGame(response);
-        if (player === 1) setQuotedP1(true);
-        else setQuotedP2(true);
+        await apiService.get<Game>(`/games/${gameid}/quotes?player=${player}`, token);
+        if (player === 1) {
+            setQuotedP1(true);
+            }
+        else {
+            setQuotedP2(true);
+            }
     } catch (error) {
         message.error("Failed to fetch quote.");
     }
 };
 
-useEffect(() => { 
-  
-  if (!token || !gameid) return; 
-  const getGame = async () => { 
-    try { 
-      const ourGame: Game = await apiService.get<Game>(`/games/${gameid}`, token); 
-      setGame(ourGame);
-      
-      const writer1 = ourGame.writers[0];
-      const writer2 = ourGame.writers[1];
-
-      setGenre1(writer1?.genre ?? "Genre");
-      setGenre2(writer2?.genre ?? "Genre");
-
-      setStoryyText(ourGame.story.storyText);
-      
-      
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        alert(`Fetching game failed:\n${error.message}`);
-      } else {
-        alert("Fetching game failed (unknown error).");
-        console.error("Unknown error:", error);
-      }
-
-    }
-  } 
-  getGame();
-
-   
-  }, [apiService, token, gameid]);
-
-  const [gameEnded, setGameEnded] = useState(false);
-
   useEffect(() => {
-    if (!token || !gameid ) return;
+    if (!token || !gameid) return;
 
-    const checkIfGameStillExists = async () => {
-    if (resultModalVisible || votingInProgress.current) return;
-    try {
-        const latestGame=await apiService.get<Game>(`/games/${gameid}`, token);
-        setGame(latestGame);
-        
-        setStoryyText(latestGame.story.storyText);
+    let eventSource: EventSource | null = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
 
-        if (latestGame.story.winnerUsername !== null || latestGame.story.hasWinner !== undefined) {
-          if (latestGame.story.hasWinner && !resultModalVisible) {
+    const handleGameUpdate = (event: MessageEvent) => {
+      const latestGame: Game = JSON.parse(event.data);
+
+      setGame(latestGame);
+      setStoryyText(latestGame.story.storyText);
+
+      if (latestGame.story.hasWinner) {
+        setResultModalVisible(prev => {
+          if (!prev) {
             setResultGame(latestGame);
-            setResultModalVisible(true);
+            return true;
           }
-        }
-        
-      } catch (error: unknown) {
-          const appError = error as ApplicationError;
-            if (appError?.status === 404) {
-              if (!resultModalVisible && !votingInProgress.current) {
-                setGameEnded(true);
-              }
-            }
+          return prev;
+        });
       }
     };
 
-    const id = setInterval(checkIfGameStillExists, 1000); 
+    const handleGameDeleted = () => {
+      setResultModalVisible(prev => {
+        if (!prev && !votingInProgress.current) {
+          setGameEnded(true);
+        }
+        return prev; 
+      });
+    };
 
-    return () => clearInterval(id); 
-  }, [apiService, token, gameid]);
+    const connect = async () => {
+      let initialGame: Game | null = null;
+      try { //initial fetch +  give up immediately if the token is wrong or we don't have a game and trying to reconnect would be useless
+        initialGame = await apiService.get<Game>(`/games/${gameid}`, token);
+      } catch (error) {
+        const appError = error as ApplicationError;
+        if (appError.status === 401 || appError.status === 403) {
+          message.error("Session expired. Please log in again.");
+          clearToken();
+          router.push("/login");
+          return;
+        }
+        if (appError.status === 404) {
+          message.error("Game no longer exists.");
+          router.push("/");
+          return;
+        }
+        
+      }
+       if (initialGame) {
+          setGame(initialGame);
+          setStoryyText(initialGame.story.storyText);
+          setGenre1(initialGame.writers[0]?.genre ?? "Genre");
+          setGenre2(initialGame.writers[1]?.genre ?? "Genre");
+        }
+      const streamUrl = `${getApiDomain()}/games/${gameid}/stream?token=${encodeURIComponent(token)}`;
+      eventSource = new EventSource(streamUrl);
+
+      eventSource.onopen = async () => {
+        reconnectAttempts = 0;
+        try {
+          const currentGame = await apiService.get<Game>(`/games/${gameid}`, token);
+          setGame(currentGame);
+          setStoryyText(currentGame.story.storyText);
+          if (currentGame.story.hasWinner) {
+            setResultModalVisible(prev => {
+              if (!prev) {
+                setResultGame(currentGame);
+                return true;
+              }
+              return prev;
+            });
+          }
+        } catch {
+          
+        }
+      };
+
+      eventSource.addEventListener("game-update", handleGameUpdate);
+      eventSource.addEventListener("game-deleted", handleGameDeleted);
+
+      eventSource.onerror = () => {
+        reconnectAttempts++;
+        
+        if (
+          eventSource?.readyState === EventSource.CLOSED || //browser gave up himself 
+          reconnectAttempts >= maxReconnectAttempts        
+        ) {
+          eventSource?.close();
+          message.error("Lost connection to game. Please reload.");
+        }
+      };
+    };
+
+    connect();
+
+    return () => {
+      eventSource?.close();
+    };
+  }, [token, gameid]);
+
 
   useEffect(() => {
-    if (!game?.writers) return;
-
-    if (game.writers?.[0]?.id === Number(userId) && OneInput === "") {
-      setOneInput(game.writers[0]?.text ?? "");
-    }
-
-    if (game.writers?.[1]?.id === Number(userId) && TwoInput === "") {
-      setTwoInput(game.writers[1]?.text ?? "");
-    }
-  }, [game, userId, OneInput, TwoInput]);
-
-  useEffect(() => {
-    if (!token || !gameid || !game) return;
+    if (!token || !gameid ) return;
     if (!isUserPlayer1 || !isPlayer1Active) return;
 
     const timeout = setTimeout(() => {
@@ -236,13 +268,13 @@ useEffect(() => {
       ).catch((error) => {
         console.log("Saving Player 1 draft failed", error);
       });
-    }, 400);
+    }, 100);
 
     return () => clearTimeout(timeout);
-  }, [OneInput, token, gameid, game, isUserPlayer1, isPlayer1Active, apiService]);
+  }, [OneInput, token, gameid, isUserPlayer1, isPlayer1Active, apiService]);
 
   useEffect(() => {
-    if (!token || !gameid || !game) return;
+    if (!token || !gameid ) return;
     if (!isUserPlayer2 || !isPlayer2Active) return;
 
     const timeout = setTimeout(() => {
@@ -253,10 +285,24 @@ useEffect(() => {
       ).catch((error) => {
         console.log("Saving Player 2 draft failed", error);
       });
-    }, 400);
+    }, 100);
 
     return () => clearTimeout(timeout);
-  }, [TwoInput, token, gameid, game, isUserPlayer2, isPlayer2Active, apiService]);
+  }, [TwoInput, token, gameid, isUserPlayer2, isPlayer2Active, apiService]);
+
+  useEffect(() => {
+    if (isUserPlayer1 && !isPlayer1Active) {
+      setOneInput("");
+    }
+  }, [isUserPlayer1, isPlayer1Active]);
+
+  useEffect(() => {
+    if (isUserPlayer2 && !isPlayer2Active) {
+      setTwoInput("");
+    }
+  }, [isUserPlayer2, isPlayer2Active]);
+
+ 
 
   useEffect(() => { //executes the "cleanup", after a writer leave was detected
   if (!gameEnded) return;
@@ -270,8 +316,19 @@ useEffect(() => {
   return () => clearTimeout(timeout); //in case the component is unmounted (if the user redirects himself or something), before the timer expires, because then we obvioulsy don't want the message anymore
 }, [gameEnded, router]);
 
+useEffect(() => { //pre game countdown
+  if (!starting) return;
+  if (startCountdown <= 0) {
+    setStarting(false);
+    return;
+  }
+  const id = setTimeout(() => setStartCountdown(x => x - 1), 1000);
+  return () => clearTimeout(id);
+}, [startCountdown, starting]);
+
 useEffect(() => {
   if (!game?.turnStartedAt) return;
+   if (starting) return;
 
   const updateCountdown = () => {
     const elapsed = Math.floor((Date.now() - game.turnStartedAt) / 1000);
@@ -283,10 +340,9 @@ useEffect(() => {
   const id = setInterval(updateCountdown, 1000);
 
   return () => clearInterval(id);
-}, [game?.turnStartedAt, game?.timer]);
+}, [game?.turnStartedAt, game?.timer, starting]);
 
-const handleVoteWinner = async (player: 1 | 2): Promise<void> => {
-  const writer = game?.writers[player - 1];
+const handleVoteWinner = async (writerId: number): Promise<void> => {
   votingInProgress.current = true;
   setDeclareModalVisible(false);
   console.log("writers:", game?.writers);
@@ -295,16 +351,12 @@ const handleVoteWinner = async (player: 1 | 2): Promise<void> => {
   try {
     const response = await apiService.post<Game>(
       `/games/${gameid}/vote`,
-      writer?.id,
+      writerId,
       token
     );
-    console.log("Vote response:", response);
-    console.log("hasWinner:", response.story?.hasWinner);
-    console.log("winner:", response.story.winnerUsername);
     setGame(response);
     setResultGame(response);
     setResultModalVisible(true);
-    console.log("Result modal should be visible now");
   } catch (error) {
     votingInProgress.current = false;
     console.error("Declare winner failed", error);
@@ -313,7 +365,20 @@ const handleVoteWinner = async (player: 1 | 2): Promise<void> => {
 };
 
 
+const autoVoteFired = useRef(false);
 
+useEffect(() => {
+  if (!game || !isJudge) return;
+  if (game.phase !== "EVALUATION") return;
+  if (autoVoteFired.current) return;
+  if (!game.turnStartedAt || !game.timer) return; // new guard
+
+  const elapsed = Math.floor((Date.now() - game.turnStartedAt) / 1000); //Could autotrigger effect (Async problems)
+  if (elapsed < game.timer) return;
+
+  autoVoteFired.current = true;
+  handleVoteWinner(-1);
+}, [countdown, game, isJudge]);
 
 
 useEffect(() => {
@@ -338,6 +403,9 @@ if (!game) { //beim ersten rendern ist user noch null, dann zeigen wir erst mal 
   return <div>Loading Game...</div>;
 }
 
+const quoteIncorporatedP1 = !!(game.writers[0]?.quote && wholeStoryText.toLowerCase().includes(game.writers[0].quote.toLowerCase()));
+const quoteIncorporatedP2 = !!(game.writers[1]?.quote && wholeStoryText.toLowerCase().includes(game.writers[1].quote.toLowerCase()));
+
 return (
   <div
       style={{
@@ -352,6 +420,22 @@ return (
         overflowY: "auto",
       }}
     >
+        {starting && ( //countdown
+          <div style={{
+            position: "fixed",
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(0,0,0,0.7)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 120,
+            color: "#ffffff",
+            zIndex: 999,
+            fontFamily: "var(--font-cinzel), serif",
+          }}>
+            {startCountdown}
+          </div>
+        )}
       <div
         style={{
           maxWidth: 1400,
@@ -458,7 +542,7 @@ return (
                 fontSize: 20,
               }}
             >
-            {game.currentRound} / 20
+            {game.currentRound} / 4
 
             </div>
           </div>
@@ -497,11 +581,11 @@ return (
               flexDirection: "column",
               gap: 8,
               minWidth: 0,
-              ...(isPlayer1Active ? activePlayerStyle : inactivePlayerStyle),
+              ...(isPlayer1Active && game.phase !== "EVALUATION" ? activePlayerStyle : inactivePlayerStyle),
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
-              <div className={styles.scrollTitle3}>Player 1</div>
+              <div className={styles.scrollTitle3}>{game.writers[0]?.username ?? "Player 1"}</div>
             </div>
 
             <div
@@ -513,7 +597,8 @@ return (
               }}
             >
               <TextArea
-
+                maxLength={2000}
+                showCount
                 disabled={!isUserPlayer1 || !game.writers[0].turn}
                 style={inputInnerStyle}
                 value={isUserPlayer1 ? OneInput : (game.writers[0]?.text ?? "")}
@@ -530,13 +615,19 @@ return (
                 minWidth: 0,
               }}
             >
+              <Tooltip title={!isUserPlayer2 ? (game.writers[0]?.genreDescription ?? "") : ""}>
+                <Input
+                  value={isUserPlayer1
+                          ? writer1Genre
+                          : isUserPlayer2
+                          ? "Genre"
+                          : writer1Genre}
+                  readOnly
+                  style={smallFieldStyle}
+                />
+              </Tooltip>
               <Input
-                value={isUserPlayer1 ? writer1Genre : "Genre"}
-                readOnly
-                style={smallFieldStyle}
-              />
-              <Input
-                value={isPlayer1Active ? countdown : "Timer" }
+                value={isPlayer1Active && game.phase !== "EVALUATION" ? countdown : "Timer"}
                 readOnly
                 style={{ ...smallFieldStyle, textAlign: "center" }}
               />
@@ -547,6 +638,7 @@ return (
                   ["--btn-bg" as string]: "#2e9f44",
                   height: 40,
                   fontSize: 17,
+                  opacity: !isUserPlayer1 || !game.writers[0].turn || game.phase === "EVALUATION" ? 0.4 : 1,
                 }}
               >
                 Submit
@@ -579,14 +671,18 @@ return (
                 }}
               />
 
-              {game.writers[0]?.quote && !quoteUsedP1 && isUserPlayer1 && (
-                  <div style={{ fontSize: 11, color: "#f0c040", marginTop: 2 }}>
-                      Incorporate in your next 2 turns
+              {game.writers[0]?.quote && !quoteUsedP1 && !quoteIncorporatedP1 && !isUserPlayer2 && (() => {
+                const assigned = game.writers[0].quoteAssignedRound ?? game.currentRound;
+                const turnsLeft = 2 - Math.ceil((game.currentRound - assigned) / 2);
+                const expired = turnsLeft <= 0;
+                return (
+                  <div style={{ fontSize: 11, color: expired ? "#e74c3c" : "#f0c040", marginTop: 2 }}>
+                    {expired ? "Quote window expired!" : `Incorporate in your next ${turnsLeft} turn${turnsLeft !== 1 ? "s" : ""}`}
                   </div>
-              )}
-              {quoteUsedP1 && isUserPlayer1 && (
-                  <div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
-              )}
+                );
+              })()}
+            {(quoteUsedP1 || quoteIncorporatedP1) && !isUserPlayer2 && (<div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
+                )}
             </div>
             )}
           {(isUserPlayer1 || (!isUserPlayer1 && !isUserPlayer2)) && (
@@ -606,7 +702,7 @@ return (
             )}
           </div>
 
-          {/* Judge Spalte */}
+         {/* Judge Spalte */}
           <div
             style={{
               display: "flex",
@@ -621,15 +717,37 @@ return (
                 padding: 14,
                 height: 400,
                 minWidth: 0,
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
               }}
             >
-                  <TextArea 
-                    style={inputInnerStyle}
-                    value={wholeStoryText} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText.
-                    readOnly
-                    placeholder="Text Field of active Story"
-                  />{/* Bei jedem change wird neu gerendert!!*/}
+              {game.story.objective && (
+                <div
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 16,
+                    color: "#ffffff",
+                    padding: "6px 10px",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.10)",
+                    borderRadius: 2,
+                    textAlign: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  Story Objective: {game.story.objective}
+                </div>
+              )}
+              <TextArea 
+                style={{ ...inputInnerStyle, flex: 1 }}
+                value={wholeStoryText}
+                readOnly
+                placeholder="Text Field of active Story"
+              />
             </div>
+  
+
 
            {/* <div
               style={{
@@ -643,27 +761,30 @@ return (
               Judge
             </div>*/}
             <div style={{ display: "flex", justifyContent: "center", marginTop: 2, marginBottom: 2 }}>
-              <div className={styles.scrollTitleJudge}>Judge</div>
+              <div className={styles.scrollTitleJudge}>{game.judges[0]?.username ?? "Judge"}</div>
             </div>
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                display: "flex",
+                justifyContent: "center",
                 gap: 10,
                 minWidth: 0,
               }}
             >
-              <Button
-                disabled={quotedP1}
-                onClick={() => handleQuoteFetch(1)}
-                style={{
-                  ["--btn-bg" as string]: "#3d8da8",
-                  height: 44,
-                  fontSize: 17,
-                }}
-              >
-                Quote P1
-              </Button>
+              {isJudge && (
+                <Button
+                  disabled={quotedP1}
+                  onClick={() => handleQuoteFetch(1)}
+                  style={{
+                    ["--btn-bg" as string]: "#3d8da8",
+                    height: 44,
+                    fontSize: 17,
+                    width: 120,
+                  }}
+                >
+                  Quote P1
+                </Button>
+              )}
 
               <Button
                 disabled={!isJudge || game.phase !== "EVALUATION"}
@@ -672,22 +793,26 @@ return (
                   ["--btn-bg" as string]: "#c0392b",
                   height: 44,
                   fontSize: 17,
+                  width: 120,
                 }}
               >
                 Declare
               </Button>
 
-              <Button
-                disabled={quotedP2}
-                onClick={() => handleQuoteFetch(2)}
-                style={{
-                  ["--btn-bg" as string]: "#3d8da8",
-                  height: 44,
-                  fontSize: 17,
-                }}
-              >
-                Quote P2
-              </Button>
+              {isJudge && (
+                <Button
+                  disabled={quotedP2}
+                  onClick={() => handleQuoteFetch(2)}
+                  style={{
+                    ["--btn-bg" as string]: "#3d8da8",
+                    height: 44,
+                    fontSize: 17,
+                    width: 120,
+                  }}
+                >
+                  Quote P2
+                </Button>
+              )}
             </div>
 
             <div
@@ -700,7 +825,9 @@ return (
                 marginTop: 2,
               }}
             >
-              {game.phase === "EVALUATION" ? "The judge must now make his decision!" : "Game Status"}
+              {game.phase === "EVALUATION"
+                ? `The judge must decide! ${countdown}s remaining`
+                : "The writers are creating the story."}
             </div>
           </div>
 
@@ -711,11 +838,11 @@ return (
               flexDirection: "column",
               gap: 8,
               minWidth: 0,
-              ...(isPlayer2Active ? activePlayerStyle : inactivePlayerStyle),
+              ...(isPlayer2Active && game.phase !== "EVALUATION" ? activePlayerStyle : inactivePlayerStyle),
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
-              <div className={styles.scrollTitle3}>Player 2</div>
+              <div className={styles.scrollTitle3}>{game.writers[1]?.username ?? "Player 2"}</div>
             </div>
 
             <div
@@ -727,6 +854,8 @@ return (
               }}
             >
               <TextArea
+                maxLength={2000}
+                showCount
                 disabled={!isUserPlayer2 || !game.writers[1].turn}
                 style={inputInnerStyle}
                 value={isUserPlayer2 ? TwoInput : (game.writers[1]?.text ?? "")}
@@ -744,13 +873,19 @@ return (
                 minWidth: 0,
               }}
             >
+              <Tooltip title={!isUserPlayer1 ? (game.writers[1]?.genreDescription ?? "") : ""}>
+                <Input
+                  value={isUserPlayer2
+                          ? writer2Genre
+                          : isUserPlayer1
+                          ? "Genre"
+                          : writer2Genre}
+                  readOnly
+                  style={smallFieldStyle}
+                />
+              </Tooltip>
               <Input
-                value={isUserPlayer2 ? writer2Genre : "Genre"}
-                readOnly
-                style={smallFieldStyle}
-              />
-              <Input
-                value={isPlayer2Active ? countdown : "Timer" }
+                value={isPlayer2Active && game.phase !== "EVALUATION" ? countdown : "Timer"}
                 readOnly
                 style={{ ...smallFieldStyle, textAlign: "center" }}
               />
@@ -761,6 +896,7 @@ return (
                   ["--btn-bg" as string]: "#2e9f44",
                   height: 40,
                   fontSize: 17,
+                  opacity: !isUserPlayer2 || !game.writers[1].turn || game.phase === "EVALUATION" ? 0.4 : 1,
                 }}
               >
                 Submit
@@ -791,12 +927,17 @@ return (
                   fontFamily: "var(--font-cinzel), serif",
                 }}
               />
-              {game.writers[1]?.quote && !quoteUsedP2 && isUserPlayer2 && (
-                  <div style={{ fontSize: 11, color: "#f0c040", marginTop: 2 }}>
-                      To incorporate in your next 2 turns
+              {game.writers[1]?.quote && !quoteUsedP2 && !quoteIncorporatedP2 && !isUserPlayer1 && (() => {
+                const assigned = game.writers[1].quoteAssignedRound ?? game.currentRound;
+                const turnsLeft = 2 - Math.ceil((game.currentRound - assigned) / 2);
+                const expired = turnsLeft <= 0;
+                return (
+                  <div style={{ fontSize: 11, color: expired ? "#e74c3c" : "#f0c040", marginTop: 2 }}>
+                    {expired ? "Quote window expired!" : `Incorporate in your next ${turnsLeft} turn${turnsLeft !== 1 ? "s" : ""}`}
                   </div>
-              )}
-              {quoteUsedP2 && isUserPlayer2 && (<div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
+                );
+              })()}
+              {(quoteUsedP2 || quoteIncorporatedP2) && !isUserPlayer1 && (<div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
               )}
             </div>
             )}
@@ -842,7 +983,7 @@ return (
           </div>
           <div style={{ display: "flex", gap: 20 }}>
             <Button
-              onClick={() => handleVoteWinner(1)}
+              onClick={() => handleVoteWinner(game?.writers[0]?.id ?? -1)}
               style={{
                 ["--btn-bg" as string]: "#2e9f44",
                 height: 48,
@@ -850,10 +991,10 @@ return (
                 width: 150,
               }}
             >
-              Player 1
+               {game?.writers[0]?.username ?? "Player 1"}
             </Button>
             <Button
-              onClick={() => handleVoteWinner(2)}
+              onClick={() => handleVoteWinner(game?.writers[1]?.id ?? -1)}
               style={{
                 ["--btn-bg" as string]: "#3d8da8",
                 height: 48,
@@ -861,7 +1002,7 @@ return (
                 width: 150,
               }}
             >
-              Player 2
+              {game?.writers[1]?.username ?? "Player 2"}
             </Button>
           </div>
         </div>
@@ -893,7 +1034,7 @@ return (
           </div>
           {resultGame?.story.hasWinner && (
             <div style={{ fontSize: 16, color: "rgba(255,255,255,0.7)" }}>
-              Genre: {resultGame.story.wingenre ?? "—"}
+              Genre: {resultGame.story.winGenre ?? "—"}
             </div>
           )}
           <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 8 }}>

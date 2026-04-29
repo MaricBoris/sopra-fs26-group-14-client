@@ -59,7 +59,7 @@ export default function Home() {
       <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20 }}>
         <div style={{ width: 660, maxWidth: "100%", background: "rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", borderRadius: 1, border: "1px solid rgba(255,255,255,0.15)", padding: 24 }}>
           {/* 📝 Framing box: */}
-          <Image src="/frontpage_banner.png" alt="banner" width={660} height={300} style={{ maxWidth: "100%", height: "auto" }} />
+          <Image src="/banner_darkblue_pen+genre_storywars4.png" alt="banner" width={660} height={300} style={{ maxWidth: "100%", height: "auto" }} />
           <p style={{ textAlign: "center", maxWidth: 600, margin: "5px auto 0", fontFamily: "var(--font-cinzel), serif", fontSize: "16px" }}>
             Face one another in a collaborative and competitive writing game!<br />
             Try to steer the story towards your assigned literature genre<br />and convince the judge that you shall be crowned the winner!<br />
