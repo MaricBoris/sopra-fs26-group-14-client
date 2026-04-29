@@ -1,14 +1,11 @@
 :root {
-  --background: #292c3b;
-  --foreground: #292c3b;
+  --background: #0a0e27;
+  --foreground: #ededed;
+  --gold: #d4a857;
+  --gold-soft: #c9a76a;
+  --gold-bright: #f0c040;
+  --panel-blue: #1a2042;
 }
-
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #d90e0e;
-    --foreground: #ededed;
-  }
-} */
 
 html,
 body {
@@ -34,12 +31,6 @@ a {
   color: inherit;
   text-decoration: none;
 }
-
-/* @media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-} */
 
 .ant-form,
 .ant-form input,
@@ -136,4 +127,234 @@ a {
 }
 
 
+/* ============================================ */
+/* GAME PAGE — Starry sky design                */
+/* ============================================ */
 
+/* Starry background wrapper */
+.gameStarryBg {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background-image: url("/starry-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* The three decorative panels (PNG as background, content on top) */
+.panelLeft,
+.panelRight,
+.panelMiddle {
+  position: relative;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.panelLeft {
+  background-image: url("/panel-left.png");
+}
+
+.panelRight {
+  background-image: url("/panel-right.png");
+}
+
+.panelMiddle {
+  background-image: url("/panel-middle.png");
+}
+
+/* Title styles */
+.gameRoomTitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: 56px;
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 6px;
+  text-align: center;
+  text-shadow: 0 0 18px rgba(212, 168, 87, 0.4);
+  margin: 0;
+  padding: 0;
+}
+
+.liveStorySubtitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: 18px;
+  letter-spacing: 8px;
+  color: var(--gold-soft);
+  text-align: center;
+  margin-top: 4px;
+}
+
+.playerNameTitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: 38px;
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 3px;
+  text-align: center;
+  margin: 0;
+  text-shadow: 0 0 12px rgba(212, 168, 87, 0.3);
+}
+
+.playerSubtitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: var(--gold-soft);
+  text-align: center;
+  margin-top: 2px;
+}
+
+.sectionLabel {
+  font-family: var(--font-cinzel), serif;
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--gold-soft);
+  text-transform: uppercase;
+}
+
+/* Inputs themed for the panels */
+.goldInput,
+.goldInput .ant-input,
+.goldInput textarea.ant-input {
+  background: rgba(10, 14, 40, 0.5) !important;
+  border: 1px solid rgba(212, 168, 87, 0.35) !important;
+  color: #f5e6c8 !important;
+  border-radius: 4px !important;
+  font-family: var(--font-cinzel), serif !important;
+  resize: none !important;
+}
+
+.goldInput .ant-input::placeholder,
+.goldInput textarea.ant-input::placeholder {
+  color: rgba(212, 168, 87, 0.4) !important;
+  font-style: italic;
+}
+
+.goldInput .ant-input-data-count {
+  color: rgba(212, 168, 87, 0.5) !important;
+  font-family: var(--font-cinzel), serif !important;
+  font-size: 11px !important;
+}
+
+/* Story Objective ribbon */
+.storyObjectiveRibbon {
+  display: inline-block;
+  padding: 10px 32px;
+  background: rgba(10, 14, 40, 0.6);
+  border: 1px solid rgba(212, 168, 87, 0.5);
+  border-radius: 2px;
+  color: var(--gold);
+  font-family: var(--font-cinzel), serif;
+  font-size: 15px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  position: relative;
+}
+
+/* Status pill (players counter, timer) */
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px;
+  background: rgba(10, 14, 40, 0.6);
+  border: 1px solid rgba(212, 168, 87, 0.4);
+  border-radius: 20px;
+  color: var(--gold);
+  font-family: var(--font-cinzel), serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+/* Active Story story-text styling */
+.storyText {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #e8e4d8;
+  white-space: pre-wrap;
+}
+
+/* Footer pill bar (Quote P1 / Declare / Quote P2) */
+.footerPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 28px;
+  background: rgba(10, 14, 40, 0.55);
+  border: 1px solid rgba(212, 168, 87, 0.45);
+  border-radius: 30px;
+  color: var(--gold);
+  font-family: var(--font-cinzel), serif;
+  font-size: 15px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.footerPill:hover:not(:disabled) {
+  background: rgba(212, 168, 87, 0.15);
+  border-color: var(--gold);
+  box-shadow: 0 0 16px rgba(212, 168, 87, 0.3);
+}
+
+.footerPill:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.footerPillCenter {
+  background: rgba(10, 14, 40, 0.7);
+  border: 1.5px solid var(--gold);
+  box-shadow: 0 0 18px rgba(212, 168, 87, 0.35);
+}
+
+/* Submit button — golden */
+.goldButton {
+  background: linear-gradient(180deg, rgba(212, 168, 87, 0.15) 0%, rgba(212, 168, 87, 0.05) 100%) !important;
+  border: 1px solid var(--gold) !important;
+  color: var(--gold) !important;
+  font-family: var(--font-cinzel), serif !important;
+  letter-spacing: 3px !important;
+  border-radius: 20px !important;
+  height: 38px !important;
+  padding: 0 22px !important;
+  font-size: 14px !important;
+  text-transform: uppercase;
+  transition: all 0.2s !important;
+}
+
+.goldButton:hover:not(:disabled) {
+  background: rgba(212, 168, 87, 0.25) !important;
+  border-color: var(--gold) !important;
+  color: var(--gold-bright) !important;
+  box-shadow: 0 0 14px rgba(212, 168, 87, 0.4) !important;
+}
+
+/* Top corner buttons (Exit, Profile/Help) */
+.cornerButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(212, 168, 87, 0.5);
+  color: var(--gold);
+  font-family: var(--font-cinzel), serif;
+  font-size: 16px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cornerButton:hover {
+  color: var(--gold-bright);
+  border-bottom-color: var(--gold-bright);
+}
