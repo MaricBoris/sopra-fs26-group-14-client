@@ -238,8 +238,25 @@ a {
   background-position: center;
   filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
   z-index: 5;
+  pointer-events: none;
 }
 
+.slotLeft,
+.slotMiddle,
+.slotRight,
+.slotLeft *,
+.slotMiddle *,
+.slotRight *,
+.footerPillWrap,
+.footerPillWrap *,
+.storyObjectiveWrap,
+.storyObjectiveWrap * {
+  pointer-events: auto;
+}
+
+.bullauge {
+  pointer-events: none;
+}
 /* Content slots made taller */
 .slotLeft,
 .slotMiddle,
@@ -476,7 +493,7 @@ a {
   font-size: 13px;
   letter-spacing: 3px;
   color: var(--gold-soft);
-  margin-top: 10px;
+  margin-top: 14px;
   text-transform: uppercase;
   position: relative;
   z-index: 10;
