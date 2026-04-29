@@ -75,6 +75,13 @@ const {
   clear: clearId,
 } = useLocalStorage<string>("userId", "");
 
+const RuleItem: React.FC<{ icon: string; text: string }> = ({ icon, text }) => (
+  <div style={{ display: "flex", gap: 12, alignItems: "flex-start", fontSize: 14, lineHeight: 1.6 }}>
+    <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
+    <span style={{ color: "rgba(255,255,255,0.85)" }}>{text}</span>
+  </div>
+);
+
 const [ wholeStoryText,setStoryyText] = useState<string>("");
 const [TwoInput, setTwoInput] = useState("");
 const [OneInput, setOneInput] = useState("");
@@ -90,6 +97,7 @@ const [resultModalVisible, setResultModalVisible] = useState(false);
 const [resultGame, setResultGame] = useState<Game | null>(null);
 const votingInProgress = useRef(false);
 const [gameEnded, setGameEnded] = useState(false);
+const [rulesVisible, setRulesVisible] = useState(false);
 
 const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
   const prettyinput=input.trim();
@@ -164,7 +172,7 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
       setGame(latestGame);
       setStoryyText(latestGame.story.storyText);
 
-      if (latestGame.story.hasWinner) {
+      if (latestGame.story.hasWinner || latestGame.phase === "FINISHED") {
         setResultModalVisible(prev => {
           if (!prev) {
             setResultGame(latestGame);
@@ -255,6 +263,42 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
     };
   }, [token, gameid]);
 
+  // Polling fallback
+  useEffect(() => {
+    if (!token || !gameid) return;
+    if (gameEnded) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const latestGame = await apiService.get<Game>(`/games/${gameid}`, token);
+        setGame(latestGame);
+        setStoryyText(latestGame.story.storyText);
+        if (latestGame.story.hasWinner) {
+          setResultModalVisible(prev => {
+            if (!prev) {
+              setResultGame(latestGame);
+              return true;
+            }
+            return prev;
+          });
+        }
+      } catch (error) {
+        const appError = error as ApplicationError;
+        if (appError?.status === 404) {
+          setResultModalVisible(prev => {
+            if (!prev && !votingInProgress.current) {
+              setGameEnded(true);
+            }
+            return prev;
+          });
+        }
+        
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [token, gameid, gameEnded]);
+
 
   useEffect(() => {
     if (!token || !gameid ) return;
@@ -319,8 +363,8 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
 useEffect(() => { //pre game countdown
   if (!starting) return;
   if (startCountdown <= 0) {
-    setStarting(false);
-    return;
+    const id = setTimeout(() => setStarting(false), 1000);
+    return () => clearTimeout(id);
   }
   const id = setTimeout(() => setStartCountdown(x => x - 1), 1000);
   return () => clearTimeout(id);
@@ -424,8 +468,10 @@ return (
           <div style={{
             position: "fixed",
             top: 0, left: 0, right: 0, bottom: 0,
-            background: "rgba(0,0,0,0.7)",
+            background: "rgba(0,0,0,0.75)",
+            backdropFilter: "blur(8px)",
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             fontSize: 120,
@@ -433,8 +479,35 @@ return (
             zIndex: 999,
             fontFamily: "var(--font-cinzel), serif",
           }}>
-            {startCountdown}
-          </div>
+      {startCountdown === 0 ? (
+              <div style={{ fontSize: 64, fontWeight: "bold", letterSpacing: 6, color: "#ffffff" }}>
+                Game Start!
+              </div>
+            ) : (
+              <>
+                <div style={{ fontSize: 16, letterSpacing: 3, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                  You are a
+                </div>
+                <div style={{ fontSize: 36, fontWeight: "bold", letterSpacing: 4 }}>
+                  {isJudge ? "Judge" : "Writer"}
+                </div>
+                {game?.story?.objective && (
+                  <div style={{ marginTop: 8, fontSize: 15, letterSpacing: 1 }}>
+                    Story&apos;s theme: <span style={{ color: "#ffffff", fontWeight: "bold" }}>{game.story.objective}</span>
+                  </div>
+                )}
+                {!isJudge && (
+                  <div style={{ fontSize: 15, color: "rgba(255,255,255,0.7)", letterSpacing: 1 }}>
+                    Your Secret Genre: <span style={{ color: "#f0c040", fontWeight: "bold" }}>{isUserPlayer1 ? writer1Genre : writer2Genre}</span>
+                  </div>
+                )}
+                <div style={{ fontSize: 100, fontWeight: "bold", lineHeight: 1, marginTop: 16 }}>
+                  {startCountdown}
+                </div>
+
+              </>
+            )}
+        </div>
         )}
       <div
         style={{
@@ -487,8 +560,21 @@ return (
             Game Room
           </div>
 
-          <div />
-        </div>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Button
+                        onClick={() => setRulesVisible(true)}
+                        style={{
+                          ["--btn-bg" as string]: "rgba(255,255,255,0.08)",
+                          width: 120,
+                          height: 52,
+                          fontSize: 18,
+                          border: "1px solid rgba(255,255,255,0.15)",
+                        }}
+                      >
+                      Help
+                      </Button>
+                    </div>
+                  </div>
 
         {/* Live story titel */}
         <div
@@ -510,10 +596,33 @@ return (
               border: "1px solid rgba(255,255,255,0.06)",
               borderRadius: 1,
               minWidth: 0,
-              minHeight: 56,
+              height: 56,
+              display: "flex",
+              alignItems: "center",
               overflow: "hidden",
             }}
           >
+          <div
+            style={{
+              width: 200,
+              height: "100%",
+              borderRight: "1px solid rgba(255,255,255,0.06)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 13,
+              fontWeight: "bold",
+              letterSpacing: 2,
+              color: game.phase === "EVALUATION" ? "#e74c3c"
+                : game.phase === "TIEBREAKER" ? "#c39bd3"
+                : "#2e9f44",
+            }}
+          >
+            {game.phase === "EVALUATION" ? "EVALUATION PHASE"
+              : game.phase === "TIEBREAKER" ? "TIEBREAKER PHASE"
+              : "WRITING PHASE"}
+          </div>
+
             <div
               style={{
                 position: "absolute",
@@ -532,7 +641,7 @@ return (
             <div
               style={{
                 marginLeft: "auto",
-                width: 100,
+                width: 200,
                 height: "100%",
                 minHeight: 56,
                 borderLeft: "1px solid rgba(255,255,255,0.06)",
@@ -542,25 +651,9 @@ return (
                 fontSize: 20,
               }}
             >
-            {game.currentRound} / 4
+            {game.currentRound} / 4 rounds
 
             </div>
-          </div>
-
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 18,
-              minWidth: 0,
-            }}
-          >
-            Round
           </div>
         </div>
 
@@ -581,7 +674,7 @@ return (
               flexDirection: "column",
               gap: 8,
               minWidth: 0,
-              ...(isPlayer1Active && game.phase !== "EVALUATION" ? activePlayerStyle : inactivePlayerStyle),
+              ...(isPlayer1Active && game.phase !== "EVALUATION" && !resultModalVisible ? activePlayerStyle : inactivePlayerStyle),
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
@@ -591,7 +684,7 @@ return (
             <div
               style={{
                 ...panelStyle,
-                padding: 12,
+                padding: 20,
                 height: 190,
                 minWidth: 0,
               }}
@@ -599,7 +692,7 @@ return (
               <TextArea
                 maxLength={2000}
                 showCount
-                disabled={!isUserPlayer1 || !game.writers[0].turn}
+                disabled={!isUserPlayer1 || !game.writers[0].turn || game.phase === "EVALUATION"}
                 style={inputInnerStyle}
                 value={isUserPlayer1 ? OneInput : (game.writers[0]?.text ?? "")}
                 onChange={(e) => setOneInput(e.target.value)}
@@ -786,7 +879,7 @@ return (
                 </Button>
               )}
 
-              <Button
+              {isJudge && <Button
                 disabled={!isJudge || game.phase !== "EVALUATION"}
                 onClick={() => setDeclareModalVisible(true)}
                 style={{
@@ -797,7 +890,7 @@ return (
                 }}
               >
                 Declare
-              </Button>
+              </Button>}
 
               {isJudge && (
                 <Button
@@ -838,7 +931,7 @@ return (
               flexDirection: "column",
               gap: 8,
               minWidth: 0,
-              ...(isPlayer2Active && game.phase !== "EVALUATION" ? activePlayerStyle : inactivePlayerStyle),
+              ...(isPlayer2Active && game.phase !== "EVALUATION" && !resultModalVisible ? activePlayerStyle : inactivePlayerStyle),
             }}
           >
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
@@ -848,7 +941,7 @@ return (
             <div
               style={{
                 ...panelStyle,
-                padding: 12,
+                padding: 20,
                 height: 190,
                 minWidth: 0,
               }}
@@ -856,7 +949,7 @@ return (
               <TextArea
                 maxLength={2000}
                 showCount
-                disabled={!isUserPlayer2 || !game.writers[1].turn}
+                disabled={!isUserPlayer2 || !game.writers[1].turn || game.phase === "EVALUATION"}
                 style={inputInnerStyle}
                 value={isUserPlayer2 ? TwoInput : (game.writers[1]?.text ?? "")}
                 onChange={(e) => setTwoInput(e.target.value)}
@@ -1042,7 +1135,78 @@ return (
           </div>
         </div>
       </Modal>
-    </div>
+    {rulesVisible && (
+            <div
+              onClick={() => setRulesVisible(false)}
+              style={{
+                position: "fixed",
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: "rgba(0,0,0,0.45)",
+                backdropFilter: "blur(6px)",
+                zIndex: 998,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  background: "rgba(20,20,35,0.75)",
+                  backdropFilter: "blur(18px)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  borderRadius: 4,
+                  padding: "36px 40px",
+                  maxWidth: 540,
+                  width: "90%",
+                  color: "#ffffff",
+                  fontFamily: "var(--font-cinzel), serif",
+                  position: "relative",
+                }}
+              >
+                <Button
+                  onClick={() => setRulesVisible(false)}
+                  style={{
+                    position: "absolute",
+                    top: 14, right: 14,
+                    ["--btn-bg" as string]: "transparent",
+                    border: "none",
+                    color: "rgba(255,255,255,0.5)",
+                    fontSize: 20,
+                  }}
+                >✕</Button>
+
+                <div style={{ fontSize: 22, fontWeight: "bold", marginBottom: 20, textAlign: "center" }}>
+                  How to Play
+                </div>
+
+                {isJudge ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    <RuleItem icon="⚖️" text="You are the Judge. You observe the story but do not write." />
+                    <RuleItem icon="💬" text="Assign a quote to either writer via Quote P1 / Quote P2. Each writer must incorporate it within 2 of their own turns." />
+                    <RuleItem icon="🚫" text="You can only assign one quote per writer." />
+                    <RuleItem icon="🏆" text="After 20 rounds the game enters Evaluation. Use the Declare button to pick the winner — the writer whose genre best shaped the story." />
+                    <RuleItem icon="⏱️" text="If you don't vote before the timer expires, a tie is recorded automatically." />
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                    <RuleItem icon="✍️" text="Writers alternate turns building a shared story. Steer it toward your secret genre." />
+                    <RuleItem icon="🎭" text="Your genre is shown in your genre field, hover onto it to see the full description. The opponent does not know your genre!" />
+                    <RuleItem icon="💬" text="The Judge may assign you a quote. Weave it into the story within 2 of your own turns or face a penalty." />
+                    <RuleItem icon="⏱️" text="Each turn has a timer. If it expires your turn is skipped. Submit before time runs out." />
+                    <RuleItem icon="🏆" text="After 20 rounds the Judge decides whose genre dominated the story. Write convincingly!" />
+                  </div>
+                )}
+
+
+
+                <div style={{ textAlign: "center", marginTop: 18, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>
+                  Click anywhere outside to close
+                </div>
+              </div>
+            </div>
+          )}
+      </div>
   );
 };
 
