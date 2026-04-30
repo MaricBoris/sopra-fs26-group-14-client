@@ -12,9 +12,9 @@ export default function Home() {
   const router = useRouter();
   const api = useApi();
   const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
-  const { value: userId, clear: clearUserId } = useLocalStorage<string>("userId", ""); // 📝 to clear userId on logout
+  const { value: userId, clear: clearUserId } = useLocalStorage<string>("userId", ""); //to clear userId on logout
 
-  // 📝 mount gate -> don't read localStorage before it's available (prevents hydration mismatch)
+  //mount gate -> don't read localStorage before it's available (prevents hydration mismatch)
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
@@ -22,8 +22,8 @@ export default function Home() {
     try {
       await api.post("/users/logout", {}, token);
       clearToken();
-      clearUserId(); // 📝 also clear stored user id
-      // 📝 user stays on home page after logout (no redirect)
+      clearUserId(); //also clear stored user id
+      //user stays on home page after logout (no redirect)
     } catch (e) {
       alert(`Logout failed: ${e instanceof Error ? e.message : String(e)}`);
     }
@@ -37,7 +37,7 @@ export default function Home() {
     }
   };
 
-  // 📝 Profile button: same logic as <ProfileButton/> component — go to /users/{userId} if logged in, else /login
+  
   const handleProfileClick = () => {
     if (token && userId) {
       router.push(`/users/${userId}`);
@@ -46,7 +46,7 @@ export default function Home() {
     }
   };
 
-  // 📝 don't render until mounted to avoid hydration mismatch with localStorage
+  // don't render until mounted to avoid hydration mismatch with localStorage
   if (!isMounted) return null;
 
  return (
@@ -73,7 +73,7 @@ export default function Home() {
         )}
       </div>
 
-      {/*  Beschreibungstext unter dem im Hintergrund eingebrannten Storywars-Titel */}
+      {/* the text that describes the game */}
       <p className="home-description">
         Face one another in a collaborative and competitive writing game.<br />
         Try to steer the story toward your assigned genre<br />
@@ -83,7 +83,7 @@ export default function Home() {
         </span>
       </p>
 
-      {/*  Hauptbuttons unten: Stories + Lobby */}
+      {/* stories and lobby buttons*/}
       <div className="home-main-buttons">
         <Button className="home-main-btn" onClick={() => router.push("/results")}>
           STORIES

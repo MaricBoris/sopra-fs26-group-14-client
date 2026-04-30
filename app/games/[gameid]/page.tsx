@@ -68,14 +68,16 @@ const [gameEnded, setGameEnded] = useState(false);
 const [rulesVisible, setRulesVisible] = useState(false);
 const [frozenBullaugeSide, setFrozenBullaugeSide] = useState<"left" | "right" | null>(null);
  
+//to remember where it last was before evaluation
 useEffect(() => {
   if (!game) return;
   if (game.phase === "EVALUATION") return;
  
   if (isPlayer1Active && !isPlayer2Active) setFrozenBullaugeSide("right");
   else if (isPlayer2Active && !isPlayer1Active) setFrozenBullaugeSide("left");
-}, [isPlayer1Active, isPlayer2Active, game?.phase, game]);
+}, [isPlayer1Active, isPlayer2Active, game?.phase]);
  
+//determine where it should be right now
 let showBullaugeOnLeft = false;
 let showBullaugeOnRight = false;
  
@@ -159,8 +161,8 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
         const latestGame = await apiService.get<Game>(`/games/${gameid}`, token);
         setGame(latestGame);
         setStoryyText(latestGame.story.storyText);
-        //setGenre1(latestGame.writers[0]?.genre ?? "Genre");
-        //setGenre2(latestGame.writers[1]?.genre ?? "Genre");
+        setGenre1(latestGame.writers[0]?.genre ?? "Genre");
+        setGenre2(latestGame.writers[1]?.genre ?? "Genre");
         if (latestGame.story.hasWinner) {
           setResultModalVisible(prev => {
             if (!prev) {
@@ -258,7 +260,7 @@ useEffect(() => { //pre game countdown
   return () => clearTimeout(id);
 }, [startCountdown, starting]);
  
-useEffect(() => {
+useEffect(() => { //actual timer countdown
   if (!game?.turnStartedAt) return;
    if (starting) return;
  
@@ -353,156 +355,165 @@ if (!game) { //beim ersten rendern ist user noch null, dann zeigen wir erst mal 
 const quoteIncorporatedP1 = !!(game.writers[0]?.quote && wholeStoryText.toLowerCase().includes(game.writers[0].quote.toLowerCase()));
 const quoteIncorporatedP2 = !!(game.writers[1]?.quote && wholeStoryText.toLowerCase().includes(game.writers[1].quote.toLowerCase()));
  
+//convert the timer seconds to minutes and seconds: instead of 90s->1:30 
 const formatTime = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 };
  
-const renderPlayerSlot = (playerIdx: 0 | 1) => {
-  const writer = game.writers[playerIdx];
-  const isUserThisPlayer = playerIdx === 0 ? isUserPlayer1 : isUserPlayer2;
-  const isThisPlayerActive = !!writer?.turn;
-  const playerNum = (playerIdx + 1) as 1 | 2;
-  const draftValue = playerIdx === 0 ? OneInput : TwoInput;
-  const setDraftValue = playerIdx === 0 ? setOneInput : setTwoInput;
-  const genreVal = playerIdx === 0 ? writer1Genre : writer2Genre;
-  const otherUserIsThisPlayer = playerIdx === 0 ? isUserPlayer2 : isUserPlayer1;
-  const quoteUsed = playerIdx === 0 ? quoteUsedP1 : quoteUsedP2;
-  const quoteIncorporated = playerIdx === 0 ? quoteIncorporatedP1 : quoteIncorporatedP2;
-  const responseValue = isUserThisPlayer ? draftValue : writer?.text ?? "";
- 
-  return (
-    <>
-      <div style={{ flexShrink: 0, marginBottom: 4 }}>
-        <div className="playerNameTitle">
-          {(writer?.username ?? `Player ${playerNum}`).toUpperCase()}
-        </div>
-      </div>
- 
-      <div className="sectionLabel" style={{ marginBottom: 2, flexShrink: 0 }}>
-        YOUR RESPONSE
-      </div>
- 
-      <div className="goldInput goldInputFlex" style={{ flex: 1, minHeight: 120 }}>
-        <TextArea
-          maxLength={2000}
-          showCount
-          disabled={!isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION"}
-          value={responseValue}
-          onChange={(e) => setDraftValue(e.target.value)}
-          placeholder="Enter your next part of the story..."
-          style={{ height: "100%", resize: "none" }}
-        />
-      </div>
- 
-      <div style={{ marginTop: 6, flexShrink: 0 }}>
-        <div className="sectionLabel" style={{ marginBottom: 2 }}>
-          GENRE
-        </div>
- 
-        <Tooltip title={!otherUserIsThisPlayer ? writer?.genreDescription ?? "" : ""}>
-          <div className="genreBox">
-            {isUserThisPlayer ? genreVal : otherUserIsThisPlayer ? "Genre" : genreVal}
+//----------------renderplayerslot function so we don't have to write the same thing twice-----------------------
+
+  const renderPlayerSlot = (playerIdx: 0 | 1) => {
+    const writer = game.writers[playerIdx];
+    const isUserThisPlayer = playerIdx === 0 ? isUserPlayer1 : isUserPlayer2;
+    const isThisPlayerActive = !!writer?.turn;
+    const playerNum = (playerIdx + 1) as 1 | 2;
+    const draftValue = playerIdx === 0 ? OneInput : TwoInput;
+    const setDraftValue = playerIdx === 0 ? setOneInput : setTwoInput;
+    const genreVal = playerIdx === 0 ? writer1Genre : writer2Genre;
+    const otherUserIsThisPlayer = playerIdx === 0 ? isUserPlayer2 : isUserPlayer1;
+    const quoteUsed = playerIdx === 0 ? quoteUsedP1 : quoteUsedP2;
+    const quoteIncorporated = playerIdx === 0 ? quoteIncorporatedP1 : quoteIncorporatedP2;
+    const responseValue = isUserThisPlayer ? draftValue : writer?.text ?? "";
+  
+    return (
+      <>
+
+        {/*the username-title*/}
+
+        <div style={{ flexShrink: 0, marginBottom: 4 }}>
+          <div className="playerNameTitle">
+            {(writer?.username ?? `Player ${playerNum}`).toUpperCase()}
           </div>
-        </Tooltip>
-      </div>
- 
-      {(isUserThisPlayer || isJudge) && (
+        </div>
+  
+        <div className="sectionLabel" style={{ marginBottom: 2, flexShrink: 0 }}>
+          YOUR RESPONSE
+        </div>
+  
+        <div className="goldInput goldInputFlex" style={{ flex: 1, minHeight: 120 }}>
+          <TextArea
+            maxLength={2000}
+            showCount
+            disabled={!isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION"}
+            value={responseValue}
+            onChange={(e) => setDraftValue(e.target.value)}
+            placeholder="Enter your next part of the story..."
+            style={{ height: "100%", resize: "none" }}
+          />
+        </div>
+  
         <div style={{ marginTop: 6, flexShrink: 0 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: 2,
-            }}
-          >
-            <span className="sectionLabel">YOUR QUOTE</span>
- 
-            {(isUserThisPlayer || isJudge) && writer?.quote && (
-              <button
-                onClick={() => navigator.clipboard.writeText(writer?.quote ?? "")}
-                className="assignQuoteButton"
-                title="Copy quote to clipboard"
-              >
-                ⧉ Copy
-              </button>
-            )}
+          <div className="sectionLabel" style={{ marginBottom: 2 }}>
+            GENRE
           </div>
- 
-          <div className="goldInput">
-            <TextArea
-              placeholder="Quote will appear here..."
-              value={writer?.quote ?? ""}
-              readOnly
-              rows={3}
-              style={{ fontSize: 12, resize: "none" }}
-            />
-          </div>
- 
-          {writer?.quote &&
-            !quoteUsed &&
-            !quoteIncorporated &&
-            isUserThisPlayer &&
-            (() => {
-              const assigned = writer.quoteAssignedRound ?? game.currentRound;
-              const turnsLeft = 2 - Math.ceil((game.currentRound - assigned) / 2);
-              const expired = turnsLeft <= 0;
- 
-              return (
-                <div
-                  style={{
-                    fontSize: 10,
-                    color: expired ? "#e74c3c" : "var(--gold-bright)",
-                    textAlign: "center",
-                    marginTop: 3,
-                  }}
-                >
-                  {expired ? "Quote expired!" : `Use in next ${turnsLeft} turn${turnsLeft !== 1 ? "s" : ""}`}
-                </div>
-              );
-            })()}
- 
-          {(quoteUsed || quoteIncorporated) && isUserThisPlayer && (
+  
+          <Tooltip title={!otherUserIsThisPlayer ? writer?.genreDescription ?? "" : ""}>
+            <div className="genreBox">
+              {isUserThisPlayer ? genreVal : otherUserIsThisPlayer ? "Genre" : genreVal}
+            </div>
+          </Tooltip>
+        </div>
+  
+        {(isUserThisPlayer || isJudge) && (
+          <div style={{ marginTop: 6, flexShrink: 0 }}>
             <div
               style={{
-                fontSize: 10,
-                color: "#7fdc9b",
-                textAlign: "center",
-                marginTop: 3,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 2,
               }}
             >
-              Quote incorporated!
+              <span className="sectionLabel">YOUR QUOTE</span>
+  
+              {(isUserThisPlayer || isJudge) && writer?.quote && (
+                <button
+                  onClick={() => navigator.clipboard.writeText(writer?.quote ?? "")}
+                  className="assignQuoteButton"
+                  title="Copy quote to clipboard"
+                >
+                  ⧉ Copy
+                </button>
+              )}
             </div>
-          )}
-        </div>
-      )}
- 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginTop: 16,
-          flexShrink: 0,
-        }}
-      >
-        <Button
-          onClick={() => {console.log("clicked"); handleSubmit(playerNum, draftValue); }}
-          disabled={!isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION"}
-          className="goldButton"
+  
+            <div className="goldInput">
+              <TextArea
+                placeholder="Quote will appear here..."
+                value={writer?.quote ?? ""}
+                readOnly
+                rows={3}
+                style={{ fontSize: 12, resize: "none" }}
+              />
+            </div>
+  
+            {writer?.quote &&
+              !quoteUsed &&
+              !quoteIncorporated &&
+              isUserThisPlayer &&
+              (() => {
+                const assigned = writer.quoteAssignedRound ?? game.currentRound;
+                const turnsLeft = 2 - Math.ceil((game.currentRound - assigned) / 2);
+                const expired = turnsLeft <= 0;
+  
+                return (
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: expired ? "#e74c3c" : "var(--gold-bright)",
+                      textAlign: "center",
+                      marginTop: 3,
+                    }}
+                  >
+                    {expired ? "Quote expired!" : `Use in next ${turnsLeft} turn${turnsLeft !== 1 ? "s" : ""}`}
+                  </div>
+                );
+              })()}
+  
+            {(quoteUsed || quoteIncorporated) && isUserThisPlayer && (
+              <div
+                style={{
+                  fontSize: 10,
+                  color: "#7fdc9b",
+                  textAlign: "center",
+                  marginTop: 3,
+                }}
+              >
+                Quote incorporated!
+              </div>
+            )}
+          </div>
+        )}
+  
+        <div
           style={{
-            width: 120,
-            opacity: !isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION" ? 0.4 : 1,
+            display: "flex",
+            justifyContent: "center",
+            marginTop: 16,
+            flexShrink: 0,
           }}
         >
-          SUBMIT
-        </Button>
-      </div>
-    </>
-  );
-};
- 
+          <Button
+            onClick={() => {console.log("clicked"); handleSubmit(playerNum, draftValue); }}
+            disabled={!isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION"}
+            className="goldButton"
+            style={{
+              width: 120,
+              opacity: !isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION" ? 0.4 : 1,
+            }}
+          >
+            SUBMIT
+          </Button>
+        </div>
+      </>
+    );
+  };
+
+//--------------------------------------end renderplayerslot function---------------------------------------------------------
+
+
 return (
   <div
     className="gameStarryBg"
