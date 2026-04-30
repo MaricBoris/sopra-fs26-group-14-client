@@ -596,7 +596,7 @@ return (
             style={{
               flex: 1,
               overflowY: "auto",
-              padding: "12px 12px 0 12px",
+              padding: "35px 12px 0 20px",
               minHeight: 0,
             }}
           >
