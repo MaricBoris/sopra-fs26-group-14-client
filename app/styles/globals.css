@@ -171,18 +171,39 @@ a {
 .statusPillRow {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 14px;    /* vorher 8 */
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
 }
+ 
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 22px;
+  background: rgba(10, 14, 40, 0.6);
+  border: 1px solid rgba(212, 168, 87, 0.55);
+  border-radius: 999px;
+  color: var(--gold-bright);
+  font-family: var(--font-cinzel), serif;
+  font-size: 15px;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(212, 168, 87, 0.25);
+}
+
 
 .storyObjectiveWrap {
   display: flex;
   justify-content: center;
-  margin-top: 10px;    /* vorher 2 */
-  margin-bottom: -26px; /* etwas weniger aggressiv als -30 */
+  align-items: center;
+  gap: 0;
+  margin-top: 10px;
+  margin-bottom: -26px;
   position: relative;
   z-index: 12;
 }
+
 
 /* LIVE STORY removed in JSX. This class can stay unused safely. */
 .liveStorySubtitle {
@@ -191,36 +212,51 @@ a {
 
 
 
-.statusPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 15px;
-  background: rgba(10, 14, 40, 0.6);
-  border: 1px solid rgba(212, 168, 87, 0.4);
-  border-radius: 20px;
-  color: var(--gold);
-  font-family: var(--font-cinzel), serif;
-  font-size: 13px;
-  letter-spacing: 1px;
-}
-
-
 
 .storyObjectiveRibbon {
-  display: inline-block;
-  padding: 7px 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 30px;
   background: rgba(10, 14, 40, 0.62);
-  border: 1px solid rgba(212, 168, 87, 0.5);
+  border: 1px solid rgba(212, 168, 87, 0.55);
   border-radius: 2px;
-  color: var(--gold);
+  color: var(--gold-bright);
   font-family: var(--font-cinzel), serif;
   font-size: 13px;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   text-align: center;
   max-width: 760px;
+  text-shadow: 0 0 8px rgba(212, 168, 87, 0.25);
 }
+
+
+.statusPillSeparator {
+  font-size: 14px;
+  color: var(--gold-bright);
+  line-height: 1;
+  user-select: none;
+  text-shadow: 0 0 8px rgba(212, 168, 87, 0.4);
+}
+ 
+.storyObjectiveSide {
+  display: inline-block;
+  width: 90px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(212, 168, 87, 0.55));
+}
+
+.storyObjectiveSideRight {
+  background: linear-gradient(to left, transparent, rgba(212, 168, 87, 0.55));
+}
+ 
+.storyObjectiveStar {
+  color: var(--gold-bright);
+  font-size: 14px;
+  text-shadow: 0 0 6px rgba(212, 168, 87, 0.4);
+}
+
 
 /* ============================================ */
 /* PANELS GRAPHIC                               */
