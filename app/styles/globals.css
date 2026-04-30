@@ -1,11 +1,49 @@
 :root {
+  /* used by game page */
   --background: #0a0e27;
   --foreground: #ededed;
   --gold: #d4a857;
   --gold-soft: #c9a76a;
   --gold-bright: #f0c040;
   --panel-blue: #1a2042;
+
+  /* used by lobby and home */
+  /* golds */
+  --gold-warm: #e8d896;            /* for texts and highlights, for example used for lobby title, the text in buttons or the glow they get when hovering over them */
+  --gold-rim: #d4af5d;             /* for outlines/borders */
+  --gold-muted: #d4c98a;           /* for subtext, text in less important buttons or the titles in the rooms table*/
+
+  /* blues */
+  --blue-deep: #050818;            
+  --blue-rim: #4a4596;            
+  --blue-button: rgba(40, 35, 90, 0.55);          /* default button background */
+  --blue-button-hero: rgba(60, 50, 130, 0.55);    /* button background big */
+  --blue-button-hover: rgba(60, 50, 120, 0.7);    /* button background hover*/
+  --blue-button-hero-hover: rgba(80, 65, 160, 0.7);
+  --blue-outline-bg: rgba(20, 20, 50, 0.5);       /* outline button background */
+  --blue-outline-bg-hover: rgba(60, 50, 120, 0.6);
+  --blue-panel-bg: rgba(20, 25, 60, 0.35);        /* panel/card background */
+
+  /* shadows and glows */
+  --shadow-button: 0 0 18px rgba(0, 0, 0, 0.4);
+  --glow-gold-soft: 0 0 24px rgba(212, 175, 93, 0.25);
+  --glow-gold-strong: 0 0 32px rgba(232, 216, 150, 0.5);
+  --glow-text-gold: 0 0 12px rgba(232, 216, 150, 0.4);
+
+  /* font */
+  --font-display: var(--font-cinzel), serif;
 }
+
+/* ------------------------------------------------------------
+   *reusable* button styles
+   ------------------------------------------------------------
+   .btn-gold-action   → something like "CREATE MATCH" on lobby page
+   .btn-outline-blue  → something like top right buttons on home page
+   .btn-hero          → big buttons like stories and lobby on homepage
+
+   how to use:
+     <Button className="btn-gold-action">SUBMIT</Button>
+  --------------------------------------------------------------- */
 
 html,
 body {
@@ -117,9 +155,9 @@ a {
   box-shadow: 0 2px 4px rgba(29, 28, 28, 0.478) !important;
 }
 
-/* ============================================ */
+/* -------------------------------------------- */
 /* GAME PAGE                                    */
-/* ============================================ */
+/* ----------------------------------------------*/
 
 .gameStarryBg {
   position: relative;
@@ -132,7 +170,7 @@ a {
   background-attachment: fixed;
 }
 
-/* Main wrapper tighter than before */
+/* Main wrapper */
 .gameContentWrapper {
   max-width: 1500px;
   width: 100%;
@@ -165,7 +203,7 @@ a {
   text-shadow: 0 0 18px rgba(212, 168, 87, 0.4);
   margin: 0;
   padding: 0;
-  line-height: 1.08;   /* etwas luftiger */
+  line-height: 1.08;  
 }
 
 .statusPillRow {
@@ -205,7 +243,7 @@ a {
 }
 
 
-/* LIVE STORY removed in JSX. This class can stay unused safely. */
+/* previously for the LIVE STORY subtitle, now unused  */
 .liveStorySubtitle {
   display: none;
 }
@@ -258,9 +296,9 @@ a {
 }
 
 
-/* ============================================ */
+/* -------------------------------------------- */
 /* PANELS GRAPHIC                               */
-/* ============================================ */
+/* -------------------------------------------- */
 
 .panelsGraphic {
   position: relative;
@@ -293,7 +331,7 @@ a {
 .bullauge {
   pointer-events: none;
 }
-/* Content slots made taller */
+/* Content slots */
 .slotLeft,
 .slotMiddle,
 .slotRight {
@@ -314,7 +352,7 @@ a {
   left: 34.7%;
   right: 34.7%;
   top: 20%;
-  bottom: 16.5%;
+  bottom: 25%;
 }
 
 .slotRight {
@@ -324,7 +362,7 @@ a {
   bottom: 15.5%;
 }
 
-/* Bullauge larger */
+/* Bullauge */
 .bullauge {
   position: absolute;
   width: 29%;
@@ -347,9 +385,9 @@ a {
   right: 0.8%;
 }
 
-/* ============================================ */
+/* --------------------------------------------- */
 /* TYPOGRAPHY                                   */
-/* ============================================ */
+/* ----------------------------------------------*/
 
 .playerNameTitle {
   font-family: var(--font-cinzel), serif;
@@ -382,20 +420,25 @@ a {
   text-transform: uppercase;
 }
 
-/* ============================================ */
+/* ---------------------------------------------*/
 /* INPUTS                                       */
-/* ============================================ */
+/* --------------------------------------------- */
 
 .goldInput,
 .goldInput .ant-input,
 .goldInput textarea.ant-input {
   background: rgba(10, 14, 40, 0.45) !important;
   border: 1px solid rgba(212, 168, 87, 0.35) !important;
-  color: #f5e6c8 !important;
+  color: #F1E9D2;
+
+text-shadow:
+  0 0 4px rgba(255, 220, 140, 0.12),
+  0 0 8px rgba(212, 175, 55, 0.08);
   border-radius: 4px !important;
   font-family: var(--font-cinzel), serif !important;
   resize: none !important;
-  font-size: 12px !important;
+  font-size: 15px !important;
+  caret-color: #E6C77A;
 }
 
 .goldInput .ant-input::placeholder,
@@ -453,15 +496,20 @@ a {
   cursor: not-allowed;
 }
 
-/* ============================================ */
+/* -------------------------------------------- */
 /* ACTIVE STORY                                 */
-/* ============================================ */
+/* --------------------------------------------- */
 
 .storyText {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
-  color: #FFFEFC ;
+  color: #E8ECF1;
+
+  text-shadow:
+    0 0 4px rgba(255, 220, 140, 0.10),
+    0 0 10px rgba(140, 180, 255, 0.18),
+    0 0 20px rgba(80, 120, 255, 0.10);
   white-space: pre-wrap;
 }
 
@@ -475,9 +523,9 @@ a {
   padding: 0 12px;
 }
 
-/* ============================================ */
+/* -----------------------------------------------*/
 /* FOOTER / JUDGE BUTTONS                       */
-/* ============================================ */
+/* --------------------------------------------- */
 
 .footerPillWrap {
   display: flex;
@@ -535,9 +583,9 @@ a {
   z-index: 10;
 }
 
-/* ============================================ */
+/* -------------------------------------------- */
 /* BUTTONS                                      */
-/* ============================================ */
+/* -------------------------------------------- */
 
 .goldButton {
   background: linear-gradient(
@@ -585,9 +633,9 @@ a {
   border-bottom-color: var(--gold-bright);
 }
 
-/* ============================================ */
+/*--------------------------------------------- */
 /* START OVERLAY                                */
-/* ============================================ */
+/* -------------------------------------------- */
 
 .startOverlay {
   position: fixed;
@@ -641,9 +689,9 @@ a {
   color: var(--gold);
 }
 
-/* ============================================ */
+/* -------------------------------------------- */
 /* RULES MODAL                                  */
-/* ============================================ */
+/* -------------------------------------------- */
 
 .rulesOverlay {
   position: fixed;
@@ -686,9 +734,9 @@ a {
   font-size: 12px;
   color: rgba(245, 230, 200, 0.3);
 }
-/* ============================================ */
+/* -------------------------------------------- */
 /* LOBBY PAGE (Elevator Design)                 */
-/* ============================================ */
+/* --------------------------------------------- */
 
 /* Lobby page: full-screen starry background */
 .lobby-page {
@@ -697,7 +745,7 @@ a {
   background-image: url('/hintergrund_lobby.png');
   background-size: cover;
   background-position: center;
-  background-color: #050818;
+  background-color: var(--blue-deep);
   overflow: hidden;
 }
 
@@ -708,10 +756,10 @@ a {
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
-  font-family: var(--font-cinzel), serif;
+  font-family: var(--font-display);
   font-size: 38px;
   letter-spacing: 8px;
-  color: #e8d896;
+  color: var(--gold-warm);
   text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0,0,0,0.8);
   z-index: 10;
   pointer-events: none;
@@ -721,13 +769,13 @@ a {
   top: 62px;
   left: 50%;
   transform: translateX(-50%);
-  color: #d4af5d;
+  color: var(--gold-rim);
   font-size: 14px;
   z-index: 10;
   pointer-events: none;
 }
 
-/* Elevator stage: centered container that holds the elevator image + overlays */
+/* Elevator stage: centered container that holds the elevator image and overlays */
 .elevator-stage {
   position: absolute;
   left: 50%;
@@ -739,12 +787,12 @@ a {
   z-index: 2;
 }
 
-/* Elevator image wrapper: this is what slides down from above on mount */
+/* Elevator image wrapper: this is what slides down from above */
 .elevator-wrap {
   position: relative;
   width: 100%;
   height: 100%;
-  animation: elevatorDescend 5s cubic-bezier(0.22, 0.9, 0.32, 1) 0.2s both;
+  animation: elevatorDescend 5s cubic-bezier(0.22, 0.9, 0.32, 1) 0.2s both; /*cubics bezier makes movement it less static, not always same speed */
 }
 .elevator-img {
   width: 100%;
@@ -759,7 +807,7 @@ a {
   100% { transform: translateY(0); }
 }
 
-/* Inner panel: where Available Matches + table sit (between woman and alien, above the rod) */
+/* Inner panel: where Available Matches and table sit */
 .elevator-panel {
   position: absolute;
   left: 22%;
@@ -772,7 +820,7 @@ a {
   animation: panelFadeIn 0.9s ease-out 3.4s forwards;
 }
 
-/* Bottom strip: where Create Match button sits (below the rod, inside the elevator floor area) */
+/* Bottom strip: where Create Match button sits */
 .elevator-cta {
   position: absolute;
   left: 22%;
@@ -814,46 +862,50 @@ a {
   color: #6b6480 !important;
 }
 
-/* Create Match button: gold-bordered, semi-transparent, fits the elevator look */
-.lobby-create-btn.ant-btn {
-  background: rgba(40, 35, 90, 0.55) !important;
-  border: 1px solid #d4af5d !important;
-  color: #e8d896 !important;
+/* Create Match button: gold-bordered, semi-transparent, fits the elevator look
+   Aliased with .btn-gold-action, so both give the same styling */
+.lobby-create-btn.ant-btn,
+.btn-gold-action.ant-btn {
+  background: var(--blue-button) !important;
+  border: 1px solid var(--gold-rim) !important;
+  color: var(--gold-warm) !important;
   padding: 0 36px !important;
   height: 42px !important;
   font-size: 13px !important;
   letter-spacing: 3px !important;
-  font-family: var(--font-cinzel), serif !important;
-  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+  font-family: var(--font-display) !important;
+  box-shadow: var(--shadow-button) !important;
 }
 .lobby-create-btn.ant-btn:hover,
-.lobby-create-btn.ant-btn:focus {
-  background: rgba(60, 50, 120, 0.7) !important;
-  border-color: #e8d896 !important;
+.lobby-create-btn.ant-btn:focus,
+.btn-gold-action.ant-btn:hover,
+.btn-gold-action.ant-btn:focus {
+  background: var(--blue-button-hover) !important;
+  border-color: var(--gold-warm) !important;
   color: #ffffff !important;
 }
 
 /* "Available Matches" header above the table */
 .available-matches-heading {
   text-align: center;
-  font-family: var(--font-cinzel), serif;
+  font-family: var(--font-display);
   font-size: 16px;
   letter-spacing: 4px;
-  color: #e8d896;
+  color: var(--gold-warm);
   margin-bottom: 10px;
-  text-shadow: 0 0 12px rgba(232, 216, 150, 0.4);
+  text-shadow: var(--glow-text-gold);
 }
 .available-matches-heading::before,
 .available-matches-heading::after {
   content: " ◆ ";
-  color: #d4af5d;
+  color: var(--gold-rim);
   margin: 0 8px;
   opacity: 0.7;
 }
 
-/* ============================================ */
+/* -------------------------------------------- */
 /* HOME PAGE                                    */
-/* ============================================ */
+/* --------------------------------------------- */
 
 /* Home wrapper: storywars background covers full screen */
 .home-page {
@@ -863,9 +915,9 @@ a {
   background-image: url('/background_home.png');
   background-size: cover;
   background-position: center;
-  background-color: #050818;
+  background-color: var(--blue-deep);
   background-attachment: fixed;
-  font-family: var(--font-cinzel), serif;
+  font-family: var(--font-display);
   overflow-x: hidden;
 }
 
@@ -880,26 +932,35 @@ a {
   gap: 10px;
 }
 
-/* Outline-Button im Lobby-Stil (Home/Profile/Logout/Login/Register) */
-.home-nav-btn.ant-btn {
-  background: rgba(20, 20, 50, 0.5) !important;
-  border: 1px solid #4a4596 !important;
-  color: #d4c98a !important;
-  font-family: var(--font-cinzel), serif !important;
+/* Outline-button in lobby style (Home/Profile/Logout/Login/Register)
+   Aliased with .btn-outline-blue */
+.home-nav-btn.ant-btn,
+.btn-outline-blue.ant-btn {
+  background: var(--blue-outline-bg) !important;
+  border: 1px solid var(--blue-rim) !important;
+  color: var(--gold-muted) !important;
+  font-family: var(--font-display) !important;
   letter-spacing: 2px !important;
   font-size: 14px !important;
   height: 42px !important;
+  padding: 0 22px !important;
+}
+.home-nav-btn.ant-btn:hover,
+.home-nav-btn.ant-btn:focus,
+.btn-outline-blue.ant-btn:hover,
+.btn-outline-blue.ant-btn:focus {
+  background: var(--blue-outline-bg-hover) !important;
+  border-color: var(--gold-rim) !important;
+  color: var(--gold-warm) !important;
+}
+
+/* fixed width (130px) for home nav buttons */
+.home-nav-btn.ant-btn {
   width: 130px !important;
   padding: 0 !important;
 }
-.home-nav-btn.ant-btn:hover,
-.home-nav-btn.ant-btn:focus {
-  background: rgba(60, 50, 120, 0.6) !important;
-  border-color: #d4af5d !important;
-  color: #e8d896 !important;
-}
 
-/* Beschreibungstext unter dem Titel */
+/* description text */
 .home-description {
   position: absolute;
   left: 50%;
@@ -907,7 +968,7 @@ a {
   transform: translateX(-50%);
   width: min(720px, 90vw);
   text-align: center;
-  font-family: var(--font-cinzel), serif;
+  font-family: var(--font-display);
   font-size: 16px;
   line-height: 1.8;
   color: #d4d8e8;
@@ -915,12 +976,12 @@ a {
 .home-description-cta {
   display: block;
   margin-top: 14px;
-  color: #e8d896;
+  color: var(--gold-warm);
   font-weight: 500;
   text-shadow: 0 0 12px rgba(232, 216, 150, 0.3);
 }
 
-/* Stories + Lobby Hauptbuttons unten */
+/* Stories and lobby buttons */
 .home-main-buttons {
   position: absolute;
   left: 50%;
@@ -929,23 +990,28 @@ a {
   display: flex;
   gap: 40px;
 }
-.home-main-btn.ant-btn {
-  background: rgba(60, 50, 130, 0.55) !important;
-  border: 1px solid #d4af5d !important;
-  color: #e8d896 !important;
-  font-family: var(--font-cinzel), serif !important;
+/* stories and lobby button
+   Aliased with .btn-hero */
+.home-main-btn.ant-btn,
+.btn-hero.ant-btn {
+  background: var(--blue-button-hero) !important;
+  border: 1px solid var(--gold-rim) !important;
+  color: var(--gold-warm) !important;
+  font-family: var(--font-display) !important;
   font-size: 26px !important;
   letter-spacing: 4px !important;
   width: 240px !important;
   height: 70px !important;
   padding: 0 !important;
-  box-shadow: 0 0 24px rgba(212, 175, 93, 0.25) !important;
+  box-shadow: var(--glow-gold-soft) !important;
   transition: all 0.2s !important;
 }
 .home-main-btn.ant-btn:hover,
-.home-main-btn.ant-btn:focus {
-  background: rgba(80, 65, 160, 0.7) !important;
-  border-color: #e8d896 !important;
+.home-main-btn.ant-btn:focus,
+.btn-hero.ant-btn:hover,
+.btn-hero.ant-btn:focus {
+  background: var(--blue-button-hero-hover) !important;
+  border-color: var(--gold-warm) !important;
   color: #ffffff !important;
-  box-shadow: 0 0 32px rgba(232, 216, 150, 0.5) !important;
+  box-shadow: var(--glow-gold-strong) !important;
 }

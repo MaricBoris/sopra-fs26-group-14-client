@@ -28,11 +28,11 @@ export default function RoomsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [roomName, setRoomName] = useState("");
 
-  // 📝 mount gate -> don't read localStorage before it's available (prevents hydration mismatch)
+  // mount gate -> don't read localStorage before it's available (prevents hydration mismatch)
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
-  // 📝 fetch room list from GET /rooms
+  // fetch room list from GET /rooms
   const fetchRooms = useCallback(async () => {
     if (!token) return;
     try {
@@ -43,21 +43,21 @@ export default function RoomsPage() {
     }
   }, [api, token]);
 
-  // 📝 on mount: redirect if not authenticated, then fetch
+  // on mount: redirect if not authenticated, then fetch
   useEffect(() => {
     if (!isMounted) return;
     if (!token || !userId) { router.push("/login"); return; }
     fetchRooms();
   }, [isMounted, token, userId, fetchRooms, router]);
 
-  // 📝 poll every 3 seconds so room list stays live for all users
+  // poll every 3 seconds so room list stays live for all users
   useEffect(() => {
     if (!isMounted || !token) return;
     const interval = setInterval(fetchRooms, 3000);
     return () => clearInterval(interval);
   }, [isMounted, token, fetchRooms]);
 
-  // 📝 POST /rooms -> create room with name, redirect creator to /rooms/{roomId}
+  // POST /rooms -> create room with name, redirect creator to /rooms/{roomId}
   const handleCreateRoom = async () => {
     if (!roomName.trim()) {
       message.error("Room name cannot be empty.");
@@ -73,7 +73,7 @@ export default function RoomsPage() {
     }
   };
 
-  // 📝 PUT /rooms/{roomId}/join -> redirect to pre-game room or show error if full/started
+  //PUT /rooms/{roomId}/join -> redirect to pre-game room or show error if full/started
   const handleJoin = async (room: Room) => {
     try {
       await api.put(`/rooms/${room.id}/join`, {}, token);
@@ -90,7 +90,7 @@ export default function RoomsPage() {
       title: <div style={{ textAlign: "center" }}>Players</div>,
       key: "playerCount",
       width: 80,
-      // 📝 count all participants: unassigned + writers + judges
+      // count all participants: unassigned + writers + judges
       render: (_: unknown, record: Room) => (
         <div style={{ textAlign: "center" }}>
           {(record.users?.length ?? 0) + (record.writers?.length ?? 0) + (record.judges?.length ?? 0)}/3
@@ -110,7 +110,7 @@ export default function RoomsPage() {
     },
   ];
 
-  // 📝 don't render until mounted to avoid hydration mismatch with localStorage
+  //  don't render until mounted to avoid hydration mismatch with localStorage
   if (!isMounted) return null;
 
   return (
@@ -123,13 +123,14 @@ export default function RoomsPage() {
       <h1 className="lobby-title">LOBBY</h1>
       <div className="lobby-title-divider">◆</div>
 
-      {/*  Elevator stage: descends from top on mount, then table + button fade in */}
+      {/*  Elevator: descends from top, then table and button come */}
       <div className="elevator-stage">
         <div className="elevator-wrap">
+          {/*because we use a normal <img> instead of <Image />*/}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/elevator.png" alt="Elevator" className="elevator-img" />
 
-          {/*  Inner panel: Available Matches table sits here, between the two characters */}
+          {/*  Inner panel: available matches table sits here */}
           <div className="elevator-panel">
             <div className="available-matches-heading">AVAILABLE MATCHES</div>
             <div className="lobby-table" style={{ flex: 1, overflowY: "auto" }}>
@@ -145,7 +146,7 @@ export default function RoomsPage() {
             </div>
           </div>
 
-          {/* Create Match button: sits below the horizontal rod, inside the elevator floor area */}
+          {/* Create Match button */}
           <div className="elevator-cta">
             <Button className="lobby-create-btn" onClick={() => setIsModalOpen(true)}>
               CREATE MATCH
@@ -155,7 +156,9 @@ export default function RoomsPage() {
       </div>
 
     {/* End ELevator logic*/} 
-      {/* 📝 Modal: prompts user to enter a room name before creating */}
+
+
+      {/*  Modal: prompts user to enter a room name before creating */}
       <Modal
         title="Create Match"
         open={isModalOpen}
