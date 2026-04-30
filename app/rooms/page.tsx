@@ -89,7 +89,7 @@ export default function RoomsPage() {
     {
       title: <div style={{ textAlign: "center" }}>Players</div>,
       key: "playerCount",
-      width: 120,
+      width: 80,
       // 📝 count all participants: unassigned + writers + judges
       render: (_: unknown, record: Room) => (
         <div style={{ textAlign: "center" }}>
@@ -100,7 +100,7 @@ export default function RoomsPage() {
     {
       title: "",
       key: "join",
-      width: 100,
+      width: 70,
       align: "right" as const,
       render: (_: unknown, record: Room) => (
         <Button onClick={(e) => { e.stopPropagation(); handleJoin(record); }} style={{ width: 70, height: 30, fontSize: 13, padding: 0 }}>
@@ -114,45 +114,47 @@ export default function RoomsPage() {
   if (!isMounted) return null;
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    
+    <div className="lobby-page">
       <HomeButton />
       <ProfileButton />
-      <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20 }}>
 
-        {/* 📝 Lobby title banner with text overlaid on schriftrolle.png */}
-        <div style={{ position: "relative", marginBottom: -22 }}>
-          <Image src="/schriftrolle.png" alt="Lobby banner" width={400} height={100} style={{ maxWidth: "100%", height: "auto", display: "block" }} />
-          <h1 style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", margin: 0, fontSize: 40, fontFamily: "var(--font-cinzel), serif", color: "#3b2a1a", whiteSpace: "nowrap" }}>Lobby</h1>
-        </div>
+      {/*  Lobby title (sits on top of the starry background, above the elevator) */}
+      <h1 className="lobby-title">LOBBY</h1>
+      <div className="lobby-title-divider">◆</div>
 
-        <div style={{ width: 680, maxWidth: "100%", background: "rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", borderRadius: 1, border: "1px solid rgba(255,255,255,0.15)", padding: 24 }}>
-          {/* 📝 Available Matches heading */}
-          <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 2, padding: "10px 0", textAlign: "center", marginBottom: 16 }}>
-            <h2 style={{ margin: 0, fontFamily: "var(--font-cinzel), serif" }}>Available Matches</h2>
+      {/*  Elevator stage: descends from top on mount, then table + button fade in */}
+      <div className="elevator-stage">
+        <div className="elevator-wrap">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/elevator.png" alt="Elevator" className="elevator-img" />
+
+          {/*  Inner panel: Available Matches table sits here, between the two characters */}
+          <div className="elevator-panel">
+            <div className="available-matches-heading">AVAILABLE MATCHES</div>
+            <div className="lobby-table" style={{ flex: 1, overflowY: "auto" }}>
+              <Table
+                dataSource={rooms}
+                columns={columns}
+                rowKey="id"
+                pagination={false}
+                size="small"
+                onRow={(record) => ({ onClick: () => router.push(`/rooms/${record.id}`) })}
+                style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif" }}
+              />
+            </div>
           </div>
 
-          {/* 📝 Room list: scrollable table, max height fits ~6 rows before scrolling */}
-          <div style={{ maxHeight: 240, overflowY: "auto" }}>
-          <Table
-            dataSource={rooms}
-            columns={columns}
-            rowKey="id"
-            pagination={false}
-
-            onRow={(record) => ({ onClick: () => router.push(`/rooms/${record.id}`) })}
-            style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif" }}
-          />
-          </div>
-
-          {/* 📝 Create Match button: opens modal to enter room name */}
-          <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
-            <Button style={{ width: 160, height: 38, fontSize: 14 }} onClick={() => setIsModalOpen(true)}>
-              Create Match
+          {/* Create Match button: sits below the horizontal rod, inside the elevator floor area */}
+          <div className="elevator-cta">
+            <Button className="lobby-create-btn" onClick={() => setIsModalOpen(true)}>
+              CREATE MATCH
             </Button>
           </div>
         </div>
-      </main>
+      </div>
 
+    {/* End ELevator logic*/} 
       {/* 📝 Modal: prompts user to enter a room name before creating */}
       <Modal
         title="Create Match"

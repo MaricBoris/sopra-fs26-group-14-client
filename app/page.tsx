@@ -37,48 +37,61 @@ export default function Home() {
     }
   };
 
+  // 📝 Profile button: same logic as <ProfileButton/> component — go to /users/{userId} if logged in, else /login
+  const handleProfileClick = () => {
+    if (token && userId) {
+      router.push(`/users/${userId}`);
+    } else {
+      router.push("/login");
+    }
+  };
+
   // 📝 don't render until mounted to avoid hydration mismatch with localStorage
   if (!isMounted) return null;
 
-  return (
-      <div style={{ minHeight: "100vh" }}>
-      <ProfileButton />
-      {/* 📝 Login + Register buttons: only shown when not logged in */}
-      {!token && !userId && (
-        <div style={{ position: "fixed", top: 78, right: 60, zIndex: 1000, display: "flex", flexDirection: "column", gap: 8 }}>
-          <Button onClick={() => router.push("/login")} style={{ ["--btn-bg" as string]: "#0cd244", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}>Login</Button>
-          <Button onClick={() => router.push("/register")} style={{ ["--btn-bg" as string]: "#4aa3d4", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}>Register</Button>
-        </div>
-      )}
-      {/* 📝 Logout button: only shown when logged in */}
-      {token && userId && (
-        <div style={{ position: "fixed", top: 78, right: 60, zIndex: 1000 }}>
-          <Button onClick={handleLogout} style={{ ["--btn-bg" as string]: "#c0392b", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}>Logout</Button>
-        </div>
-      )}
-      <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20 }}>
-        <div style={{ width: 660, maxWidth: "100%", background: "rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", borderRadius: 1, border: "1px solid rgba(255,255,255,0.15)", padding: 24 }}>
-          {/* 📝 Framing box: */}
-          <Image src="/banner_darkblue_pen+genre_storywars4.png" alt="banner" width={660} height={300} style={{ maxWidth: "100%", height: "auto" }} />
-          <p style={{ textAlign: "center", maxWidth: 600, margin: "5px auto 0", fontFamily: "var(--font-cinzel), serif", fontSize: "16px" }}>
-            Face one another in a collaborative and competitive writing game!<br />
-            Try to steer the story towards your assigned literature genre<br />and convince the judge that you shall be crowned the winner!<br />
-            <strong>Register and join the lobby to face other users now!</strong>
-          </p>
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 35 }}>
-            <Button
-              onClick={() => router.push("/results")}
-              style={{ ["--btn-bg" as string]: "#6253c6b3", width: 220, height: 80, fontSize: "34px", padding: 0, borderColor: "#ffffff" } as React.CSSProperties}
-            >Stories</Button>
-            <Button
-              onClick={handleLobbyClick}
-              style={{ ["--btn-bg" as string]: "#6253c6b3", width: 220, height: 80, fontSize: "34px", padding: 0, borderColor: "#ffffff" } as React.CSSProperties}
-            >Lobby</Button>
-          </div>
-        </div>
-      </main>
+ return (
+    <div className="home-page">
+      {/*  Top-right button stack: Profile + Login/Register/Logout depending on auth */}
+      <div className="home-top-buttons">
+        <Button className="home-nav-btn" onClick={handleProfileClick}>
+          ◉ PROFILE
+        </Button>
+        {!token && !userId && (
+          <>
+            <Button className="home-nav-btn" onClick={() => router.push("/login")}>
+              LOGIN
+            </Button>
+            <Button className="home-nav-btn" onClick={() => router.push("/register")}>
+              REGISTER
+            </Button>
+          </>
+        )}
+        {token && userId && (
+          <Button className="home-nav-btn" onClick={handleLogout}>
+            ⎋ LOGOUT
+          </Button>
+        )}
+      </div>
+
+      {/*  Beschreibungstext unter dem im Hintergrund eingebrannten Storywars-Titel */}
+      <p className="home-description">
+        Face one another in a collaborative and competitive writing game.<br />
+        Try to steer the story toward your assigned genre<br />
+        and convince the judge you should be crowned the winner.
+        <span className="home-description-cta">
+          Register and join the lobby to face other users now!
+        </span>
+      </p>
+
+      {/*  Hauptbuttons unten: Stories + Lobby */}
+      <div className="home-main-buttons">
+        <Button className="home-main-btn" onClick={() => router.push("/results")}>
+          STORIES
+        </Button>
+        <Button className="home-main-btn" onClick={handleLobbyClick}>
+          LOBBY
+        </Button>
+      </div>
     </div>
   );
 }
-
-
