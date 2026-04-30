@@ -686,3 +686,266 @@ a {
   font-size: 12px;
   color: rgba(245, 230, 200, 0.3);
 }
+/* ============================================ */
+/* LOBBY PAGE (Elevator Design)                 */
+/* ============================================ */
+
+/* Lobby page: full-screen starry background */
+.lobby-page {
+  position: fixed;
+  inset: 0;
+  background-image: url('/hintergrund_lobby.png');
+  background-size: cover;
+  background-position: center;
+  background-color: #050818;
+  overflow: hidden;
+}
+
+/* Lobby title at top center */
+.lobby-title {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-family: var(--font-cinzel), serif;
+  font-size: 38px;
+  letter-spacing: 8px;
+  color: #e8d896;
+  text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0,0,0,0.8);
+  z-index: 10;
+  pointer-events: none;
+}
+.lobby-title-divider {
+  position: absolute;
+  top: 62px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #d4af5d;
+  font-size: 14px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Elevator stage: centered container that holds the elevator image + overlays */
+.elevator-stage {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  height: 100vh;
+  aspect-ratio: 2551 / 2903;
+  max-width: 95vw;
+  z-index: 2;
+}
+
+/* Elevator image wrapper: this is what slides down from above on mount */
+.elevator-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  animation: elevatorDescend 5s cubic-bezier(0.22, 0.9, 0.32, 1) 0.2s both;
+}
+.elevator-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+@keyframes elevatorDescend {
+  0%   { transform: translateY(-115%); }
+  100% { transform: translateY(0); }
+}
+
+/* Inner panel: where Available Matches + table sit (between woman and alien, above the rod) */
+.elevator-panel {
+  position: absolute;
+  left: 22%;
+  top: 42%;
+  width: 56%;
+  height: 26%;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  animation: panelFadeIn 0.9s ease-out 3.4s forwards;
+}
+
+/* Bottom strip: where Create Match button sits (below the rod, inside the elevator floor area) */
+.elevator-cta {
+  position: absolute;
+  left: 22%;
+  top: 76%;
+  width: 56%;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  animation: panelFadeIn 0.7s ease-out 3.7s forwards;
+}
+@keyframes panelFadeIn {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Lobby table: transparent background so the elevator interior shows through */
+.lobby-table .ant-table,
+.lobby-table .ant-table-thead > tr > th,
+.lobby-table .ant-table-tbody > tr > td,
+.lobby-table .ant-table-placeholder,
+.lobby-table .ant-table-cell {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.25) !important;
+}
+.lobby-table .ant-table-thead > tr > th {
+  color: #d4c98a !important;
+  font-size: 12px !important;
+  letter-spacing: 2px !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.5) !important;
+}
+.lobby-table .ant-table-tbody > tr > td {
+  color: #e8d896 !important;
+  font-size: 13px !important;
+}
+.lobby-table .ant-table-tbody > tr:hover > td {
+  background: rgba(212, 175, 93, 0.08) !important;
+}
+.lobby-table .ant-table-placeholder .ant-empty-description {
+  color: #6b6480 !important;
+}
+
+/* Create Match button: gold-bordered, semi-transparent, fits the elevator look */
+.lobby-create-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  padding: 0 36px !important;
+  height: 42px !important;
+  font-size: 13px !important;
+  letter-spacing: 3px !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.lobby-create-btn.ant-btn:hover,
+.lobby-create-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.7) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+/* "Available Matches" header above the table */
+.available-matches-heading {
+  text-align: center;
+  font-family: var(--font-cinzel), serif;
+  font-size: 16px;
+  letter-spacing: 4px;
+  color: #e8d896;
+  margin-bottom: 10px;
+  text-shadow: 0 0 12px rgba(232, 216, 150, 0.4);
+}
+.available-matches-heading::before,
+.available-matches-heading::after {
+  content: " ◆ ";
+  color: #d4af5d;
+  margin: 0 8px;
+  opacity: 0.7;
+}
+
+/* ============================================ */
+/* HOME PAGE                                    */
+/* ============================================ */
+
+/* Home wrapper: storywars background covers full screen */
+.home-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background-image: url('/background_home.png');
+  background-size: cover;
+  background-position: center;
+  background-color: #050818;
+  background-attachment: fixed;
+  font-family: var(--font-cinzel), serif;
+  overflow-x: hidden;
+}
+
+/* Top-right button stack (Profile / Logout / Login / Register) */
+.home-top-buttons {
+  position: fixed;
+  top: 28px;
+  right: 28px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Outline-Button im Lobby-Stil (Home/Profile/Logout/Login/Register) */
+.home-nav-btn.ant-btn {
+  background: rgba(20, 20, 50, 0.5) !important;
+  border: 1px solid #4a4596 !important;
+  color: #d4c98a !important;
+  font-family: var(--font-cinzel), serif !important;
+  letter-spacing: 2px !important;
+  font-size: 14px !important;
+  height: 42px !important;
+  width: 130px !important;
+  padding: 0 !important;
+}
+.home-nav-btn.ant-btn:hover,
+.home-nav-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.6) !important;
+  border-color: #d4af5d !important;
+  color: #e8d896 !important;
+}
+
+/* Beschreibungstext unter dem Titel */
+.home-description {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translateX(-50%);
+  width: min(720px, 90vw);
+  text-align: center;
+  font-family: var(--font-cinzel), serif;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #d4d8e8;
+}
+.home-description-cta {
+  display: block;
+  margin-top: 14px;
+  color: #e8d896;
+  font-weight: 500;
+  text-shadow: 0 0 12px rgba(232, 216, 150, 0.3);
+}
+
+/* Stories + Lobby Hauptbuttons unten */
+.home-main-buttons {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 40px;
+}
+.home-main-btn.ant-btn {
+  background: rgba(60, 50, 130, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  font-size: 26px !important;
+  letter-spacing: 4px !important;
+  width: 240px !important;
+  height: 70px !important;
+  padding: 0 !important;
+  box-shadow: 0 0 24px rgba(212, 175, 93, 0.25) !important;
+  transition: all 0.2s !important;
+}
+.home-main-btn.ant-btn:hover,
+.home-main-btn.ant-btn:focus {
+  background: rgba(80, 65, 160, 0.7) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 32px rgba(232, 216, 150, 0.5) !important;
+}
