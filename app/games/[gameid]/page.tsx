@@ -159,8 +159,8 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
         const latestGame = await apiService.get<Game>(`/games/${gameid}`, token);
         setGame(latestGame);
         setStoryyText(latestGame.story.storyText);
-        setGenre1(latestGame.writers[0]?.genre ?? "Genre");
-        setGenre2(latestGame.writers[1]?.genre ?? "Genre");
+        //setGenre1(latestGame.writers[0]?.genre ?? "Genre");
+        //setGenre2(latestGame.writers[1]?.genre ?? "Genre");
         if (latestGame.story.hasWinner) {
           setResultModalVisible(prev => {
             if (!prev) {
