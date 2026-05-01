@@ -21,6 +21,10 @@ const GamePage: React.FC = () => {
   const [writer2Genre, setGenre2] = useState<string>("Genre");
   const [quoteUsedP1, setQuoteUsedP1] = useState(false);
   const [quoteUsedP2, setQuoteUsedP2] = useState(false);
+  const [showIncorporatedHintP1, setShowIncorporatedHintP1] = useState(false);
+  const [showIncorporatedHintP2, setShowIncorporatedHintP2] = useState(false);
+  const hasTypedThisTurnP1 = useRef(false);
+  const hasTypedThisTurnP2 = useRef(false);
   const { TextArea } = Input;
   const [starting, setStarting] = useState(true);
   const [startCountdown, setStartCountdown] = useState(5);
@@ -189,7 +193,25 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
     return () => clearInterval(interval);
   }, [token, gameid, gameEnded]);
  
+const quoteIncorporatedP1 = !!(game?.writers[0]?.quote && wholeStoryText.toLowerCase().includes(game.writers[0].quote.toLowerCase()));
+const quoteIncorporatedP2 = !!(game?.writers[1]?.quote && wholeStoryText.toLowerCase().includes(game.writers[1].quote.toLowerCase()));
  
+ // "quote incorperated" for 3 seconds, triggers exactly once at the transition from false to true
+  useEffect(() => {
+    if (quoteIncorporatedP1 || quoteUsedP1) {
+      setShowIncorporatedHintP1(true);
+      const t = setTimeout(() => setShowIncorporatedHintP1(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [quoteIncorporatedP1, quoteUsedP1]);
+
+  useEffect(() => {
+    if (quoteIncorporatedP2 || quoteUsedP2) {
+      setShowIncorporatedHintP2(true);
+      const t = setTimeout(() => setShowIncorporatedHintP2(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [quoteIncorporatedP2, quoteUsedP2]);
   useEffect(() => {
     if (!token || !gameid ) return;
     if (!isUserPlayer1 || !isPlayer1Active) return;
@@ -352,9 +374,7 @@ if (!game) { //beim ersten rendern ist user noch null, dann zeigen wir erst mal 
   );
 }
  
-const quoteIncorporatedP1 = !!(game.writers[0]?.quote && wholeStoryText.toLowerCase().includes(game.writers[0].quote.toLowerCase()));
-const quoteIncorporatedP2 = !!(game.writers[1]?.quote && wholeStoryText.toLowerCase().includes(game.writers[1].quote.toLowerCase()));
- 
+
 //convert the timer seconds to minutes and seconds: instead of 90s->1:30 
 const formatTime = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
@@ -370,6 +390,11 @@ const formatTime = (seconds: number) => {
     const isThisPlayerActive = !!writer?.turn;
     const playerNum = (playerIdx + 1) as 1 | 2;
     const draftValue = playerIdx === 0 ? OneInput : TwoInput;
+    const hasTypedRef = playerIdx === 0 ? hasTypedThisTurnP1 : hasTypedThisTurnP2;
+    if (draftValue.length > 0) {
+      hasTypedRef.current = true;
+    }
+    const showFirstTurnHint = isUserThisPlayer && isThisPlayerActive && game.currentRound <= 2 && !hasTypedRef.current;
     const setDraftValue = playerIdx === 0 ? setOneInput : setTwoInput;
     const genreVal = playerIdx === 0 ? writer1Genre : writer2Genre;
     const otherUserIsThisPlayer = playerIdx === 0 ? isUserPlayer2 : isUserPlayer1;
@@ -392,16 +417,24 @@ const formatTime = (seconds: number) => {
           YOUR RESPONSE
         </div>
   
-        <div className="goldInput goldInputFlex" style={{ flex: 1, minHeight: 120 }}>
+        <div
+          className={`goldInput goldInputFlex ${showFirstTurnHint ? "flashHighlight-1" : ""}`}
+          style={{ flex: 1, minHeight: 120, position: "relative" }}
+        >
           <TextArea
             maxLength={2000}
             showCount
             disabled={!isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION"}
             value={responseValue}
             onChange={(e) => setDraftValue(e.target.value)}
-            placeholder="Enter your next part of the story..."
+            placeholder={showFirstTurnHint ? "" : "Enter your next part of the story..."}
             style={{ height: "100%", resize: "none" }}
           />
+          {showFirstTurnHint && (
+            <div className="activeTurnHint">
+              It&apos;s your turn.<br />Start writing here
+            </div>
+          )}
         </div>
   
         <div style={{ marginTop: 6, flexShrink: 0 }}>
@@ -410,13 +443,13 @@ const formatTime = (seconds: number) => {
           </div>
   
           <Tooltip title={!otherUserIsThisPlayer ? writer?.genreDescription ?? "" : ""}>
-            <div className="genreBox">
+            <div className={`genreBox ${showFirstTurnHint ? "flashHighlight-2" : ""}`}>
               {isUserThisPlayer ? genreVal : otherUserIsThisPlayer ? "Genre" : genreVal}
             </div>
           </Tooltip>
         </div>
   
-        {(isUserThisPlayer || isJudge) && (
+        {(isUserThisPlayer || isJudge) && writer?.quote && (!(quoteUsed || quoteIncorporated) || (playerIdx === 0 ? showIncorporatedHintP1 : showIncorporatedHintP2)) && (
           <div style={{ marginTop: 6, flexShrink: 0 }}>
             <div
               style={{
@@ -590,7 +623,10 @@ return (
       {game.story.objective && (
         <div className="storyObjectiveWrap">
           <span className="storyObjectiveSide" aria-hidden />
-          <div className="storyObjectiveRibbon">
+          <div className={`storyObjectiveRibbon ${
+            ((isUserPlayer1 && game.writers[0]?.turn) || (isUserPlayer2 && game.writers[1]?.turn))
+            && game.currentRound <= 2 ? "flashHighlight-3" : ""
+          }`}>
             <span className="storyObjectiveStar">✦</span>
             STORY OBJECTIVE: {game.story.objective}
             <span className="storyObjectiveStar">✦</span>
