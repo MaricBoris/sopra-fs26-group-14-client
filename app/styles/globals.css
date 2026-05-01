@@ -1,14 +1,49 @@
 :root {
-  --background: #292c3b;
-  --foreground: #292c3b;
+  /* used by game page */
+  --background: #0a0e27;
+  --foreground: #ededed;
+  --gold: #d4a857;
+  --gold-soft: #c9a76a;
+  --gold-bright: #f0c040;
+  --panel-blue: #1a2042;
+
+  /* used by lobby and home */
+  /* golds */
+  --gold-warm: #e8d896;            /* for texts and highlights, for example used for lobby title, the text in buttons or the glow they get when hovering over them */
+  --gold-rim: #d4af5d;             /* for outlines/borders */
+  --gold-muted: #d4c98a;           /* for subtext, text in less important buttons or the titles in the rooms table*/
+
+  /* blues */
+  --blue-deep: #050818;            
+  --blue-rim: #4a4596;            
+  --blue-button: rgba(40, 35, 90, 0.55);          /* default button background */
+  --blue-button-hero: rgba(60, 50, 130, 0.55);    /* button background big */
+  --blue-button-hover: rgba(60, 50, 120, 0.7);    /* button background hover*/
+  --blue-button-hero-hover: rgba(80, 65, 160, 0.7);
+  --blue-outline-bg: rgba(20, 20, 50, 0.5);       /* outline button background */
+  --blue-outline-bg-hover: rgba(60, 50, 120, 0.6);
+  --blue-panel-bg: rgba(20, 25, 60, 0.35);        /* panel/card background */
+
+  /* shadows and glows */
+  --shadow-button: 0 0 18px rgba(0, 0, 0, 0.4);
+  --glow-gold-soft: 0 0 24px rgba(212, 175, 93, 0.25);
+  --glow-gold-strong: 0 0 32px rgba(232, 216, 150, 0.5);
+  --glow-text-gold: 0 0 12px rgba(232, 216, 150, 0.4);
+
+  /* font */
+  --font-display: var(--font-cinzel), serif;
 }
 
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #d90e0e;
-    --foreground: #ededed;
-  }
-} */
+/* ------------------------------------------------------------
+   *reusable* button styles
+   ------------------------------------------------------------
+   .btn-gold-action   → something like "CREATE MATCH" on lobby page
+   .btn-outline-blue  → something like top right buttons on home page
+   .btn-hero          → big buttons like stories and lobby on homepage
+
+   how to use:
+     <Button className="btn-gold-action">SUBMIT</Button>
+  --------------------------------------------------------------- */
 
 html,
 body {
@@ -35,12 +70,6 @@ a {
   text-decoration: none;
 }
 
-/* @media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-} */
-
 .ant-form,
 .ant-form input,
 .ant-form textarea,
@@ -51,7 +80,8 @@ a {
   font-family: var(--font-cinzel), serif !important;
 }
 
-.login-container {
+.login-container,
+.card-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -62,20 +92,12 @@ a {
   width: 100%;
 }
 
-.card-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-/* 📝 Buttons: prevent buttons from growing beyond their set width/height */
 .ant-btn {
   overflow: hidden !important;
   white-space: nowrap !important;
   min-width: 0 !important;
 }
 
-/*📝 Buttons: Background, text, border, click animation*/
 .ant-btn-variant-outlined.ant-btn-color-default {
   font-family: var(--font-cinzel), serif !important;
   --btn-bg: #6253c6b3;
@@ -85,55 +107,979 @@ a {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.512) !important;
   transition: transform 0.1s, box-shadow 0.1s !important;
 }
-/* 📝 Buttons: Hovering colours of text & border */
+
 .ant-btn-variant-outlined.ant-btn-color-default:hover,
 .ant-btn-variant-outlined.ant-btn-color-default:focus {
   color: #ffffff !important;
   border: 2px solid #030d57 !important;
   background: var(--btn-bg) !important;
 }
-/* 📝 Table: hide internal measure row added by Ant Design when scroll.y is set */
+
 .ant-table-measure-row {
   display: none !important;
 }
 
-/* 📝 Table: remove column separator lines */
 .ant-table-thead > tr > th::before {
   display: none !important;
 }
 
-/* 📝 Table: uniform row height via padding */
 .ant-table-thead > tr > th,
 .ant-table-tbody > tr > td {
   padding: 4px 16px !important;
 }
 
-/* 📝 Table: alternating row colours to match page theme */
 .ant-table-tbody > tr:nth-child(odd) > td {
   background: rgba(41, 44, 59, 0.9) !important;
 }
+
 .ant-table-tbody > tr:nth-child(even) > td {
   background: rgba(50, 54, 72, 0.9) !important;
 }
+
 .ant-table-thead > tr > th {
   background: rgba(35, 38, 52, 0.95) !important;
 }
+
 .ant-table-tbody > tr:hover > td {
   background: rgba(65, 70, 95, 0.9) !important;
 }
 
-/* 📝 Table: apply Cinzel font to all cells and headers */
 .ant-table,
 .ant-table-thead > tr > th,
 .ant-table-tbody > tr > td {
   font-family: var(--font-cinzel), serif !important;
 }
 
-/* 📝Buttons: Shadow */
 .ant-btn-variant-outlined.ant-btn-color-default:active {
   transform: translateY(2px) !important;
   box-shadow: 0 2px 4px rgba(29, 28, 28, 0.478) !important;
 }
 
+/* -------------------------------------------- */
+/* GAME PAGE                                    */
+/* ----------------------------------------------*/
+
+.gameStarryBg {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background-image: url("/starry-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Main wrapper */
+.gameContentWrapper {
+  max-width: 1500px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+}
+
+/* Top area reduced to save vertical space */
+.topGameRow {
+  display: grid;
+  grid-template-columns: 180px 1fr 180px;
+  align-items: start;
+  gap: 16px;
+  width: 100%;
+  padding-top: 4px;
+  position: relative;
+  z-index: 20;
+}
+
+.gameRoomTitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(36px, 4.3vw, 48px);
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 6px;
+  text-align: center;
+  text-shadow: 0 0 18px rgba(212, 168, 87, 0.4);
+  margin: 0;
+  padding: 0;
+  line-height: 1.08;  
+}
+
+.statusPillRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+ 
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 22px;
+  background: rgba(10, 14, 40, 0.6);
+  border: 1px solid rgba(212, 168, 87, 0.55);
+  border-radius: 999px;
+  color: var(--gold-bright);
+  font-family: var(--font-cinzel), serif;
+  font-size: 15px;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(212, 168, 87, 0.25);
+}
 
 
+.storyObjectiveWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  margin-top: 10px;
+  margin-bottom: -26px;
+  position: relative;
+  z-index: 12;
+}
+
+
+/* previously for the LIVE STORY subtitle, now unused  */
+.liveStorySubtitle {
+  display: none;
+}
+
+
+
+
+.storyObjectiveRibbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 30px;
+  background: rgba(10, 14, 40, 0.62);
+  border: 1px solid rgba(212, 168, 87, 0.55);
+  border-radius: 2px;
+  color: var(--gold-bright);
+  font-family: var(--font-cinzel), serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-align: center;
+  max-width: 760px;
+  text-shadow: 0 0 8px rgba(212, 168, 87, 0.25);
+}
+
+
+.statusPillSeparator {
+  font-size: 14px;
+  color: var(--gold-bright);
+  line-height: 1;
+  user-select: none;
+  text-shadow: 0 0 8px rgba(212, 168, 87, 0.4);
+}
+ 
+.storyObjectiveSide {
+  display: inline-block;
+  width: 90px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(212, 168, 87, 0.55));
+}
+
+.storyObjectiveSideRight {
+  background: linear-gradient(to left, transparent, rgba(212, 168, 87, 0.55));
+}
+ 
+.storyObjectiveStar {
+  color: var(--gold-bright);
+  font-size: 14px;
+  text-shadow: 0 0 6px rgba(212, 168, 87, 0.4);
+}
+
+
+/* -------------------------------------------- */
+/* PANELS GRAPHIC                               */
+/* -------------------------------------------- */
+
+.panelsGraphic {
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  aspect-ratio: 2.582;
+  background-image: url("/all-panels.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+  z-index: 5;
+  pointer-events: none;
+}
+
+.slotLeft,
+.slotMiddle,
+.slotRight,
+.slotLeft *,
+.slotMiddle *,
+.slotRight *,
+.footerPillWrap,
+.footerPillWrap *,
+.storyObjectiveWrap,
+.storyObjectiveWrap * {
+  pointer-events: auto;
+}
+
+.bullauge {
+  pointer-events: none;
+}
+/* Content slots */
+.slotLeft,
+.slotMiddle,
+.slotRight {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.slotLeft {
+  left: 3.5%;
+  right: 73%;
+  top: 18%;
+  bottom: 15.5%;
+}
+
+.slotMiddle {
+  left: 34.7%;
+  right: 34.7%;
+  top: 20%;
+  bottom: 25%;
+}
+
+.slotRight {
+  left: 73%;
+  right: 3.5%;
+  top: 18%;
+  bottom: 15.5%;
+}
+
+/* Bullauge */
+.bullauge {
+  position: absolute;
+  width: 29%;
+  height: 74.9%;
+  top: 12.5%;
+  background-image: url("/bullauge_darkfantasy.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 8;
+  filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.6));
+}
+
+.bullauge[data-genre="horror"]         { background-image: url('/bullauge_horror.png'); }
+.bullauge[data-genre="drama"]          { background-image: url('/bullauge_drama.png'); }
+.bullauge[data-genre="thriller"]       { background-image: url('/bullauge_thriller.png'); }
+.bullauge[data-genre="tragedy"]        { background-image: url('/bullauge_tragedy.png'); }
+.bullauge[data-genre="dystopian"]      { background-image: url('/bullauge_dystopian.png'); }
+.bullauge[data-genre="survival"]       { background-image: url('/bullauge_survival.png'); }
+.bullauge[data-genre="crime"]          { background-image: url('/bullauge_crime.png'); }
+.bullauge[data-genre="psychological"]  { background-image: url('/bullauge_psychological.png'); }
+.bullauge[data-genre="darkfantasy"]    { background-image: url('/bullauge_darkfantasy.png'); }
+.bullauge[data-genre="comedy"]         { background-image: url('/bullauge_comedy.png'); }
+.bullauge[data-genre="love"]           { background-image: url('/bullauge_love.png'); }
+.bullauge[data-genre="utopian"]        { background-image: url('/bullauge_utopian.png'); }
+.bullauge[data-genre="fairytale"]      { background-image: url('/bullauge_fairytale.png'); }
+.bullauge[data-genre="kidsfantasy"]    { background-image: url('/bullauge_kidsfantasy.png'); }
+
+/* alt-variants: genres with two pictures*/
+.bullauge.bullaugeRight[data-genre="comedy"]         { background-image: url('/bullauge_comedy_alt.png'); }
+.bullauge.bullaugeRight[data-genre="crime"]          { background-image: url('/bullauge_crime_alt.png'); }
+.bullauge.bullaugeRight[data-genre="fairytale"]      { background-image: url('/bullauge_fairytale_alt.png'); }
+.bullauge.bullaugeRight[data-genre="horror"]         { background-image: url('/bullauge_horror_alt.png'); }
+.bullauge.bullaugeRight[data-genre="kidsfantasy"]    { background-image: url('/bullauge_kidsfantasy_alt.png'); }
+.bullauge.bullaugeRight[data-genre="psychological"]  { background-image: url('/bullauge_psychological_alt.png'); }
+
+.bullaugeLeft {
+  left: 0.8%;
+}
+
+.bullaugeRight {
+  right: 0.8%;
+}
+
+/* --------------------------------------------- */
+/* TYPOGRAPHY                                   */
+/* ----------------------------------------------*/
+
+.playerNameTitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(16px, 1.5vw, 24px);
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-align: center;
+  margin: 0;
+  text-shadow: 0 0 12px rgba(212, 168, 87, 0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playerSubtitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--gold-soft);
+  text-align: center;
+  margin-top: 1px;
+}
+
+.sectionLabel {
+  font-family: var(--font-cinzel), serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold-soft);
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------*/
+/* INPUTS                                       */
+/* --------------------------------------------- */
+
+.goldInput,
+.goldInput .ant-input,
+.goldInput textarea.ant-input {
+  background: rgba(10, 14, 40, 0.45) !important;
+  border: 1px solid rgba(212, 168, 87, 0.35) !important;
+  color: #F1E9D2;
+
+text-shadow:
+  0 0 4px rgba(255, 220, 140, 0.12),
+  0 0 8px rgba(212, 175, 55, 0.08);
+  border-radius: 4px !important;
+  font-family: var(--font-cinzel), serif !important;
+  resize: none !important;
+  font-size: 15px !important;
+  caret-color: #E6C77A;
+}
+
+.goldInput .ant-input::placeholder,
+.goldInput textarea.ant-input::placeholder {
+  color: rgba(212, 168, 87, 0.4) !important;
+  font-style: italic;
+}
+
+.goldInput .ant-input-data-count {
+  color: rgba(212, 168, 87, 0.5) !important;
+  font-family: var(--font-cinzel), serif !important;
+  font-size: 10px !important;
+}
+
+.goldInputFlex,
+.goldInputFlex .ant-input-textarea-show-count,
+.goldInputFlex .ant-input,
+.goldInputFlex textarea.ant-input {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.goldInputFlex {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.genreBox {
+  padding: 4px 10px;
+  background: rgba(10, 14, 40, 0.45);
+  border: 1px solid rgba(212, 168, 87, 0.35);
+  border-radius: 14px;
+  text-align: center;
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-family: var(--font-cinzel), serif;
+}
+
+.assignQuoteButton {
+  background: transparent;
+  border: 1px solid rgba(212, 168, 87, 0.5);
+  border-radius: 10px;
+  color: var(--gold);
+  font-size: 9px;
+  letter-spacing: 1px;
+  font-family: var(--font-cinzel), serif;
+  padding: 2px 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.assignQuoteButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* -------------------------------------------- */
+/* ACTIVE STORY                                 */
+/* --------------------------------------------- */
+
+.storyText {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #E8ECF1;
+
+  text-shadow:
+    0 0 4px rgba(255, 220, 140, 0.10),
+    0 0 10px rgba(140, 180, 255, 0.18),
+    0 0 20px rgba(80, 120, 255, 0.10);
+  white-space: pre-wrap;
+}
+
+.storyTextEmpty {
+  color: rgba(245, 230, 200, 0.4);
+  font-style: italic;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+  padding: 0 12px;
+}
+
+/* -----------------------------------------------*/
+/* FOOTER / JUDGE BUTTONS                       */
+/* --------------------------------------------- */
+
+.footerPillWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  margin-top: -44px;
+  position: relative;
+  z-index: 14;
+}
+
+.footerPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 22px;
+  background: rgba(10, 14, 40, 0.6);
+  border: 1px solid rgba(212, 168, 87, 0.45);
+  border-radius: 30px;
+  color: var(--gold);
+  font-family: var(--font-cinzel), serif;
+  font-size: 12px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.footerPill:hover:not(:disabled) {
+  background: rgba(212, 168, 87, 0.15);
+  border-color: var(--gold);
+  box-shadow: 0 0 16px rgba(212, 168, 87, 0.3);
+}
+
+.footerPill:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.footerPillCenter {
+  background: rgba(10, 14, 40, 0.72);
+  border: 1.5px solid var(--gold);
+  box-shadow: 0 0 18px rgba(212, 168, 87, 0.35);
+}
+
+.bottomPhaseStatus {
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--gold-soft);
+  margin-top: 14px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 10;
+}
+
+/* -------------------------------------------- */
+/* BUTTONS                                      */
+/* -------------------------------------------- */
+
+.goldButton {
+  background: linear-gradient(
+    180deg,
+    rgba(212, 168, 87, 0.18) 0%,
+    rgba(212, 168, 87, 0.05) 100%
+  ) !important;
+  border: 1px solid var(--gold) !important;
+  color: var(--gold) !important;
+  font-family: var(--font-cinzel), serif !important;
+  letter-spacing: 3px !important;
+  border-radius: 18px !important;
+  height: 32px !important;
+  padding: 0 20px !important;
+  font-size: 12px !important;
+  text-transform: uppercase;
+  transition: all 0.2s !important;
+}
+
+.goldButton:hover:not(:disabled) {
+  background: rgba(212, 168, 87, 0.25) !important;
+  border-color: var(--gold) !important;
+  color: var(--gold-bright) !important;
+  box-shadow: 0 0 14px rgba(212, 168, 87, 0.4) !important;
+}
+
+.cornerButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(212, 168, 87, 0.5);
+  color: var(--gold);
+  font-family: var(--font-cinzel), serif;
+  font-size: 14px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cornerButton:hover {
+  color: var(--gold-bright);
+  border-bottom-color: var(--gold-bright);
+}
+
+/*--------------------------------------------- */
+/* START OVERLAY                                */
+/* -------------------------------------------- */
+
+.startOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(5, 8, 25, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  font-family: var(--font-cinzel), serif;
+}
+
+.startOverlayTitle {
+  font-size: 64px;
+  font-weight: bold;
+  letter-spacing: 6px;
+  color: var(--gold);
+}
+
+.startOverlaySmall {
+  font-size: 16px;
+  letter-spacing: 3px;
+  color: rgba(212, 168, 87, 0.5);
+  text-transform: uppercase;
+}
+
+.startOverlayRole {
+  font-size: 36px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  color: var(--gold);
+}
+
+.startOverlayText {
+  margin-top: 8px;
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: #e8e4d8;
+}
+
+.startOverlayCountdown {
+  font-size: 100px;
+  font-weight: bold;
+  line-height: 1;
+  margin-top: 16px;
+  color: var(--gold);
+}
+
+/* -------------------------------------------- */
+/* RULES MODAL                                  */
+/* -------------------------------------------- */
+
+.rulesOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(5, 8, 25, 0.6);
+  backdrop-filter: blur(6px);
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rulesModal {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%);
+  border: 1px solid rgba(212, 168, 87, 0.5);
+  border-radius: 8px;
+  padding: 36px 40px;
+  max-width: 540px;
+  width: 90%;
+  color: #f5e6c8;
+  font-family: var(--font-cinzel), serif;
+  position: relative;
+}
+
+.rulesTitle {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--gold);
+  letter-spacing: 3px;
+}
+
+.rulesCloseHint {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 12px;
+  color: rgba(245, 230, 200, 0.3);
+}
+/* -------------------------------------------- */
+/* LOBBY PAGE (Elevator Design)                 */
+/* --------------------------------------------- */
+
+/* Lobby page: full-screen starry background */
+.lobby-page {
+  position: fixed;
+  inset: 0;
+  background-image: url('/hintergrund_lobby.png');
+  background-size: cover;
+  background-position: center;
+  background-color: var(--blue-deep);
+  overflow: hidden;
+}
+
+/* Lobby title at top center */
+.lobby-title {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 38px;
+  letter-spacing: 8px;
+  color: var(--gold-warm);
+  text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0,0,0,0.8);
+  z-index: 10;
+  pointer-events: none;
+}
+.lobby-title-divider {
+  position: absolute;
+  top: 62px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--gold-rim);
+  font-size: 14px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Elevator stage: centered container that holds the elevator image and overlays */
+.elevator-stage {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  height: 100vh;
+  aspect-ratio: 2551 / 2903;
+  max-width: 95vw;
+  z-index: 2;
+}
+
+/* Elevator image wrapper: this is what slides down from above */
+.elevator-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  animation: elevatorDescend 5s cubic-bezier(0.22, 0.9, 0.32, 1) 0.2s both; /*cubics bezier makes movement it less static, not always same speed */
+}
+.elevator-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+@keyframes elevatorDescend {
+  0%   { transform: translateY(-115%); }
+  100% { transform: translateY(0); }
+}
+
+/* Inner panel: where Available Matches and table sit */
+.elevator-panel {
+  position: absolute;
+  left: 22%;
+  top: 42%;
+  width: 56%;
+  height: 26%;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  animation: panelFadeIn 0.9s ease-out 3.4s forwards;
+}
+
+/* Bottom strip: where Create Match button sits */
+.elevator-cta {
+  position: absolute;
+  left: 22%;
+  top: 76%;
+  width: 56%;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  animation: panelFadeIn 0.7s ease-out 3.7s forwards;
+}
+@keyframes panelFadeIn {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Lobby table: transparent background so the elevator interior shows through */
+.lobby-table .ant-table,
+.lobby-table .ant-table-thead > tr > th,
+.lobby-table .ant-table-tbody > tr > td,
+.lobby-table .ant-table-placeholder,
+.lobby-table .ant-table-cell {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.25) !important;
+}
+.lobby-table .ant-table-thead > tr > th {
+  color: #d4c98a !important;
+  font-size: 12px !important;
+  letter-spacing: 2px !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.5) !important;
+}
+.lobby-table .ant-table-tbody > tr > td {
+  color: #e8d896 !important;
+  font-size: 13px !important;
+}
+.lobby-table .ant-table-tbody > tr:hover > td {
+  background: rgba(212, 175, 93, 0.08) !important;
+}
+.lobby-table .ant-table-placeholder .ant-empty-description {
+  color: #6b6480 !important;
+}
+
+/* Create Match button: gold-bordered, semi-transparent, fits the elevator look
+   Aliased with .btn-gold-action, so both give the same styling */
+.lobby-create-btn.ant-btn,
+.btn-gold-action.ant-btn {
+  background: var(--blue-button) !important;
+  border: 1px solid var(--gold-rim) !important;
+  color: var(--gold-warm) !important;
+  padding: 0 36px !important;
+  height: 42px !important;
+  font-size: 13px !important;
+  letter-spacing: 3px !important;
+  font-family: var(--font-display) !important;
+  box-shadow: var(--shadow-button) !important;
+}
+.lobby-create-btn.ant-btn:hover,
+.lobby-create-btn.ant-btn:focus,
+.btn-gold-action.ant-btn:hover,
+.btn-gold-action.ant-btn:focus {
+  background: var(--blue-button-hover) !important;
+  border-color: var(--gold-warm) !important;
+  color: #ffffff !important;
+}
+
+/* "Available Matches" header above the table */
+.available-matches-heading {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: 4px;
+  color: var(--gold-warm);
+  margin-bottom: 10px;
+  text-shadow: var(--glow-text-gold);
+}
+.available-matches-heading::before,
+.available-matches-heading::after {
+  content: " ◆ ";
+  color: var(--gold-rim);
+  margin: 0 8px;
+  opacity: 0.7;
+}
+
+/* -------------------------------------------- */
+/* HOME PAGE                                    */
+/* --------------------------------------------- */
+
+/* Home wrapper: storywars background covers full screen */
+.home-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background-image: url('/background_home.png');
+  background-size: cover;
+  background-position: center;
+  background-color: var(--blue-deep);
+  background-attachment: fixed;
+  font-family: var(--font-display);
+  overflow-x: hidden;
+}
+
+/* Top-right button stack (Profile / Logout / Login / Register) */
+.home-top-buttons {
+  position: fixed;
+  top: 28px;
+  right: 28px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Outline-button in lobby style (Home/Profile/Logout/Login/Register)
+   Aliased with .btn-outline-blue */
+.home-nav-btn.ant-btn,
+.btn-outline-blue.ant-btn {
+  background: var(--blue-outline-bg) !important;
+  border: 1px solid var(--blue-rim) !important;
+  color: var(--gold-muted) !important;
+  font-family: var(--font-display) !important;
+  letter-spacing: 2px !important;
+  font-size: 14px !important;
+  height: 42px !important;
+  padding: 0 22px !important;
+}
+.home-nav-btn.ant-btn:hover,
+.home-nav-btn.ant-btn:focus,
+.btn-outline-blue.ant-btn:hover,
+.btn-outline-blue.ant-btn:focus {
+  background: var(--blue-outline-bg-hover) !important;
+  border-color: var(--gold-rim) !important;
+  color: var(--gold-warm) !important;
+}
+
+/* fixed width (130px) for home nav buttons */
+.home-nav-btn.ant-btn {
+  width: 130px !important;
+  padding: 0 !important;
+}
+
+/* description text */
+.home-description {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translateX(-50%);
+  width: min(720px, 90vw);
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.8;
+  color: #d4d8e8;
+}
+.home-description-cta {
+  display: block;
+  margin-top: 14px;
+  color: var(--gold-warm);
+  font-weight: 500;
+  text-shadow: 0 0 12px rgba(232, 216, 150, 0.3);
+}
+
+/* Stories and lobby buttons */
+.home-main-buttons {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 40px;
+}
+/* stories and lobby button
+   Aliased with .btn-hero */
+.home-main-btn.ant-btn,
+.btn-hero.ant-btn {
+  background: var(--blue-button-hero) !important;
+  border: 1px solid var(--gold-rim) !important;
+  color: var(--gold-warm) !important;
+  font-family: var(--font-display) !important;
+  font-size: 26px !important;
+  letter-spacing: 4px !important;
+  width: 240px !important;
+  height: 70px !important;
+  padding: 0 !important;
+  box-shadow: var(--glow-gold-soft) !important;
+  transition: all 0.2s !important;
+}
+.home-main-btn.ant-btn:hover,
+.home-main-btn.ant-btn:focus,
+.btn-hero.ant-btn:hover,
+.btn-hero.ant-btn:focus {
+  background: var(--blue-button-hero-hover) !important;
+  border-color: var(--gold-warm) !important;
+  color: #ffffff !important;
+  box-shadow: var(--glow-gold-strong) !important;
+}
+/* --------------Active-Turn-Highlight für die ersten zwei Runden--------------------- */
+
+/* Großer goldener "It's your turn"-Hinweis im Writer-Textarea */
+.activeTurnHint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--gold-warm);
+  text-align: center;
+  text-shadow: 0 0 16px rgba(232, 216, 150, 0.9),
+               0 0 28px rgba(232, 216, 150, 0.5);
+  pointer-events: none;
+  animation: hintPulse 2s ease-in-out infinite;
+  white-space: nowrap;
+  z-index: 5;
+}
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.75; text-shadow: 0 0 12px rgba(232, 216, 150, 0.6); }
+  50%      { opacity: 1;    text-shadow: 0 0 20px rgba(232, 216, 150, 1), 0 0 32px rgba(232, 216, 150, 0.7); }
+}
+
+/* Sequenzielles Aufleuchten: writer-input → genre → story-objective */
+.flashHighlight-1 { animation: flashGold 1.4s ease-out 0.2s 1; }
+.flashHighlight-2 { animation: flashGold 1.4s ease-out 1.6s 1; }
+.flashHighlight-3 { animation: flashGold 1.4s ease-out 3.0s 1; }
+
+@keyframes flashGold {
+  0%   { box-shadow: 0 0 0 0 rgba(232, 216, 150, 0); }
+  30%  { box-shadow: 0 0 24px 4px rgba(232, 216, 150, 0.9); }
+  100% { box-shadow: 0 0 0 0 rgba(232, 216, 150, 0); }
+}
+
+.goldInput .ant-input[disabled],
+.goldInput .ant-input-disabled,
+.goldInput textarea[disabled],
+.goldInput .ant-input-affix-wrapper-disabled .ant-input {
+  color: var(--gold-warm) !important;
+  -webkit-text-fill-color: var(--gold-warm) !important;
+  opacity: 1 !important;
+  cursor: default !important;
+}
