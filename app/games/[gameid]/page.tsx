@@ -415,7 +415,7 @@ const GENRE_TO_SLUG: Record<string, string> = {
   "Kids / Disney Fantasy": "kidsfantasy",
 };
 
-const genreToBullauge = (genre: string | undefined): string =>
+const genreToBullauge = (genre: string | null | undefined): string =>
   genre ? (GENRE_TO_SLUG[genre] ?? "") : "";
  
 //----------------renderplayerslot function so we don't have to write the same thing twice-----------------------
