@@ -71,6 +71,21 @@ const votingInProgress = useRef(false);
 const [gameEnded, setGameEnded] = useState(false);
 const [rulesVisible, setRulesVisible] = useState(false);
 const [frozenBullaugeSide, setFrozenBullaugeSide] = useState<"left" | "right" | null>(null);
+
+// genre-bullauge logic:
+// writers always see their own genre on both sides
+// judge sees the genre-pictures of both
+const bullaugeGenreLeft = isUserPlayer1
+  ? game?.writers[0]?.genre              // Player 1: own genre
+  : isUserPlayer2
+    ? game?.writers[1]?.genre            // Player 2: own genre
+    : game?.writers[0]?.genre;           // Judge: player1 genre
+
+const bullaugeGenreRight = isUserPlayer1
+  ? game?.writers[0]?.genre              // Player 1: own
+  : isUserPlayer2
+    ? game?.writers[1]?.genre            // Player 2: own
+    : game?.writers[1]?.genre;           // Judge: player2 genre
  
 //to remember where it last was before evaluation
 useEffect(() => {
@@ -167,7 +182,7 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
         setStoryyText(latestGame.story.storyText);
         setGenre1(latestGame.writers[0]?.genre ?? "Genre");
         setGenre2(latestGame.writers[1]?.genre ?? "Genre");
-        if (latestGame.story.hasWinner) {
+        if (latestGame.story.hasWinner || latestGame.phase==="FINISHED") {
           setResultModalVisible(prev => {
             if (!prev) {
               setResultGame(latestGame);
@@ -381,6 +396,27 @@ const formatTime = (seconds: number) => {
   const secs = seconds % 60;
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 };
+
+// mapps genre names to the file names
+const GENRE_TO_SLUG: Record<string, string> = {
+  "Horror": "horror",
+  "Drama": "drama",
+  "Thriller": "thriller",
+  "Tragedy": "tragedy",
+  "Dystopian Sci-Fi": "dystopian",
+  "Survival": "survival",
+  "Crime": "crime",
+  "Psychological": "psychological",
+  "Dark Fantasy": "darkfantasy",
+  "Comedy": "comedy",
+  "Love Story": "love",
+  "Utopian Sci-Fi": "utopian",
+  "Fairy Tale": "fairytale",
+  "Kids / Disney Fantasy": "kidsfantasy",
+};
+
+const genreToBullauge = (genre: string | undefined): string =>
+  genre ? (GENRE_TO_SLUG[genre] ?? "") : "";
  
 //----------------renderplayerslot function so we don't have to write the same thing twice-----------------------
 
@@ -660,7 +696,10 @@ return (
         {!showBullaugeOnRight && <div className="slotRight">{renderPlayerSlot(1)}</div>}
  
         {showBullaugeOnLeft && (
-          <div className="bullauge bullaugeLeft">
+          <div
+            className="bullauge bullaugeLeft"
+            data-genre={genreToBullauge(bullaugeGenreLeft)}
+          >
             {isUserPlayer1 && (
               <svg
                 viewBox="0 0 400 100"
@@ -702,7 +741,10 @@ return (
           </div>
         )}
         {showBullaugeOnRight && (
-          <div className="bullauge bullaugeRight">
+          <div
+            className="bullauge bullaugeRight"
+            data-genre={genreToBullauge(bullaugeGenreRight)}
+          >
             {isUserPlayer2 && (
               <svg
                 viewBox="0 0 400 100"

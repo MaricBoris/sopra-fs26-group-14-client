@@ -368,7 +368,7 @@ a {
   width: 29%;
   height: 74.9%;
   top: 12.5%;
-  background-image: url("/bullauge.png");
+  background-image: url("/bullauge_darkfantasy.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
@@ -376,6 +376,29 @@ a {
   z-index: 8;
   filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.6));
 }
+
+.bullauge[data-genre="horror"]         { background-image: url('/bullauge_horror.png'); }
+.bullauge[data-genre="drama"]          { background-image: url('/bullauge_drama.png'); }
+.bullauge[data-genre="thriller"]       { background-image: url('/bullauge_thriller.png'); }
+.bullauge[data-genre="tragedy"]        { background-image: url('/bullauge_tragedy.png'); }
+.bullauge[data-genre="dystopian"]      { background-image: url('/bullauge_dystopian.png'); }
+.bullauge[data-genre="survival"]       { background-image: url('/bullauge_survival.png'); }
+.bullauge[data-genre="crime"]          { background-image: url('/bullauge_crime.png'); }
+.bullauge[data-genre="psychological"]  { background-image: url('/bullauge_psychological.png'); }
+.bullauge[data-genre="darkfantasy"]    { background-image: url('/bullauge_darkfantasy.png'); }
+.bullauge[data-genre="comedy"]         { background-image: url('/bullauge_comedy.png'); }
+.bullauge[data-genre="love"]           { background-image: url('/bullauge_love.png'); }
+.bullauge[data-genre="utopian"]        { background-image: url('/bullauge_utopian.png'); }
+.bullauge[data-genre="fairytale"]      { background-image: url('/bullauge_fairytale.png'); }
+.bullauge[data-genre="kidsfantasy"]    { background-image: url('/bullauge_kidsfantasy.png'); }
+
+/* alt-variants: genres with two pictures*/
+.bullauge.bullaugeRight[data-genre="comedy"]         { background-image: url('/bullauge_comedy_alt.png'); }
+.bullauge.bullaugeRight[data-genre="crime"]          { background-image: url('/bullauge_crime_alt.png'); }
+.bullauge.bullaugeRight[data-genre="fairytale"]      { background-image: url('/bullauge_fairytale_alt.png'); }
+.bullauge.bullaugeRight[data-genre="horror"]         { background-image: url('/bullauge_horror_alt.png'); }
+.bullauge.bullaugeRight[data-genre="kidsfantasy"]    { background-image: url('/bullauge_kidsfantasy_alt.png'); }
+.bullauge.bullaugeRight[data-genre="psychological"]  { background-image: url('/bullauge_psychological_alt.png'); }
 
 .bullaugeLeft {
   left: 0.8%;
