@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { Button, Table, message } from "antd";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -190,6 +189,7 @@ export default function PreGameRoomPage() {
         const isDisabled = !isMyRole && isFull;
         return (
           <Button
+            className={`pregame-select-btn${isMyRole ? " selected" : ""}`}
             disabled={isDisabled}
             onClick={(e) => {
               e.stopPropagation();
@@ -198,7 +198,6 @@ export default function PreGameRoomPage() {
             }}
             style={{
               width: 80, height: 30, fontSize: 13, padding: 0,
-              ...(isMyRole && { ["--btn-bg" as string]: "#25d366" }),
               ...(isDisabled && { opacity: 0.4 }),
             } as React.CSSProperties}
           >
@@ -212,10 +211,18 @@ export default function PreGameRoomPage() {
   if (!isMounted) return null;
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div style={{
+      minHeight: "100vh",
+      backgroundImage: "url('/rooms_id_03_quills.png')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      backgroundAttachment: "fixed",
+    }}>
 
       {/* 📝 Exit button */}
       <Button
+        className="pregame-exit-btn"
         onClick={handleExit}
         style={{
           position: "fixed",
@@ -225,7 +232,6 @@ export default function PreGameRoomPage() {
           height: 38,
           fontSize: 14,
           zIndex: 100,
-          ["--btn-bg" as string]: "#c0392b",
         } as React.CSSProperties}
       >
         Exit
@@ -233,97 +239,80 @@ export default function PreGameRoomPage() {
 
       <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20 }}>
 
-        {/* 📝 Pre-Game Room banner with schriftrolle.png */}
-        <div style={{ position: "relative", marginBottom: -22 }}>
-          <Image
-            src="/schriftrolle.png"
-            alt="Pre-Game Room banner"
-            width={400}
-            height={100}
-            style={{ maxWidth: "100%", height: "auto", display: "block" }}
+        {/* 📝 Pre-Game Room title matching lobby style */}
+        <h1 className="lobby-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
+          PRE-GAME ROOM
+        </h1>
+        <div className="lobby-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 20 }}>◆</div>
+
+        {/* 📝 Frame image with content positioned inside it */}
+        <div style={{ position: "relative", width: "min(650px, 95vw)" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/rooms_id__center_02.png"
+            alt="Room frame"
+            style={{ width: "100%", height: "auto", display: "block", pointerEvents: "none", userSelect: "none" }}
           />
-          <h1 style={{
+
+          {/* 📝 Content panel overlaid inside the frame */}
+          <div style={{
             position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            margin: 0,
-            fontSize: 28,
+            top: "25%",
+            left: "20%",
+            right: "20%",
+            bottom: "10%",
+            display: "flex",
+            flexDirection: "column",
             fontFamily: "var(--font-cinzel), serif",
-            color: "#3b2a1a",
-            whiteSpace: "nowrap",
+            color: "#ffffff",
+            overflow: "hidden",
           }}>
-            Pre-Game Room
-          </h1>
-        </div>
 
-        {/* 📝 Main glass box */}
-        <div style={{
-          width: 680,
-          maxWidth: "100%",
-          background: "rgba(255,255,255,0.09)",
-          backdropFilter: "blur(12px)",
-          borderRadius: 1,
-          border: "1px solid rgba(255,255,255,0.15)",
-          padding: 24,
-        }}>
+            {/* 📝 Available Roles heading */}
+            <div className="available-matches-heading" style={{ marginBottom: 10 }}>
+              AVAILABLE ROLES
+            </div>
 
-          {/* 📝 Available Roles heading */}
-          <div style={{
-            background: "rgba(255,255,255,0.12)",
-            borderRadius: 2,
-            padding: "10px 0",
-            textAlign: "center",
-            marginBottom: 16,
-          }}>
-            <h2 style={{ margin: 0, fontFamily: "var(--font-cinzel), serif" }}>Available Roles</h2>
-          </div>
+            {/* 📝 Roles table */}
+            <div className="pregame-table">
+              <Table
+                dataSource={roleRows}
+                columns={roleColumns}
+                rowKey="key"
+                pagination={false}
+                size="small"
+                onRow={(record) => ({ onClick: () => handleSelectRole(record.role) })}
+                style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif", marginBottom: 12 }}
+              />
+            </div>
 
-          {/* 📝 Roles table: Writers and Judge rows with Select buttons */}
-          <Table
-            dataSource={roleRows}
-            columns={roleColumns}
-            rowKey="key"
-            pagination={false}
-            onRow={(record) => ({ onClick: () => handleSelectRole(record.role) })}
-            style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif", marginBottom: 20 }}
-          />
+            {/* 📝 Users list */}
+            <div style={{ textAlign: "center", marginBottom: 12, marginTop: 10 }}>
+              <div className="available-matches-heading" style={{ marginBottom: 6 }}>USERS</div>
+              {allUsers.length === 0 ? (
+                <p style={{ margin: 0, fontSize: 12, color: "#6b6480" }}>No users yet</p>
+              ) : (
+                allUsers.map((username, i) => (
+                  <p key={i} style={{ margin: "2px 0", fontSize: 13, color: "#e8d896", fontFamily: "var(--font-display)", letterSpacing: 1 }}>
+                    {username}
+                  </p>
+                ))
+              )}
+            </div>
 
-          {/* 📝 Users box: all participants currently in the room */}
-          <div style={{
-            background: "rgba(255,255,255,0.12)",
-            borderRadius: 2,
-            padding: "12px 20px",
-            marginBottom: 20,
-            textAlign: "center",
-          }}>
-            <h3 style={{ margin: "0 0 8px 0", fontFamily: "var(--font-cinzel), serif" }}>Users</h3>
-            {allUsers.length === 0 ? (
-              <p style={{ margin: 0, fontFamily: "var(--font-cinzel), serif", opacity: 0.6 }}>No users yet</p>
-            ) : (
-              allUsers.map((username, i) => (
-                <p key={i} style={{ margin: "2px 0", fontFamily: "var(--font-cinzel), serif" }}>{username}</p>
-              ))
+            {/* 📝 Start Game button: only visible to lobby leader */}
+            {isLobbyLeader && (
+              <div style={{ display: "flex", justifyContent: "center", marginTop: 60 }}>
+                <Button
+                  className="lobby-create-btn"
+                  onClick={handleStartGame}
+                  disabled={!rolesReady}
+                >
+                  START GAME
+                </Button>
+              </div>
             )}
           </div>
-
-          {/* 📝 Start Game button: only visible to lobby leader */}
-          {isLobbyLeader && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <Button
-                onClick={handleStartGame}
-                disabled={!rolesReady}
-                style={{
-                  width: 160,
-                  height: 38,
-                  fontSize: 14,
-                  ["--btn-bg" as string]: "#25d366",
-                } as React.CSSProperties}
-              >
-                Start Game
-              </Button>
-            </div>
-          )}
         </div>
       </main>
     </div>
