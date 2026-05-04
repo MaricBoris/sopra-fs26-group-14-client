@@ -29,6 +29,7 @@ const GamePage: React.FC = () => {
   const [starting, setStarting] = useState(true);
   const [startCountdown, setStartCountdown] = useState(5);
   const [redirectCountdown, setRedirectCountdown] = useState(20);
+  const [reduceTimeLoading, setReduceTimeLoading] = useState(false);
  
 const {
   value: token,
@@ -65,6 +66,8 @@ const isPlayer2Active = !!game?.writers[1]?.turn;
 const isUserPlayer1 = game?.writers?.[0]?.id === Number(userId);
 const isUserPlayer2 = game?.writers?.[1]?.id === Number(userId);
 const isJudge = !isUserPlayer1 && !isUserPlayer2;
+const reduceTimeLeft = 2 - (activeWriter?.reduceTimeReceived ?? 0);
+const canReduceTime = isJudge && game?.phase === "WRITING" && reduceTimeLeft > 0;
 const [declareModalVisible, setDeclareModalVisible] = useState(false);
 const [resultModalVisible, setResultModalVisible] = useState(false);
 const [resultGame, setResultGame] = useState<Game | null>(null);
@@ -154,6 +157,18 @@ const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
     } catch (error) {
         message.error("Failed to fetch quote.");
     }
+};
+
+const handleReduceTime = async (): Promise<void> => {
+  if (!canReduceTime) return;
+  setReduceTimeLoading(true);
+  try {
+    await apiService.post<Game>(`/games/${gameid}/reduce-time`, {}, token);
+  } catch (error) {
+    message.error("Failed to reduce time.");
+  } finally {
+    setReduceTimeLoading(false);
+  }
 };
  
   // Polling
@@ -774,7 +789,31 @@ return (
         >
           ✒ QUOTE P1
         </button>
- 
+
+        {isJudge && (
+          <Tooltip
+            title={
+              game.phase !== "WRITING"
+                ? "Only available during a writer's turn"
+                : reduceTimeLeft <= 0
+                ? `Limit reached for ${activeWriter?.username ?? "this writer"}`
+                : `Cut ${activeWriter?.username ?? "the current writer"}'s time to 45s (${reduceTimeLeft} use${reduceTimeLeft !== 1 ? "s" : ""} left)`
+            }
+          >
+            <button
+              disabled={!canReduceTime || reduceTimeLoading}
+              onClick={handleReduceTime}
+              className="footerPill footerPillCenter"
+              style={{
+                borderRadius: 0,
+                padding: "9px 18px",
+                opacity: !canReduceTime || reduceTimeLoading ? 0.4 : 1,
+              }}
+            >
+              ⧗ REDUCE TIME
+            </button>
+          </Tooltip>
+        )}
         <button
           disabled={!isJudge || game.phase !== "EVALUATION"}
           onClick={() => setDeclareModalVisible(true)}
@@ -798,6 +837,7 @@ return (
         >
           QUOTE P2 ✒
         </button>
+
       </div>
  
       <div className="bottomPhaseStatus">
@@ -807,6 +847,8 @@ return (
           : "THE WRITERS ARE CREATING THE STORY."}{" "}
         ✦
       </div>
+
+
     </div>
  
     <Modal
@@ -934,6 +976,7 @@ return (
               <RuleItem icon="⚖️" text="You are the Judge. You observe the story but do not write." />
               <RuleItem icon="💬" text="Assign a quote to either writer via Quote P1 / Quote P2. Each writer must incorporate it within 2 of their own turns." />
               <RuleItem icon="🚫" text="You can only assign one quote per writer." />
+              <RuleItem icon="⏳" text="You can use Reduce Time to cut the active writer's remaining time to 45s. You can do this up to 2 times per writer as punishment!" />
               <RuleItem icon="🏆" text="After 20 rounds the game enters Evaluation. Use the Declare button to pick the winner — the writer whose genre best shaped the story." />
               <RuleItem icon="⏱️" text="If you don't vote before the timer expires, a tie is recorded automatically." />
             </div>
