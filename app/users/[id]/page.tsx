@@ -5,13 +5,12 @@
 
 
 import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
-import Image from "next/image";
-import HomeButton from "../../components/HomeButton";
+import HomeButton from "@/components/HomeButton";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
 import { Story } from "@/types/story";
-import { Button, Input, Table, Descriptions, Modal, message } from "antd";
+import { Button, Input, Table, Modal, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/page.module.css";
@@ -135,7 +134,7 @@ const Login: React.FC = () => {
   const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
 
   // 📝 table columns — opponent/genre/outcome resolved relative to viewed user
-  const headerCell = () => ({ style: { fontSize: 16 } });
+  const headerCell = () => ({ style: { fontSize: 11, whiteSpace: "nowrap" as const } });
 
   const storyColumns: ColumnsType<Story> = [
     {
@@ -143,6 +142,7 @@ const Login: React.FC = () => {
       dataIndex: "creationDate",
       key: "creationDate",
       width: "25%",
+      align: "center",
       onHeaderCell: headerCell,
       render: (v: string | null) => v ? new Date(v).toLocaleDateString() : "—",
     },
@@ -150,6 +150,7 @@ const Login: React.FC = () => {
       title: "Opponent",
       key: "opponent",
       width: "25%",
+      align: "center",
       onHeaderCell: headerCell,
       render: (_: unknown, s: Story) =>
         s.winnerUsername === users?.username ? (s.loserUsername ?? "—") : (s.winnerUsername ?? "—"),
@@ -158,6 +159,7 @@ const Login: React.FC = () => {
       title: "Genre",
       key: "genre",
       width: "25%",
+      align: "center",
       onHeaderCell: headerCell,
       render: (_: unknown, s: Story) =>
         s.winnerUsername === users?.username ? (s.winGenre ?? "—") : (s.loseGenre ?? "—"),
@@ -166,6 +168,7 @@ const Login: React.FC = () => {
       title: "Outcome",
       key: "outcome",
       width: "25%",
+      align: "center",
       onHeaderCell: headerCell,
       render: (_: unknown, s: Story) => {
         if (!s.hasWinner) return <span style={{ color: "#aaaaaa" }}>Tie</span>;
@@ -249,202 +252,155 @@ const Login: React.FC = () => {
     setDeleteModal({ open: true, loading: false, password: "" });
   };
 
-  // 📝 shared glass-blur style reused across both panels
-  const glassBox: React.CSSProperties = {
-    background: "rgba(255,255,255,0.04)",
-    backdropFilter: "blur(12px)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: 1,
-    padding: "12px 24px",
-  };
 
   return (
-    <>
-      <HomeButton />
-      <div style={{ position: "fixed", top: 20, right: 60, zIndex: 1000 }}>
-        <Button
-          onClick={() => router.push("/users")}
-          style={{ ["--btn-bg" as string]: "#6253c6b3", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}
-        >
-          Users
-        </Button>
-      </div>
+    <div style={{ minHeight: "100vh", backgroundImage: "url('/profile_02.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed" }}>
 
-      {String(users?.id) === String(id) && (
-        <div style={{ position: "fixed", bottom: 20, right: 60, zIndex: 1000 }}>
-          <Button
-            onClick={handleOpenDeleteModal}
-            style={{ ["--btn-bg" as string]: "#c0392b", width: 110, height: 50, padding: 0, fontSize: "15px" } as React.CSSProperties}
-          >
-            <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}>
-              <span>Delete</span><span>Account</span>
-            </span>
-          </Button>
-        </div>
+      {/* 📝 Home navigation button */}
+      <HomeButton />
+
+      {/* 📝 Delete Account button — fixed bottom right, own profile only */}
+      {isOwnProfile && (
+        <Button
+          className="profile-red-btn"
+          onClick={handleOpenDeleteModal}
+          style={{ position: "fixed", bottom: 16, right: 16, width: 80, height: 38, fontSize: 12, padding: 0, zIndex: 100 } as React.CSSProperties}
+        >
+          <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}><span>Delete</span><span>Account</span></span>
+        </Button>
       )}
 
-      <div className="login-container">
-        <div style={{ display: "flex", flexDirection: "column", gap: 24, alignItems: "center" }}>
+      {/* 📝 Users nav button */}
+      <Button
+        className="profile-btn"
+        onClick={() => router.push("/users")}
+        style={{ position: "fixed", top: 16, right: 16, width: 80, height: 38, fontSize: 14, zIndex: 100 } as React.CSSProperties}
+      >
+        Users
+      </Button>
 
-          {/* left panel — profile info */}
-          <div style={{
-            width: 680,
-            background: "rgba(255,255,255,0.04)",
-            backdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 1,
-            padding: 24,
-            fontFamily: "var(--font-cinzel), serif",
-            color: "#ffffff",
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-          }}>
+      <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 18, paddingBottom: 40 }}>
 
-            {/* header box */}
-            <div style={{ ...glassBox, textAlign: "center", padding: 0, overflow: "hidden", position: "relative" }}>
-              <Image src="/title_template_flattest_darkblue_genres.png" alt="User Profile" width={3072} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
-              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 9, pointerEvents: "none" }}>
-                <span style={{ fontFamily: "var(--font-cinzel), serif", fontSize: 28, fontWeight: "bold", color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>User Profile</span>
-              </div>
-            </div>
+        {/* 📝 Page title */}
+        <h1 className="profile-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
+          USER PROFILE
+        </h1>
+        <div className="profile-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: -15 }}>◆</div>
 
-            {/* info box */}
-            <div style={{ ...glassBox, padding: "16px 24px" }}>
-              <Descriptions column={1} styles={{ label: { color: "#aaaaaa", fontFamily: "var(--font-cinzel), serif" }, content: { color: "#ffffff", fontFamily: "var(--font-cinzel), serif" } }}>
-                <Descriptions.Item label="Username">{users?.username ?? "—"}</Descriptions.Item>
-                <Descriptions.Item label="Member since">{users?.creationDate ? new Date(users.creationDate).toLocaleDateString() : "—"}</Descriptions.Item>
-                <Descriptions.Item label="Bio">{users?.bio ?? "—"}</Descriptions.Item>
-              </Descriptions>
-            </div>
+        {/* 📝 Profile frame — height-driven so it reaches near bottom of screen */}
+        <div style={{ position: "relative", height: "92vh", aspectRatio: "1145 / 1374", maxWidth: "95vw" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/profile_frame_final.png" alt="Profile frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
 
-            {/* buttons */}
-            {String(users?.id) === String(id) && (
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                <Button onClick={handleLogout} style={{ ["--btn-bg" as string]: "#c0392b", width: 110, height: 50, padding: 0, fontSize: "15px" } as React.CSSProperties}>
-                  Logout
-                </Button>
-                <div style={{ display: "flex", gap: 8 }}>
-                <Button onClick={handleEditBio} style={{ ["--btn-bg" as string]: "#6253c6b3", width: 110, height: 50, padding: 0, fontSize: "15px" } as React.CSSProperties}>
-                  Edit Bio
-                </Button>
-                <Button onClick={handleEditPassword} style={{ ["--btn-bg" as string]: "#6253c6b3", width: 110, height: 50, padding: 0, fontSize: "13px" } as React.CSSProperties}>
-                  <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}>
-                    <span>Edit</span><span>Password</span>
-                  </span>
-                </Button>
-                </div>
-              </div>
-            )}
-          </div>
+          {/* 📝 All content inside frame */}
+          <div style={{ position: "absolute", top: "17%", left: "20%", right: "20%", bottom: "16%", display: "flex", flexDirection: "column", fontFamily: "var(--font-cinzel), serif", overflow: "hidden" }}>
 
-          {/* stats + match history */}
-          <div style={{
-            width: 680,
-            background: "rgba(255,255,255,0.04)",
-            backdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 1,
-            padding: 24,
-            fontFamily: "var(--font-cinzel), serif",
-            color: "#ffffff",
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
-          }}>
-
-            {/* header */}
-            <div style={{ ...glassBox, textAlign: "center", padding: 0, overflow: "hidden", position: "relative" }}>
-              <Image src="/title_template_flattest_darkblue_genres.png" alt="Match History" width={3072} height={512} style={{ width: "100%", height: "auto", display: "block" }} />
-              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 9, pointerEvents: "none" }}>
-                <span style={{ fontFamily: "var(--font-cinzel), serif", fontSize: 28, fontWeight: "bold", color: "#ffffff", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>Match History</span>
-              </div>
-            </div>
-
-            {/* stats row */}
-            <div style={{ display: "flex", gap: 10 }}>
+            {/* 📝 Profile info rows */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 4 }}>
               {[
-                { label: "Games Played", value: totalGames },
-                { label: "Wins", value: wins },
-                { label: "Win Rate", value: `${winRate}%` },
+                { label: "USERNAME", value: users?.username ?? "—" },
+                { label: "MEMBER SINCE", value: users?.creationDate ? new Date(users.creationDate).toLocaleDateString() : "—" },
+                { label: "BIO", value: users?.bio ?? "—" },
               ].map(({ label, value }) => (
-                <div key={label} style={{ ...glassBox, flex: 1, textAlign: "center", padding: "3px 4px" }}>
-                  <div style={{ fontSize: 18, fontWeight: "bold", color: "#a89cf7" }}>{value}</div>
-                  <div style={{ fontSize: 12, color: "#aaaaaa", marginTop: 1 }}>{label}</div>
+                <div key={label} style={{ borderBottom: "1px solid rgba(212, 175, 93, 0.5)", paddingBottom: 4 }}>
+                  <div style={{ fontSize: 13, letterSpacing: 2, color: "#f5e97a", textAlign: "center" }}>◆ {label} ◆</div>
+                  <div style={{ fontSize: 13, color: "#fff8c5", marginTop: 1, wordBreak: "break-word", whiteSpace: "normal", textAlign: "center" }}>{value}</div>
                 </div>
               ))}
             </div>
 
-            {/* table */}
-            <div style={{ ...glassBox, padding: 0, overflow: "hidden", fontSize: 12 }}>
+            {/* 📝 Match history heading */}
+            <div className="profile-heading" style={{ marginBottom: 6, fontSize: 13 }}>MATCH HISTORY</div>
+
+            {/* 📝 Stats row */}
+            <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+              {[
+                { label: "Games", value: totalGames },
+                { label: "Wins", value: wins },
+                { label: "Win Rate", value: `${winRate}%` },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ flex: 1, textAlign: "center", background: "rgba(40,35,90,0.4)", border: "1px solid rgba(212,175,93,0.3)", borderRadius: 2, padding: "3px 4px" }}>
+                  <div style={{ fontSize: 11, fontWeight: "bold", color: "#e8d896" }}>{value}</div>
+                  <div style={{ fontSize: 9, color: "#d4c98a" }}>{label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* 📝 Match table — flex-grows to fill remaining space */}
+            <div className="profile-table" style={{ flex: 1, overflow: "hidden" }}>
               <Table<Story>
                 dataSource={stories}
                 columns={storyColumns}
                 rowKey="id"
                 pagination={false}
+                size="small"
                 tableLayout="fixed"
                 style={{ width: "100%" }}
-                scroll={{ y: 300 }}
-                locale={{ emptyText: <span style={{ color: "#aaaaaa", fontFamily: "var(--font-cinzel), serif" }}>No matches yet</span> }}
-                onRow={(record) => ({
-                  onClick: () => router.push(`/results/${record.id}`),
-                  style: { cursor: "pointer" },
-                })}
+                scroll={{ y: 120 }}
+                locale={{ emptyText: <span style={{ color: "#6b6480", fontFamily: "var(--font-cinzel), serif" }}>No matches yet</span> }}
+                onRow={(record) => ({ onClick: () => router.push(`/results/${record.id}`), style: { cursor: "pointer" } })}
               />
             </div>
-          </div>
 
+            {/* 📝 Action buttons — own profile only */}
+            {isOwnProfile && (
+              <div style={{ marginTop: 10, display: "flex", gap: 8, justifyContent: "center" }}>
+                <Button className="profile-red-btn" onClick={handleLogout} style={{ width: 80, height: 34, fontSize: 11, padding: 0 }}>Logout</Button>
+                <Button className="profile-btn" onClick={handleEditBio} style={{ width: 80, height: 34, fontSize: 11, padding: 0 }}>Edit Bio</Button>
+                <Button className="profile-btn" onClick={handleEditPassword} style={{ width: 80, height: 34, fontSize: 11, padding: 0 }}>
+                  <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}><span>Edit</span><span>Password</span></span>
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Modals */}
-        <Modal title="Edit Bio" open={isModalOpen}
-          onCancel={() => setIsModalOpen(false)}
-          onOk={handleSaveBio}
-          okText="Save" okButtonProps={{ style: { fontFamily: "var(--font-cinzel), serif" } }}
-          confirmLoading={loading}
-        >
-          <TextArea
-            rows={4}
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="A few words about yourself..."
-            style={{ background: "white", color: "black", border: "1px solid #d9d9d9", borderRadius: 4 }}
-          />
-        </Modal>
+      </main>
 
-        <Modal title="Edit Password" open={passwordModal.open}
-          onCancel={() => setPasswordModal(p => ({ ...p, open: false }))}
-          onOk={handlePasswordEdit}
-          okText="Save" okButtonProps={{ style: { fontFamily: "var(--font-cinzel), serif" } }}
-          confirmLoading={passwordModal.loading}
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {(["current", "next", "confirm"] as const).map((field) => (
-              <Input.Password key={field}
-                placeholder={{ current: "Current password", next: "New password", confirm: "Confirm new password" }[field]}
-                value={passwordModal[field]}
-                onChange={(e) => setPasswordModal(p => ({ ...p, [field]: e.target.value }))}
-                style={{ background: "white", color: "black", border: "1px solid #d9d9d9", borderRadius: 4 }}
-              />
-            ))}
-          </div>
-        </Modal>
+      {/* 📝 Modals */}
+      <Modal title="Edit Bio" open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        onOk={handleSaveBio}
+        okText="Save" okButtonProps={{ style: { fontFamily: "var(--font-cinzel), serif" } }}
+        confirmLoading={loading}
+      >
+        <TextArea rows={4} value={bio} onChange={(e) => setBio(e.target.value)}
+          placeholder="A few words about yourself..."
+          style={{ background: "white", color: "black", border: "1px solid #d9d9d9", borderRadius: 4 }}
+        />
+      </Modal>
 
-        <Modal title="Delete Account" open={deleteModal.open}
-          onCancel={() => setDeleteModal(p => ({ ...p, open: false, password: "" }))}
-          onOk={handleDeleteAccount} confirmLoading={deleteModal.loading}
-          okText="Delete" okButtonProps={{ style: { backgroundColor: "#c0392b", color: "white", fontFamily: "var(--font-cinzel), serif", border: "1px solid #c0392b" } }}
-          styles={{ header: { background: "white" }, body: { background: "white" }, footer: { background: "white" } }}
-        >
-          <Input.Password placeholder="Enter password to confirm" value={deleteModal.password}
-            onChange={(e) => setDeleteModal(p => ({ ...p, password: e.target.value }))}
-            style={{ background: "white", border: "1px solid #d9d9d9", color: "black" }}
-          />
-        </Modal>
+      <Modal title="Edit Password" open={passwordModal.open}
+        onCancel={() => setPasswordModal(p => ({ ...p, open: false }))}
+        onOk={handlePasswordEdit}
+        okText="Save" okButtonProps={{ style: { fontFamily: "var(--font-cinzel), serif" } }}
+        confirmLoading={passwordModal.loading}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {(["current", "next", "confirm"] as const).map((field) => (
+            <Input.Password key={field}
+              placeholder={{ current: "Current password", next: "New password", confirm: "Confirm new password" }[field]}
+              value={passwordModal[field]}
+              onChange={(e) => setPasswordModal(p => ({ ...p, [field]: e.target.value }))}
+              style={{ background: "white", color: "black", border: "1px solid #d9d9d9", borderRadius: 4 }}
+            />
+          ))}
+        </div>
+      </Modal>
 
-      </div>
+      <Modal title="Delete Account" open={deleteModal.open}
+        onCancel={() => setDeleteModal(p => ({ ...p, open: false, password: "" }))}
+        onOk={handleDeleteAccount} confirmLoading={deleteModal.loading}
+        okText="Delete" okButtonProps={{ style: { backgroundColor: "#c0392b", color: "white", fontFamily: "var(--font-cinzel), serif", border: "1px solid #c0392b" } }}
+        styles={{ header: { background: "white" }, body: { background: "white" }, footer: { background: "white" } }}
+      >
+        <Input.Password placeholder="Enter password to confirm" value={deleteModal.password}
+          onChange={(e) => setDeleteModal(p => ({ ...p, password: e.target.value }))}
+          style={{ background: "white", border: "1px solid #d9d9d9", color: "black" }}
+        />
+      </Modal>
 
-    </>
+    </div>
   );
 }
 
