@@ -28,6 +28,7 @@ const GamePage: React.FC = () => {
   const { TextArea } = Input;
   const [starting, setStarting] = useState(true);
   const [startCountdown, setStartCountdown] = useState(5);
+  const [redirectCountdown, setRedirectCountdown] = useState(20);
  
 const {
   value: token,
@@ -338,7 +339,20 @@ useEffect(() => {
  
  
 useEffect(() => {
-  if (!resultModalVisible) return;
+  if (!resultModalVisible) {
+    setRedirectCountdown(20); 
+    return;
+  }
+
+  const countdownInterval = setInterval(() => {
+    setRedirectCountdown(prev => {
+      if (prev <= 1) {
+        clearInterval(countdownInterval);
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
  
   const timeout = setTimeout(async () => {
     try {
@@ -350,7 +364,10 @@ useEffect(() => {
     router.push("/");
   }, 20000);
  
-  return () => clearTimeout(timeout);
+  return () => {
+    clearTimeout(timeout);
+    clearInterval(countdownInterval);
+  };
 }, [resultModalVisible, router]);
  
  
@@ -603,7 +620,7 @@ return (
           <h1 className="gameRoomTitle">GAME ROOM</h1>
  
           <div className="statusPillRow">
-            <span className="statusPill">{"\u231B\uFE0E"}  {game.currentRound} / 4</span>
+            <span className="statusPill">{"\u231B\uFE0E"}  {game.currentRound} / {game.maxRounds}</span>
  
             <span className="statusPillSeparator">✦</span>
  
@@ -881,7 +898,7 @@ return (
         )}
  
         <div style={{ fontSize: 14, color: "rgba(245,230,200,0.5)", marginTop: 8 }}>
-          Redirecting to home in 20 seconds...
+          Redirecting to home in {redirectCountdown} seconds...
         </div>
       </div>
     </Modal>
