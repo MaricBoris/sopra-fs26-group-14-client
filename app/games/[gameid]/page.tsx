@@ -1,7 +1,7 @@
 "use client";
 import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
  
-import { Button, Input , message, Modal, Tooltip } from "antd";
+import { Button, Input , message, Modal, Tooltip, notification } from "antd";
 import { Game } from "@/types/game";
 import { ApplicationError } from "@/types/error";
 import React, { useEffect, useState, useRef } from "react";
@@ -30,7 +30,7 @@ const GamePage: React.FC = () => {
   const [startCountdown, setStartCountdown] = useState(5);
   const [redirectCountdown, setRedirectCountdown] = useState(20);
   const [reduceTimeLoading, setReduceTimeLoading] = useState(false);
- 
+ const [timerReduced, setTimerReduced] = useState(false);
 const {
   value: token,
   clear: clearToken,
@@ -335,6 +335,16 @@ const handleVoteWinner = async (writerId: number): Promise<void> => {
     message.error("Failed to declare winner, please try again.");
   }
 };
+
+useEffect(() => {
+  if (!activeWriter?.reduceTimeReceived) return;
+  if (!isJudge && CurrentUserisActiveWriter) {
+    setTimerReduced(true);
+    notification.warning({ title: "Time Reduced!", description: "A judge has reduced your writing time!", placement: "topRight", duration: 3 });
+    const t = setTimeout(() => setTimerReduced(false), 3000);
+    return () => clearTimeout(t);
+  }
+}, [activeWriter?.reduceTimeReceived, activeWriter?.id]);
  
  
 const autoVoteFired = useRef(false);
@@ -639,7 +649,9 @@ return (
  
             <span className="statusPillSeparator">✦</span>
  
-            <span className="statusPill">
+            <span className={`statusPill  ${timerReduced ? "timerReducedFlash" : ""}`}
+             style={timerReduced ? { color: "#e74c3c", border: "1px solid #e74c3c" } : {}}
+            >
               ⏱ {game.phase === "EVALUATION" || isPlayer1Active || isPlayer2Active ? formatTime(countdown) : "--:--"}
             </span>
           </div>
