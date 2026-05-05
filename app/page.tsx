@@ -18,6 +18,7 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
+  //clears token and UserId if they are expired
   useEffect(() => {
     if (!token) return;
     api.get(`/users/${userId}`, token).catch(() => {

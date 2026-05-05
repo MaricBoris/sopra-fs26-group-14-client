@@ -66,8 +66,7 @@ const isPlayer2Active = !!game?.writers[1]?.turn;
 const isUserPlayer1 = game?.writers?.[0]?.id === Number(userId);
 const isUserPlayer2 = game?.writers?.[1]?.id === Number(userId);
 const isJudge = !isUserPlayer1 && !isUserPlayer2;
-const reduceTimeLeft = 2 - (activeWriter?.reduceTimeReceived ?? 0);
-const canReduceTime = isJudge && game?.phase === "WRITING" && reduceTimeLeft > 0;
+const reduceTimeLeft = 1 - (activeWriter?.reduceTimeReceived ?? 0);
 const [declareModalVisible, setDeclareModalVisible] = useState(false);
 const [resultModalVisible, setResultModalVisible] = useState(false);
 const [resultGame, setResultGame] = useState<Game | null>(null);
@@ -211,6 +210,8 @@ const handleReduceTime = async (): Promise<void> => {
  
 const quoteIncorporatedP1 = !!(game?.writers[0]?.quote && wholeStoryText.toLowerCase().includes(game.writers[0].quote.toLowerCase()));
 const quoteIncorporatedP2 = !!(game?.writers[1]?.quote && wholeStoryText.toLowerCase().includes(game.writers[1].quote.toLowerCase()));
+const canReduceTime = isJudge && game?.phase === "WRITING" && reduceTimeLeft > 0 && countdown > 45;
+const prevReduceTimeRef = useRef<{ writerId: number | undefined; count: number } | null>(null);
  
  // "quote incorperated" for 3 seconds, triggers exactly once at the transition from false to true
   useEffect(() => {
@@ -337,26 +338,41 @@ const handleVoteWinner = async (writerId: number): Promise<void> => {
 };
 
 useEffect(() => {
-  if (!activeWriter?.reduceTimeReceived) return;
+  const currentWriterId = activeWriter?.id;
+  const current = activeWriter?.reduceTimeReceived ?? 0;
+  const prev = prevReduceTimeRef.current;
+
+  // Different writer or first run — just initialize, never compare
+  if (!prev || prev.writerId !== currentWriterId) {
+    prevReduceTimeRef.current = { writerId: currentWriterId, count: current };
+    return;
+  }
+
+  if (current <= prev.count) {
+    prevReduceTimeRef.current = { writerId: currentWriterId, count: current };
+    return;
+  }
+
+  // Same writer, value increased — genuine reduction
+  prevReduceTimeRef.current = { writerId: currentWriterId, count: current };
   if (!isJudge && CurrentUserisActiveWriter) {
     setTimerReduced(true);
     notification.warning({
       title: "⏱ Time Reduced!",
-        description: "A judge has reduced your writing time!",
-        placement: "top",
-        duration: 3,
-        style: {
-          background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)",
-          border: "1px solid rgba(212,168,87,0.5)",
-          fontFamily: "var(--font-cinzel), serif",
-        },
-        className: "timerReducedNotif"
-      });
+      description: "A judge has reduced your writing time!",
+      placement: "top",
+      duration: 3,
+      style: {
+        background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)",
+        border: "1px solid rgba(212,168,87,0.5)",
+        fontFamily: "var(--font-cinzel), serif",
+      },
+      className: "timerReducedNotif",
+    });
     const t = setTimeout(() => setTimerReduced(false), 3000);
     return () => clearTimeout(t);
   }
 }, [activeWriter?.reduceTimeReceived, activeWriter?.id]);
- 
  
 const autoVoteFired = useRef(false);
  
@@ -820,7 +836,7 @@ return (
                 ? "Only available during a writer's turn"
                 : reduceTimeLeft <= 0
                 ? `Limit reached for ${activeWriter?.username ?? "this writer"}`
-                : `Cut ${activeWriter?.username ?? "the current writer"}'s time to 45s (${reduceTimeLeft} use${reduceTimeLeft !== 1 ? "s" : ""} left)`
+                : `Cut ${activeWriter?.username ?? "the current writer"}\`s time to 45s (${reduceTimeLeft} use left)`
             }
           >
             <button
@@ -999,7 +1015,7 @@ return (
               <RuleItem icon="⚖️" text="You are the Judge. You observe the story but do not write." />
               <RuleItem icon="💬" text="Assign a quote to either writer via Quote P1 / Quote P2. Each writer must incorporate it within 2 of their own turns." />
               <RuleItem icon="🚫" text="You can only assign one quote per writer." />
-              <RuleItem icon="⏳" text="You can use Reduce Time to cut the active writer's remaining time to 45s. You can do this up to 2 times per writer as punishment!" />
+              <RuleItem icon="⏳" text="You can use Reduce Time to cut the active writer's remaining time to 45 seconds. Each writer can be punished once!" />
               <RuleItem icon="🏆" text="After 20 rounds the game enters Evaluation. Use the Declare button to pick the winner — the writer whose genre best shaped the story." />
               <RuleItem icon="⏱️" text="If you don't vote before the timer expires, a tie is recorded automatically." />
             </div>
