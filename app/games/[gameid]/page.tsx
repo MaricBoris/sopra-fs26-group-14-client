@@ -340,7 +340,18 @@ useEffect(() => {
   if (!activeWriter?.reduceTimeReceived) return;
   if (!isJudge && CurrentUserisActiveWriter) {
     setTimerReduced(true);
-    notification.warning({ title: "Time Reduced!", description: "A judge has reduced your writing time!", placement: "topRight", duration: 3 });
+    notification.warning({
+      title: "⏱ Time Reduced!",
+        description: "A judge has reduced your writing time!",
+        placement: "top",
+        duration: 3,
+        style: {
+          background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)",
+          border: "1px solid rgba(212,168,87,0.5)",
+          fontFamily: "var(--font-cinzel), serif",
+        },
+        className: "timerReducedNotif"
+      });
     const t = setTimeout(() => setTimerReduced(false), 3000);
     return () => clearTimeout(t);
   }
@@ -822,7 +833,7 @@ return (
                 opacity: !canReduceTime || reduceTimeLoading ? 0.4 : 1,
               }}
             >
-              ⧗ REDUCE TIME
+              ⏱ REDUCE TIME
             </button>
           </Tooltip>
         )}
