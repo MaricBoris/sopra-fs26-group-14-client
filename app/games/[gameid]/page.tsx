@@ -211,7 +211,7 @@ const handleReduceTime = async (): Promise<void> => {
 const quoteIncorporatedP1 = !!(game?.writers[0]?.quote && wholeStoryText.toLowerCase().includes(game.writers[0].quote.toLowerCase()));
 const quoteIncorporatedP2 = !!(game?.writers[1]?.quote && wholeStoryText.toLowerCase().includes(game.writers[1].quote.toLowerCase()));
 const canReduceTime = isJudge && game?.phase === "WRITING" && reduceTimeLeft > 0 && countdown > 45;
-const prevReduceTimeRef = useRef<{ writerId: number | undefined; count: number } | null>(null);
+const prevReduceTimeRef = useRef<{ writerId: number | null | undefined; count: number } | null>(null);
  
  // "quote incorperated" for 3 seconds, triggers exactly once at the transition from false to true
   useEffect(() => {
