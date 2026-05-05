@@ -18,6 +18,14 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
+  useEffect(() => {
+    if (!token) return;
+    api.get(`/users/${userId}`, token).catch(() => {
+      clearToken();
+      clearUserId();
+    });
+  }, []);
+
   const handleLogout = async () => {
     try {
       await api.post("/users/logout", {}, token);
