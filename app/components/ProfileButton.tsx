@@ -26,11 +26,14 @@ export default function ProfileButton() {
     if (!isMounted) return null;
 
     return (
-        <div style={{ position: "fixed", top: 20, right: 60, zIndex: 1000 }}>
-            <Button
-                onClick={handleClick}
-                style={{ width: 110, height: 50, padding: 0, fontSize: "20px" }}
-            >Profile</Button>
-        </div>
+        <div style={{ position: "fixed", top: 16, right: 16, zIndex: 1000 }}>
+                <Button
+                    className="pregame-select-btn"
+                    onClick={handleClick}
+                    style={{ width: 80, height: 38, fontSize: 14, padding: 0 }}
+                >
+                    Profile
+                </Button>
+            </div>
     );
 }
