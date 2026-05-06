@@ -6,4 +6,5 @@ export interface Writer extends User{
     text: string | null;
     quote?: string;
     quoteAssignedRound?: number;
+    reduceTimeReceived: number;
 }

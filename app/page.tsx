@@ -18,6 +18,15 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
+  //clears token and UserId if they are expired
+  useEffect(() => {
+    if (!token) return;
+    api.get(`/users/${userId}`, token).catch(() => {
+      clearToken();
+      clearUserId();
+    });
+  }, []);
+
   const handleLogout = async () => {
     try {
       await api.post("/users/logout", {}, token);
@@ -53,9 +62,11 @@ export default function Home() {
     <div className="home-page">
       {/*  Top-right button stack: Profile + Login/Register/Logout depending on auth */}
       <div className="home-top-buttons">
+      {token && userId && (
         <Button className="home-nav-btn" onClick={handleProfileClick}>
           ◉ PROFILE
         </Button>
+        )}
         {!token && !userId && (
           <>
             <Button className="home-nav-btn" onClick={() => router.push("/login")}>
