@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { Button, Table, message } from "antd";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -29,6 +28,8 @@ interface Room {
   users: UserGetDTO[];
   writers: WriterGetDTO[];
   judges: JudgeGetDTO[];
+  timer: number;
+  maxRounds: number;
 }
 
 interface GameGetDTO {
@@ -55,6 +56,11 @@ export default function PreGameRoomPage() {
 
   const [room, setRoom] = useState<Room | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [roundsOpen, setRoundsOpen] = useState(false);
+  const [timerOpen, setTimerOpen] = useState(false);
+  const [maxRounds, setMaxRounds] = useState(4);
+  const [timer, setTimer] = useState(90);
+
   useEffect(() => setIsMounted(true), []);
 
   // 📝 Fetch room state from GET /rooms/{roomId}
@@ -64,6 +70,8 @@ export default function PreGameRoomPage() {
     try {
       const data = await api.get<Room>(`/rooms/${roomId}`, token);
       setRoom(data);
+      if (data.maxRounds) setMaxRounds(data.maxRounds);
+      if (data.timer) setTimer(data.timer);
     } catch (e) {
       const status = (e as { status?: number }).status;
       if (status === 404) {
@@ -98,6 +106,23 @@ export default function PreGameRoomPage() {
     const interval = setInterval(fetchRoom, 3000);
     return () => clearInterval(interval);
   }, [isMounted, token, fetchRoom]);
+
+  useEffect(() => {
+    if (!isMounted || !token || !room) return;
+    if (!isLobbyLeader) return;
+    api.put(`/rooms/${roomId}/rounds`, maxRounds, token).catch((e) => {
+      message.error(`Could not update max rounds: ${e instanceof Error ? e.message : String(e)}`);
+    });
+  }, [maxRounds]);
+
+  
+  useEffect(() => {
+    if (!isMounted || !token || !room) return;
+    if (!isLobbyLeader) return;
+    api.put(`/rooms/${roomId}/timer`, timer, token).catch((e) => {
+      message.error(`Could not update timer: ${e instanceof Error ? e.message : String(e)}`);
+    });
+  }, [timer]);
 
   // 📝 PUT /rooms/{roomId}/leave - redirect to /rooms
   // 📝 If this was the last user: room is dissolved, show message
@@ -159,6 +184,9 @@ export default function PreGameRoomPage() {
       ]
     : [];
 
+  const roundOptions = Array.from({ length: Math.ceil((30 - 2) / 4) + 1 }, (_, i) => 2 + i * 4);
+  const timerOptions = Array.from({ length: Math.ceil((180 - 20) / 10) + 1 }, (_, i) => 20 + i * 10);
+
   const roleColumns = [
     {
       title: "#",
@@ -190,6 +218,7 @@ export default function PreGameRoomPage() {
         const isDisabled = !isMyRole && isFull;
         return (
           <Button
+            className={`pregame-select-btn${isMyRole ? " selected" : ""}`}
             disabled={isDisabled}
             onClick={(e) => {
               e.stopPropagation();
@@ -198,7 +227,6 @@ export default function PreGameRoomPage() {
             }}
             style={{
               width: 80, height: 30, fontSize: 13, padding: 0,
-              ...(isMyRole && { ["--btn-bg" as string]: "#25d366" }),
               ...(isDisabled && { opacity: 0.4 }),
             } as React.CSSProperties}
           >
@@ -212,10 +240,18 @@ export default function PreGameRoomPage() {
   if (!isMounted) return null;
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div style={{
+      minHeight: "100vh",
+      backgroundImage: "url('/rooms_id_03_quills.png')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      backgroundAttachment: "fixed",
+    }}>
 
       {/* 📝 Exit button */}
       <Button
+        className="pregame-exit-btn"
         onClick={handleExit}
         style={{
           position: "fixed",
@@ -225,7 +261,6 @@ export default function PreGameRoomPage() {
           height: 38,
           fontSize: 14,
           zIndex: 100,
-          ["--btn-bg" as string]: "#c0392b",
         } as React.CSSProperties}
       >
         Exit
@@ -233,97 +268,190 @@ export default function PreGameRoomPage() {
 
       <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20 }}>
 
-        {/* 📝 Pre-Game Room banner with schriftrolle.png */}
-        <div style={{ position: "relative", marginBottom: -22 }}>
-          <Image
-            src="/schriftrolle.png"
-            alt="Pre-Game Room banner"
-            width={400}
-            height={100}
-            style={{ maxWidth: "100%", height: "auto", display: "block" }}
-          />
-          <h1 style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            margin: 0,
-            fontSize: 28,
-            fontFamily: "var(--font-cinzel), serif",
-            color: "#3b2a1a",
-            whiteSpace: "nowrap",
-          }}>
-            Pre-Game Room
-          </h1>
-        </div>
+        {/* 📝 Pre-Game Room title matching lobby style */}
+        <h1 className="lobby-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
+          PRE-GAME ROOM
+        </h1>
+        <div className="lobby-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 20 }}>◆</div>
 
-        {/* 📝 Main glass box */}
-        <div style={{
-          width: 560,
-          maxWidth: "100%",
-          background: "rgba(255,255,255,0.09)",
-          backdropFilter: "blur(12px)",
-          borderRadius: 1,
-          border: "1px solid rgba(255,255,255,0.15)",
-          padding: 24,
-        }}>
+        {/* Outer wrapper: frame + settings panel side by side */}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
 
-          {/* 📝 Available Roles heading */}
-          <div style={{
-            background: "rgba(255,255,255,0.12)",
-            borderRadius: 2,
-            padding: "10px 0",
-            textAlign: "center",
-            marginBottom: 16,
-          }}>
-            <h2 style={{ margin: 0, fontFamily: "var(--font-cinzel), serif" }}>Available Roles</h2>
+          {/* 📝 Frame image with content positioned inside it */}
+          <div style={{ position: "relative", width: "min(650px, 95vw)" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/rooms_id__center_02.png"
+              alt="Room frame"
+              style={{ width: "100%", height: "auto", display: "block", pointerEvents: "none", userSelect: "none" }}
+            />
+
+            {/* 📝 Content panel overlaid inside the frame */}
+            <div style={{
+              position: "absolute",
+              top: "25%",
+              left: "20%",
+              right: "20%",
+              bottom: "10%",
+              display: "flex",
+              flexDirection: "column",
+              fontFamily: "var(--font-cinzel), serif",
+              color: "#ffffff",
+              overflow: "hidden",
+            }}>
+
+              {/* 📝 Available Roles heading */}
+              <div className="available-matches-heading" style={{ marginBottom: 10 }}>
+                AVAILABLE ROLES
+              </div>
+
+              {/* 📝 Roles table */}
+              <div className="pregame-table">
+                <Table
+                  dataSource={roleRows}
+                  columns={roleColumns}
+                  rowKey="key"
+                  pagination={false}
+                  size="small"
+                  onRow={(record) => ({ onClick: () => handleSelectRole(record.role) })}
+                  style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif", marginBottom: 12 }}
+                />
+              </div>
+
+              {/* 📝 Users list */}
+              <div style={{ textAlign: "center", marginBottom: 12, marginTop: 10 }}>
+                <div className="available-matches-heading" style={{ marginBottom: 6 }}>USERS</div>
+                {allUsers.length === 0 ? (
+                  <p style={{ margin: 0, fontSize: 12, color: "#6b6480" }}>No users yet</p>
+                ) : (
+                  allUsers.map((username, i) => (
+                    <p key={i} style={{ margin: "2px 0", fontSize: 13, color: "#e8d896", fontFamily: "var(--font-display)", letterSpacing: 1 }}>
+                      {username}
+                    </p>
+                  ))
+                )}
+              </div>
+
+              {/* 📝 Start Game button: only visible to lobby leader */}
+              {isLobbyLeader && (
+                <div style={{ display: "flex", justifyContent: "center", marginTop: 60 }}>
+                  <Button
+                    className="lobby-create-btn"
+                    onClick={handleStartGame}
+                    disabled={!rolesReady}
+                  >
+                    START GAME
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* 📝 Roles table: Writers and Judge rows with Select buttons */}
-          <Table
-            dataSource={roleRows}
-            columns={roleColumns}
-            rowKey="key"
-            pagination={false}
-            onRow={(record) => ({ onClick: () => handleSelectRole(record.role) })}
-            style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif", marginBottom: 20 }}
-          />
-
-          {/* 📝 Users box: all participants currently in the room */}
+          {/* Settings panel: Max Rounds + Timer */}
           <div style={{
-            background: "rgba(255,255,255,0.12)",
-            borderRadius: 2,
-            padding: "12px 20px",
-            marginBottom: 20,
-            textAlign: "center",
+            display: "flex", flexDirection: "column", gap: 12,
+            marginTop: 80,
           }}>
-            <h3 style={{ margin: "0 0 8px 0", fontFamily: "var(--font-cinzel), serif" }}>Users</h3>
-            {allUsers.length === 0 ? (
-              <p style={{ margin: 0, fontFamily: "var(--font-cinzel), serif", opacity: 0.6 }}>No users yet</p>
-            ) : (
-              allUsers.map((username, i) => (
-                <p key={i} style={{ margin: "2px 0", fontFamily: "var(--font-cinzel), serif" }}>{username}</p>
-              ))
-            )}
-          </div>
 
-          {/* 📝 Start Game button: only visible to lobby leader */}
-          {isLobbyLeader && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
+            {/* Max Rounds box */}
+            <div style={{ position: "relative" }}>
               <Button
-                onClick={handleStartGame}
-                disabled={!rolesReady}
+                className="pregame-select-btn"
+                disabled={!isLobbyLeader}
+                onClick={() => { setRoundsOpen((o) => !o); setTimerOpen(false); }}
                 style={{
-                  width: 160,
-                  height: 38,
-                  fontSize: 14,
-                  ["--btn-bg" as string]: "#25d366",
+                  width: 160, height: 38, fontSize: 13, padding: "0 10px",
+                  opacity: isLobbyLeader ? 1 : 0.5,
+                  fontFamily: "var(--font-cinzel), serif",
                 } as React.CSSProperties}
               >
-                Start Game
+                Max Rounds: {maxRounds}
               </Button>
+
+              {/* Curtain dropdown for rounds */}
+              {roundsOpen && (
+                <div style={{
+                  position: "absolute", top: 42, left: 0, zIndex: 200,
+                  background: "rgba(20,15,35,0.97)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: 6,
+                  padding: 8,
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, 1fr)",
+                  gap: 6,
+                  width: 200,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                }}>
+                  {roundOptions.map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => { setMaxRounds(r); setRoundsOpen(false); }}
+                      style={{
+                        background: maxRounds === r ? "rgba(168,134,75,0.35)" : "rgba(255,255,255,0.05)",
+                        border: maxRounds === r ? "1px solid #a8864b" : "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: 4, color: "#e8d896",
+                        fontFamily: "var(--font-cinzel), serif",
+                        fontSize: 12, padding: "4px 0", cursor: "pointer",
+                        transition: "background 0.15s",
+                      }}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Round Timer box */}
+            <div style={{ position: "relative" }}>
+              <Button
+                className="pregame-select-btn"
+                disabled={!isLobbyLeader}
+                onClick={() => { setTimerOpen((o) => !o); setRoundsOpen(false); }}
+                style={{
+                  width: 160, height: 38, fontSize: 13, padding: "0 10px",
+                  opacity: isLobbyLeader ? 1 : 0.5,
+                  fontFamily: "var(--font-cinzel), serif",
+                } as React.CSSProperties}
+              >
+                Round Timer: {timer}s
+              </Button>
+
+              {/* Curtain dropdown for timer */}
+              {timerOpen && (
+                <div style={{
+                  position: "absolute", top: 42, left: 0, zIndex: 200,
+                  background: "rgba(20,15,35,0.97)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: 6,
+                  padding: 8,
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, 1fr)",
+                  gap: 6,
+                  width: 200,
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                }}>
+                  {timerOptions.map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => { setTimer(t); setTimerOpen(false); }}
+                      style={{
+                        background: timer === t ? "rgba(168,134,75,0.35)" : "rgba(255,255,255,0.05)",
+                        border: timer === t ? "1px solid #a8864b" : "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: 4, color: "#e8d896",
+                        fontFamily: "var(--font-cinzel), serif",
+                        fontSize: 12, padding: "4px 0", cursor: "pointer",
+                        transition: "background 0.15s",
+                      }}
+                    >
+                      {t}s
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
       </main>
     </div>
