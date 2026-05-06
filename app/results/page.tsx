@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button, Table, message } from "antd";
 import HomeButton from "@/components/HomeButton";
@@ -66,37 +65,37 @@ export default function ResultsPage() {
   if (!isMounted) return null;
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div className="results-page">
       <HomeButton />
-      <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20 }}>
 
-        {/* 📝 Title banner */}
-        <div style={{ position: "relative", marginBottom: -22 }}>
-          <Image src="/schriftrolle.png" alt="Stories banner" width={400} height={100} style={{ maxWidth: "100%", height: "auto", display: "block" }} />
-          <h1 style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", margin: 0, fontSize: 40, fontFamily: "var(--font-cinzel), serif", color: "#3b2a1a", whiteSpace: "nowrap" }}>Stories</h1>
-        </div>
+      {/* Title above the display board */}
+      <h1 className="results-title">STORIES</h1>
+      <div className="results-title-divider">◆</div>
 
-        <div style={{ width: 660, maxWidth: "100%", background: "rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", borderRadius: 1, border: "1px solid rgba(255,255,255,0.15)", padding: 24 }}>
-          {/* 📝 Scrollable story table */}
-          <div style={{ maxHeight: 340, overflowY: "auto" }}>
+      {/* Stage holds the panel/CTA overlays positioned over the gas-station background */}
+      <div className="results-stage">
+        {/* Inner panel: sits on the dark display board in the background image */}
+        <div className="results-panel">
+          <div className="results-table" style={{ flex: 1, overflowY: "auto" }}>
             <Table
               dataSource={stories}
               columns={columns}
               rowKey="id"
               pagination={false}
+              size="small"
               onRow={(record) => ({ onClick: () => router.push(`/results/${record.id}`) })}
               style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif" }}
             />
           </div>
-
-          {/* 📝 Join Lobby button */}
-          <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
-            <Button style={{ width: 160, height: 38, fontSize: 14 }} onClick={handleJoinLobby}>
-              Join Lobby
-            </Button>
-          </div>
         </div>
-      </main>
+
+        {/* Join Lobby button below the display board */}
+        <div className="results-cta">
+          <Button className="lobby-create-btn" onClick={handleJoinLobby}>
+            JOIN LOBBY
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
