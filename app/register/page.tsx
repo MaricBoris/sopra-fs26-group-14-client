@@ -146,7 +146,7 @@ export default function RegisterPage() {
                 onChange={(e) => setBioLength(e.target.value.length)}
               />
               <span style={{ position: "absolute", bottom: 6, right: 10, fontSize: 12, color: "#aaa", pointerEvents: "none" }}>
-                {bioLength} / 500
+                {bioLength} / 255
               </span>
             </div>
           </Form.Item>

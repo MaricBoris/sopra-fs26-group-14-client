@@ -226,7 +226,7 @@ export default function PreGameRoomPage() {
               handleSelectRole(isMyRole ? "NONE" : record.role);
             }}
             style={{
-              width: 80, height: 30, fontSize: 13, padding: 0,
+              width: "clamp(70px, 9.3vh, 90px)", height: "clamp(26px, 3.5vh, 34px)", fontSize: "clamp(11px, 1.5vh, 15px)", padding: 0,
               ...(isDisabled && { opacity: 0.4 }),
             } as React.CSSProperties}
           >
@@ -272,18 +272,18 @@ export default function PreGameRoomPage() {
         <h1 className="lobby-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
           PRE-GAME ROOM
         </h1>
-        <div className="lobby-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 20 }}>◆</div>
+        <div className="lobby-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 20 }}>✦</div>
 
-        {/* Outer wrapper: frame + settings panel side by side */}
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+        {/* 📝 Outer wrapper */}
+        <div style={{ display: "flex", justifyContent: "center" }}>
 
           {/* 📝 Frame image with content positioned inside it */}
-          <div style={{ position: "relative", width: "min(650px, 95vw)" }}>
+          <div style={{ position: "relative", height: "85vh", aspectRatio: "1 / 1", maxWidth: "95vw" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/rooms_id__center_02.png"
               alt="Room frame"
-              style={{ width: "100%", height: "auto", display: "block", pointerEvents: "none", userSelect: "none" }}
+              style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }}
             />
 
             {/* 📝 Content panel overlaid inside the frame */}
@@ -292,16 +292,16 @@ export default function PreGameRoomPage() {
               top: "25%",
               left: "20%",
               right: "20%",
-              bottom: "10%",
+              bottom: "25%",
               display: "flex",
               flexDirection: "column",
               fontFamily: "var(--font-cinzel), serif",
               color: "#ffffff",
-              overflow: "hidden",
+              overflow: "visible",
             }}>
 
               {/* 📝 Available Roles heading */}
-              <div className="available-matches-heading" style={{ marginBottom: 10 }}>
+              <div className="available-matches-heading" style={{ marginBottom: 10, fontSize: "clamp(13px, 1.9vh, 18px)", color: "#f5e97a" }}>
                 AVAILABLE ROLES
               </div>
 
@@ -320,135 +320,119 @@ export default function PreGameRoomPage() {
 
               {/* 📝 Users list */}
               <div style={{ textAlign: "center", marginBottom: 12, marginTop: 10 }}>
-                <div className="available-matches-heading" style={{ marginBottom: 6 }}>USERS</div>
+                <div className="available-matches-heading" style={{ marginBottom: 6, fontSize: "clamp(13px, 1.9vh, 18px)", color: "#f5e97a" }}>USERS</div>
                 {allUsers.length === 0 ? (
-                  <p style={{ margin: 0, fontSize: 12, color: "#6b6480" }}>No users yet</p>
+                  <p style={{ margin: 0, fontSize: "clamp(10px, 1.4vh, 13px)", color: "#6b6480" }}>No users yet</p>
                 ) : (
                   allUsers.map((username, i) => (
-                    <p key={i} style={{ margin: "2px 0", fontSize: 13, color: "#e8d896", fontFamily: "var(--font-display)", letterSpacing: 1 }}>
+                    <p key={i} style={{ margin: "2px 0", fontSize: "clamp(11px, 1.5vh, 15px)", color: "#e8d896", fontFamily: "var(--font-display)", letterSpacing: 1 }}>
                       {username}
                     </p>
                   ))
                 )}
               </div>
 
-              {/* 📝 Start Game button: only visible to lobby leader */}
-              {isLobbyLeader && (
-                <div style={{ display: "flex", justifyContent: "center", marginTop: 60 }}>
+              {/* 📝 Bottom section: settings row + Start Game, centered column */}
+              <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", alignItems: "center" }}>
+
+                {/* 📝 Settings row: each button flex:1, total width = Start Game width */}
+                <div style={{ display: "flex", width: "clamp(163px, 20vh, 219px)", gap: 3, marginBottom: "clamp(6px, 1vh, 10px)" }}>
+
+                  {/* 📝 Max Rounds button + upward dropdown */}
+                  <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
+                    <Button
+                      className="pregame-select-btn"
+                      disabled={!isLobbyLeader}
+                      onClick={() => { setRoundsOpen((o) => !o); setTimerOpen(false); }}
+                      style={{
+                        width: "100%", height: "clamp(29px, 3.8vh, 38px)",
+                        fontSize: "clamp(9px, 1.2vh, 14px)", padding: "0 4px",
+                        opacity: isLobbyLeader ? 1 : 0.5,
+                      } as React.CSSProperties}
+                    >
+                      <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}><span>Max Rounds</span><span>{maxRounds}</span></span>
+                    </Button>
+                    {roundsOpen && (
+                      <div style={{
+                        position: "absolute", right: "100%", top: "50%", transform: "translateY(-50%)", zIndex: 200,
+                        marginRight: "clamp(4px, 0.5vh, 6px)",
+                        background: "rgba(20,15,35,0.97)",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        borderRadius: 6, padding: 8,
+                        display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6,
+                        width: "clamp(163px, 20vh, 219px)",
+                        boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                      }}>
+                        {roundOptions.map((r) => (
+                          <button key={r} onClick={() => { setMaxRounds(r); setRoundsOpen(false); }}
+                            style={{
+                              background: maxRounds === r ? "rgba(168,134,75,0.35)" : "rgba(255,255,255,0.05)",
+                              border: maxRounds === r ? "1px solid #a8864b" : "1px solid rgba(255,255,255,0.1)",
+                              borderRadius: 4, color: "#e8d896",
+                              fontFamily: "var(--font-cinzel), serif",
+                              fontSize: "clamp(10px, 1.4vh, 13px)", padding: "4px 0", cursor: "pointer",
+                              transition: "background 0.15s",
+                            }}
+                          >{r}</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 📝 Round Timer button + upward dropdown */}
+                  <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
+                    <Button
+                      className="pregame-select-btn"
+                      disabled={!isLobbyLeader}
+                      onClick={() => { setTimerOpen((o) => !o); setRoundsOpen(false); }}
+                      style={{
+                        width: "100%", height: "clamp(29px, 3.8vh, 38px)",
+                        fontSize: "clamp(9px, 1.2vh, 14px)", padding: "0 4px",
+                        opacity: isLobbyLeader ? 1 : 0.5,
+                      } as React.CSSProperties}
+                    >
+                      <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}><span>Round Timer</span><span>{timer}s</span></span>
+                    </Button>
+                    {timerOpen && (
+                      <div style={{
+                        position: "absolute", left: "100%", top: "50%", transform: "translateY(-50%)", zIndex: 200,
+                        marginLeft: "clamp(4px, 0.5vh, 6px)",
+                        background: "rgba(20,15,35,0.97)",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        borderRadius: 6, padding: 8,
+                        display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6,
+                        width: "clamp(163px, 20vh, 219px)",
+                        boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                      }}>
+                        {timerOptions.map((t) => (
+                          <button key={t} onClick={() => { setTimer(t); setTimerOpen(false); }}
+                            style={{
+                              background: timer === t ? "rgba(168,134,75,0.35)" : "rgba(255,255,255,0.05)",
+                              border: timer === t ? "1px solid #a8864b" : "1px solid rgba(255,255,255,0.1)",
+                              borderRadius: 4, color: "#e8d896",
+                              fontFamily: "var(--font-cinzel), serif",
+                              fontSize: "clamp(10px, 1.4vh, 13px)", padding: "4px 0", cursor: "pointer",
+                              transition: "background 0.15s",
+                            }}
+                          >{t}s</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 📝 Start Game button: only visible to lobby leader */}
+                {isLobbyLeader && (
                   <Button
-                    className="lobby-create-btn"
+                    className="pregame-start-btn"
                     onClick={handleStartGame}
                     disabled={!rolesReady}
+                    style={{ width: "clamp(163px, 20vh, 219px)" } as React.CSSProperties}
                   >
                     START GAME
                   </Button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Settings panel: Max Rounds + Timer */}
-          <div style={{
-            display: "flex", flexDirection: "column", gap: 12,
-            marginTop: 80,
-          }}>
-
-            {/* Max Rounds box */}
-            <div style={{ position: "relative" }}>
-              <Button
-                className="pregame-select-btn"
-                disabled={!isLobbyLeader}
-                onClick={() => { setRoundsOpen((o) => !o); setTimerOpen(false); }}
-                style={{
-                  width: 160, height: 38, fontSize: 13, padding: "0 10px",
-                  opacity: isLobbyLeader ? 1 : 0.5,
-                  fontFamily: "var(--font-cinzel), serif",
-                } as React.CSSProperties}
-              >
-                Max Rounds: {maxRounds}
-              </Button>
-
-              {/* Curtain dropdown for rounds */}
-              {roundsOpen && (
-                <div style={{
-                  position: "absolute", top: 42, left: 0, zIndex: 200,
-                  background: "rgba(20,15,35,0.97)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: 6,
-                  padding: 8,
-                  display: "grid",
-                  gridTemplateColumns: "repeat(4, 1fr)",
-                  gap: 6,
-                  width: 200,
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-                }}>
-                  {roundOptions.map((r) => (
-                    <button
-                      key={r}
-                      onClick={() => { setMaxRounds(r); setRoundsOpen(false); }}
-                      style={{
-                        background: maxRounds === r ? "rgba(168,134,75,0.35)" : "rgba(255,255,255,0.05)",
-                        border: maxRounds === r ? "1px solid #a8864b" : "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: 4, color: "#e8d896",
-                        fontFamily: "var(--font-cinzel), serif",
-                        fontSize: 12, padding: "4px 0", cursor: "pointer",
-                        transition: "background 0.15s",
-                      }}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Round Timer box */}
-            <div style={{ position: "relative" }}>
-              <Button
-                className="pregame-select-btn"
-                disabled={!isLobbyLeader}
-                onClick={() => { setTimerOpen((o) => !o); setRoundsOpen(false); }}
-                style={{
-                  width: 160, height: 38, fontSize: 13, padding: "0 10px",
-                  opacity: isLobbyLeader ? 1 : 0.5,
-                  fontFamily: "var(--font-cinzel), serif",
-                } as React.CSSProperties}
-              >
-                Round Timer: {timer}s
-              </Button>
-
-              {/* Curtain dropdown for timer */}
-              {timerOpen && (
-                <div style={{
-                  position: "absolute", top: 42, left: 0, zIndex: 200,
-                  background: "rgba(20,15,35,0.97)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: 6,
-                  padding: 8,
-                  display: "grid",
-                  gridTemplateColumns: "repeat(4, 1fr)",
-                  gap: 6,
-                  width: 200,
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-                }}>
-                  {timerOptions.map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => { setTimer(t); setTimerOpen(false); }}
-                      style={{
-                        background: timer === t ? "rgba(168,134,75,0.35)" : "rgba(255,255,255,0.05)",
-                        border: timer === t ? "1px solid #a8864b" : "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: 4, color: "#e8d896",
-                        fontFamily: "var(--font-cinzel), serif",
-                        fontSize: 12, padding: "4px 0", cursor: "pointer",
-                        transition: "background 0.15s",
-                      }}
-                    >
-                      {t}s
-                    </button>
-                  ))}
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
 

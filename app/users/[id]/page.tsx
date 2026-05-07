@@ -255,8 +255,6 @@ const Login: React.FC = () => {
 
   return (
     <div style={{ minHeight: "100vh", backgroundImage: "url('/profile_02.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed" }}>
-
-      {/* 📝 Home navigation button */}
       <HomeButton />
 
       {/* 📝 Delete Account button — fixed bottom right, own profile only */}
@@ -264,7 +262,7 @@ const Login: React.FC = () => {
         <Button
           className="profile-red-btn"
           onClick={handleOpenDeleteModal}
-          style={{ position: "fixed", bottom: 16, right: 16, width: 80, height: 38, fontSize: 12, padding: 0, zIndex: 100 } as React.CSSProperties}
+          style={{ position: "fixed", bottom: 16, right: 16, width: 104, height: 50, fontSize: 16, padding: 0, zIndex: 100 } as React.CSSProperties}
         >
           <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}><span>Delete</span><span>Account</span></span>
         </Button>
@@ -274,7 +272,7 @@ const Login: React.FC = () => {
       <Button
         className="profile-btn"
         onClick={() => router.push("/users")}
-        style={{ position: "fixed", top: 16, right: 16, width: 80, height: 38, fontSize: 14, zIndex: 100 } as React.CSSProperties}
+        style={{ position: "fixed", top: 16, right: 16, width: 104, height: 50, fontSize: 18, zIndex: 100 } as React.CSSProperties}
       >
         Users
       </Button>
@@ -285,7 +283,7 @@ const Login: React.FC = () => {
         <h1 className="profile-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
           USER PROFILE
         </h1>
-        <div className="profile-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: -15 }}>◆</div>
+        <div className="profile-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: -15 }}>✦</div>
 
         {/* 📝 Profile frame — height-driven so it reaches near bottom of screen */}
         <div style={{ position: "relative", height: "92vh", aspectRatio: "1145 / 1374", maxWidth: "95vw" }}>
@@ -296,32 +294,32 @@ const Login: React.FC = () => {
           <div style={{ position: "absolute", top: "17%", left: "20%", right: "20%", bottom: "16%", display: "flex", flexDirection: "column", fontFamily: "var(--font-cinzel), serif", overflow: "hidden" }}>
 
             {/* 📝 Profile info rows */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 4 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 6 }}>
               {[
                 { label: "USERNAME", value: users?.username ?? "—" },
                 { label: "MEMBER SINCE", value: users?.creationDate ? new Date(users.creationDate).toLocaleDateString() : "—" },
                 { label: "BIO", value: users?.bio ?? "—" },
               ].map(({ label, value }) => (
-                <div key={label} style={{ borderBottom: "1px solid rgba(212, 175, 93, 0.5)", paddingBottom: 4 }}>
-                  <div style={{ fontSize: 13, letterSpacing: 2, color: "#f5e97a", textAlign: "center" }}>◆ {label} ◆</div>
-                  <div style={{ fontSize: 13, color: "#fff8c5", marginTop: 1, wordBreak: "break-word", whiteSpace: "normal", textAlign: "center" }}>{value}</div>
+                <div key={label} style={{ borderBottom: "1px solid #d4af5d80", paddingBottom: 4 }}>
+                  <div className="profile-info-label" style={{ fontSize: "clamp(11px, 1.5vh, 15px)", letterSpacing: 2, color: "#d1bc6f", textAlign: "center" }}>{label}</div>
+                  <div style={{ fontSize: "clamp(11px, 1.5vh, 15px)", color: "#f0e0b0", marginTop: 1, wordBreak: "break-word", whiteSpace: "normal", textAlign: "center" }}>{value}</div>
                 </div>
               ))}
             </div>
 
             {/* 📝 Match history heading */}
-            <div className="profile-heading" style={{ marginBottom: 6, fontSize: 13 }}>MATCH HISTORY</div>
+            <div className="profile-heading" style={{ marginBottom: 8, fontSize: "clamp(11px, 1.5vh, 15px)" }}>MATCH HISTORY</div>
 
             {/* 📝 Stats row */}
-            <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
               {[
                 { label: "Games", value: totalGames },
                 { label: "Wins", value: wins },
                 { label: "Win Rate", value: `${winRate}%` },
               ].map(({ label, value }) => (
                 <div key={label} style={{ flex: 1, textAlign: "center", background: "rgba(40,35,90,0.4)", border: "1px solid rgba(212,175,93,0.3)", borderRadius: 2, padding: "3px 4px" }}>
-                  <div style={{ fontSize: 11, fontWeight: "bold", color: "#e8d896" }}>{value}</div>
-                  <div style={{ fontSize: 9, color: "#d4c98a" }}>{label}</div>
+                  <div style={{ fontSize: "clamp(9px, 1.3vh, 13px)", fontWeight: "bold", color: "#e8d896" }}>{value}</div>
+                  <div style={{ fontSize: "clamp(8px, 1.1vh, 11px)", color: "#d4c98a" }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -345,9 +343,9 @@ const Login: React.FC = () => {
             {/* 📝 Action buttons — own profile only */}
             {isOwnProfile && (
               <div style={{ marginTop: 10, display: "flex", gap: 8, justifyContent: "center" }}>
-                <Button className="profile-red-btn" onClick={handleLogout} style={{ width: 80, height: 34, fontSize: 11, padding: 0 }}>Logout</Button>
-                <Button className="profile-btn" onClick={handleEditBio} style={{ width: 80, height: 34, fontSize: 11, padding: 0 }}>Edit Bio</Button>
-                <Button className="profile-btn" onClick={handleEditPassword} style={{ width: 80, height: 34, fontSize: 11, padding: 0 }}>
+                <Button className="profile-red-btn" onClick={handleLogout} style={{ width: "clamp(78px, 10.7vh, 104px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.5vh, 15px)", padding: 0 }}>Logout</Button>
+                <Button className="profile-btn" onClick={handleEditBio} style={{ width: "clamp(78px, 10.7vh, 104px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.5vh, 15px)", padding: 0 }}>Edit Bio</Button>
+                <Button className="profile-btn" onClick={handleEditPassword} style={{ width: "clamp(78px, 10.7vh, 104px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.5vh, 15px)", padding: 0 }}>
                   <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}><span>Edit</span><span>Password</span></span>
                 </Button>
               </div>

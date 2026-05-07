@@ -140,6 +140,7 @@ export default function RoomsPage() {
                 rowKey="id"
                 pagination={false}
                 size="small"
+                locale={{ emptyText: <span style={{ color: "#6b6480", fontFamily: "var(--font-cinzel), serif" }}>No matches available. Create your own!</span> }}
                 onRow={(record) => ({ onClick: () => router.push(`/rooms/${record.id}`) })}
                 style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif" }}
               />
