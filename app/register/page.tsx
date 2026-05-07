@@ -18,50 +18,30 @@ export default function RegisterPage() {
   const router = useRouter();
   const api = useApi();
   const [form] = Form.useForm();
-  const [bioLength, setBioLength] = useState(0);
-  const {
-    value: token,
-    set: setToken,
-    clear: clearToken,
-  } = useLocalStorage<string>("token", "");
-  const {
-    value: userId,
-    set: setUserId,
-    clear: clearUserId,
-  } = useLocalStorage<string>("userId", ""); // 📝 store id so /login and /register can redirect to profile
+  const { value: token, set: setToken, clear: clearToken } = useLocalStorage<string>("token", "");
+  const { value: userId, set: setUserId, clear: clearUserId } = useLocalStorage<string>("userId", "");
 
-  // 📝 mount gate -> don't redirect before localStorage values are available (prevents redirect loops)
+  // 📝 mount gate — don't redirect before localStorage values are available
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
-  // 📝 if user is already logged in (token exists), redirect away from /register
+  // 📝 redirect logged-in users away from /register
   useEffect(() => {
     if (!isMounted) return;
-
-    // 📝 redirect logged-in users to their own profile page
     if (token && userId) router.replace("/");
-    else if (token && !userId) {
-      clearToken(); // 📝 if token exists but userId is missing, clear the token to prevent redirect loops to /login, which would happen because the app would keep trying to use the invalid token and getting 401 responses, thus clearing the token ensures that the app will redirect to /login and prompt the user to log in again, thus obtaining a new valid token with a userId.
-      clearUserId(); // 📝 to clear userId if it exists without token, to prevent redirect loops to /login. This can happen if the token is manually removed from localStorage while the userId remains, which would cause the app to keep trying to redirect to /users/[userId] and getting 401 responses, thus clearing the userId ensures that the app will redirect to /login and prompt the user to log in again, thus obtaining a new valid token with a userId.
-    }
-  }, [isMounted, token, userId, router, clearToken, clearUserId]); // 📝 added clearToken and clearUserId to dependency array to prevent eslint warnings
+    else if (token && !userId) { clearToken(); clearUserId(); }
+  }, [isMounted, token, userId, router, clearToken, clearUserId]);
 
   const onFinish = async (values: RegisterForm) => {
     try {
-      // register
-      const created = await api.post("/users", values); // created user info not used, but it is needed to create the user in the backend and set ONLINE (auto-login)
-      // login
-      const loginRes = await api.post<{ id: number; token: string }>(
-        "/users/login",
-        {
-          username: values.username,
-          password: values.password,
-        },
-      );
-      //📝 store token and navigate to user
+      await api.post("/users", values);
+      const loginRes = await api.post<{ id: number; token: string }>("/users/login", {
+        username: values.username,
+        password: values.password,
+      });
       setToken(loginRes.token);
       setUserId(String(loginRes.id));
-      router.replace("/"); // 📝replace vs push to prevent going back to /register after successful registration and login
+      router.replace("/");
     } catch (e) {
       const err = e as ApplicationError;
       const status = err.status ?? "Error";
@@ -76,116 +56,77 @@ export default function RegisterPage() {
       });
     }
   };
-  // 📝 while redirecting (already logged in), do not render the register form
-  if (!isMounted) {
-    return (
-      <>
-        <HomeButton />
-        <div style={{ maxWidth: 520, margin: "40px auto" }}>Loading...</div>
-      </>
-    );
-  }
-  if (token && userId) {
-    return (
-      <>
-        <HomeButton />
-        <div className="register-container">Redirecting...</div>
-      </>
-    );
-  }
+
+  if (!isMounted) return <><HomeButton /><div style={{ maxWidth: 520, margin: "40px auto" }}>Loading...</div></>;
+  if (token && userId) return <><HomeButton /><div style={{ maxWidth: 520, margin: "40px auto" }}>Redirecting...</div></>;
+
   return (
-    <>
+    <div style={{ minHeight: "100vh" }}>
+      <div style={{ position: "fixed", inset: 0, backgroundImage: "url('/register_04.png')", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
       <HomeButton />
-      <div className="login-container">
-        <div style={{
-          width: 480,
-          background: "rgba(255,255,255,0.09)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(255,255,255,0.15)",
-          borderRadius: 1,
-          padding: "12px 24px 16px",
-          fontFamily: "var(--font-cinzel), serif",
-          color: "#ffffff",
-        }}>
-          <div style={{ textAlign: "center", marginBottom: 12 }}>
-            <div style={{ fontSize: 24, fontWeight: "bold" }}>Register</div>
-            <div style={{ fontSize: 16, marginTop: 4 }}>Please choose a username and password:</div>
-          </div>
-        <Form
-          form={form}
-          name="register"
-          size="large"
-          variant="outlined"
-          onFinish={onFinish}
-          layout="vertical"
-        >
-          <Form.Item
-            name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
-          >
-            <Input placeholder="Enter username" />
-          </Form.Item>
 
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
-            <Input.Password placeholder="Enter password" />
-          </Form.Item>
+      <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 18, paddingBottom: 40 }}>
 
-          <Form.Item
-            name="bio"
-            rules={[{ required: false, message: "Please enter a short bio!" }]}
-          >
-            <div style={{ position: "relative" }}>
-              <Input.TextArea
-                rows={6}
-                maxLength={500}
-                placeholder="Enter a short bio"
-                style={{ resize: "none", paddingBottom: 20 }}
-                onChange={(e) => setBioLength(e.target.value.length)}
-              />
-              <span style={{ position: "absolute", bottom: 6, right: 10, fontSize: 12, color: "#aaa", pointerEvents: "none" }}>
-                {bioLength} / 255
-              </span>
+        {/* 📝 Page title */}
+        <h1 className="register-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
+          REGISTER
+        </h1>
+        <div className="register-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: -15 }}>✦</div>
+
+        {/* 📝 Frame — height-driven, landscape 1448×1086 */}
+        <Form form={form} name="register" onFinish={onFinish} className="register-form">
+          <div style={{ position: "relative", height: "85vh", aspectRatio: "1448 / 1086", maxWidth: "95vw" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/register_03_transparent.png" alt="Register frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
+
+            {/* 📝 Username — pinned to its label position in the image */}
+            <div style={{ position: "absolute", top: "8.5%", left: "43%", right: "26%" }}>
+              <Form.Item name="username" rules={[{ required: true, message: "Please input your username!" }]}>
+                <Input className="register-input" placeholder="Choose a username" style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(11px, 3vh, 18px)" }} />
+              </Form.Item>
             </div>
-          </Form.Item>
 
-          <Form.Item>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
+            {/* 📝 Password*/}
+            <div style={{ position: "absolute", top: "14.5%", left: "43%", right: "26%" }}>
+              <Form.Item name="password" rules={[{ required: true, message: "Please input your password!" }]}>
+                <Input.Password className="register-input" placeholder="Choose a password" style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(11px, 3vh, 18px)" }} />
+              </Form.Item>
+            </div>
+
+            {/* 📝 Bio */}
+            <div className="register-bio-wrap" style={{ position: "absolute", top: "20.5%", left: "43%", right: "26%", height: "50%", overflow: "visible" }}>
+              <Form.Item name="bio">
+                <Input.TextArea
+                  className="register-input"
+                  maxLength={255}
+                  placeholder="A few words about yourself..."
+                  style={{ resize: "none", height: "calc(85vh * 0.45)", fontSize: "clamp(11px, 3vh, 18px)" }}
+                />
+              </Form.Item>
+            </div>
+
+            {/* 📝 Action buttons */}
+            <div style={{ position: "absolute", top: "28%", left: "30%", display: "flex", flexDirection: "column", gap: "clamp(8px, 1.2vh, 14px)", alignItems: "center" }}>
               <Button
-                style={
-                  {
-                    ["--btn-bg" as string]: "#0cd244",
-                    width: 130,
-                    height: 50,
-                    padding: 0,
-                    fontSize: "17px",
-                  } as React.CSSProperties
-                }
+                className="register-secondary-btn"
                 onClick={() => router.push("/login")}
+                style={{ width: "clamp(90px, 12vh, 130px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.4vh, 15px)", padding: 0 }}
               >
                 Go to Login
               </Button>
               <Button
+                className="register-submit-btn"
                 htmlType="submit"
-                style={
-                  {
-                    ["--btn-bg" as string]: "#4aa3d4",
-                    width: 110,
-                    height: 50,
-                    padding: 0,
-                    fontSize: "20px",
-                  } as React.CSSProperties
-                }
+                style={{ width: "clamp(90px, 12vh, 130px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.4vh, 15px)", padding: 0 }}
               >
                 Register
               </Button>
             </div>
-          </Form.Item>
+
+          </div>
         </Form>
-        </div>
-      </div>
-    </>
+
+      </main>
+    </div>
   );
 }

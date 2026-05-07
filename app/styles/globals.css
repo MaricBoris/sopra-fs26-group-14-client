@@ -1421,6 +1421,132 @@ text-shadow:
   margin-top: 1.25rem;
 }
 
+/* -------------------------------------------- */
+/* REGISTER PAGE                                */
+/* -------------------------------------------- */
+
+.register-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4.4vh, 44px);
+  letter-spacing: 8px;
+  color: var(--gold-warm);
+  text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0,0,0,0.8);
+  pointer-events: none;
+}
+
+.register-title-divider {
+  color: var(--gold-rim);
+  font-size: clamp(11px, 1.6vh, 16px);
+  pointer-events: none;
+}
+
+/* Section heading inside the frame */
+.register-heading {
+  text-align: center;
+  font-family: var(--font-display);
+  letter-spacing: 4px;
+  color: #d1bc6f;
+  text-shadow: var(--glow-text-gold);
+}
+.register-heading::before,
+.register-heading::after {
+  content: " ✦ ";
+  color: var(--gold-rim);
+  margin: 0 8px;
+  opacity: 0.7;
+}
+
+/* Field label above each input */
+.register-label {
+  font-family: var(--font-display);
+  letter-spacing: 2px;
+  color: #d1bc6f;
+  text-align: center;
+}
+
+/* Gold-themed transparent inputs */
+.register-input.ant-input,
+.register-input.ant-input-affix-wrapper,
+.register-input .ant-input,
+.register-input.ant-input-textarea .ant-input {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #0a0e27 !important;
+  font-family: var(--font-cinzel), serif !important;
+  caret-color: #0a0e27;
+}
+/* inner input inside password wrapper — no double border */
+.register-input.ant-input-affix-wrapper .ant-input {
+  background: transparent !important;
+  border: none !important;
+  color: #0a0e27 !important;
+  font-family: var(--font-cinzel), serif !important;
+  caret-color: #0a0e27;
+}
+.register-input.ant-input::placeholder,
+.register-input .ant-input::placeholder {
+  color: #0a0e2774 !important;
+  font-style: italic;
+}
+
+/* 📝 zero out antd's default Form.Item margin so gap on the flex Form controls spacing */
+.register-form .ant-form-item {
+  margin-bottom: 0 !important;
+}
+
+/* 📝 allow bio textarea to fill its absolutely-positioned wrapper */
+.register-bio-wrap,
+.register-bio-wrap .ant-form-item,
+.register-bio-wrap .ant-form-item-row,
+.register-bio-wrap .ant-form-item-control,
+.register-bio-wrap .ant-form-item-control-input,
+.register-bio-wrap .ant-form-item-control-input-content,
+.register-bio-wrap .ant-input-textarea,
+.register-bio-wrap textarea {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+.register-bio-wrap textarea {
+  overflow-y: auto !important;
+  height: calc(85vh * 0.22) !important;
+}
+
+/* 📝 scale down validation error messages inside the register form */
+.register-form .ant-form-item-explain-error {
+  font-size: clamp(9px, 1.3vh, 12px) !important;
+}
+
+/* Secondary button — Go to Login */
+.register-secondary-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.8) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.register-secondary-btn.ant-btn:hover,
+.register-secondary-btn.ant-btn:focus {
+  background: rgba(61, 50, 120, 0.9) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+.register-submit-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.8) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.register-submit-btn.ant-btn:hover,
+.register-submit-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.9) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
 /* -----------------results page--------------------------*/
 
 .results-page {
