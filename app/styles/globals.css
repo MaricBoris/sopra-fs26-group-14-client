@@ -885,6 +885,11 @@ text-shadow:
   color: #6b6480 !important;
 }
 
+/* 📝 Container context so cqw units inside scale with the frame */
+.pregame-frame {
+  container-type: inline-size;
+}
+
 /* Pre-game room table: same gold styling as lobby-table but with tighter row padding */
 .pregame-table .ant-table,
 .pregame-table .ant-table-thead > tr > th,
@@ -893,6 +898,8 @@ text-shadow:
 .pregame-table .ant-table-cell {
   background: transparent !important;
   border-bottom: 1px solid rgba(212, 175, 93, 0.25) !important;
+  padding: 2px 8px !important;
+
 }
 .pregame-table .ant-table-thead > tr > th {
   color: #d4c98a !important;
@@ -1079,15 +1086,16 @@ text-shadow:
   border: 1px solid var(--gold-rim) !important;
   color: var(--gold-warm) !important;
   padding: 0 36px !important;
-  height: clamp(45px, 6.1vh, 63px) !important;
-  font-size: clamp(14px, 1.9vh, 19px) !important;
+  background: rgba(40, 35, 90, 0.8) !important;
+  height: clamp(40px, 5.5vh, 57px) !important;
+  font-size: clamp(13px, 1.7vh, 17px) !important;
   letter-spacing: 3px !important;
   font-family: var(--font-display) !important;
   box-shadow: var(--shadow-button) !important;
 }
 .pregame-start-btn.ant-btn:hover,
 .pregame-start-btn.ant-btn:focus {
-  background: var(--blue-button-hover) !important;
+  background: rgba(60, 50, 120, 0.8) !important;
   border-color: var(--gold-warm) !important;
   color: #ffffff !important;
 }
