@@ -1,15 +1,12 @@
-"use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
+"use client";
 
-import React, { useEffect, useState } from "react"; // useEffect/useState for redirect logic and mount gate
-import { useRouter } from "next/navigation"; // use NextJS router for navigation
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { Button, Form, Input, notification } from "antd";
 import { ApplicationError } from "@/types/error";
 import HomeButton from "../components/HomeButton";
-
-// Optionally, you can import a CSS module or file for additional styling:
-// import styles from "@/styles/page.module.css";
 
 type LoginForm = {
   username: string;
@@ -21,56 +18,36 @@ type LoginResponse = {
   token: string;
 };
 
-const Login: React.FC = () => {
+const LoginPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [form] = Form.useForm();
-  // useLocalStorage hook example use
-  // The hook returns an object with the value and two functions
-  // Simply choose what you need from the hook:
-  const {
-    value: token, // if token exists, user is already logged in and should be redirected away from /login
-    set: setToken, // we need this method to set the value of the token to the one we receive from the POST request to the backend server API
-    clear: clearToken, // used to clear the token if it exists without a userId, to prevent redirect loops
-  } = useLocalStorage<string>("token", ""); // note that the key we are selecting is "token" and the default value we are setting is an empty string
-  // if you want to pick a different token, i.e "usertoken", the line above would look as follows: } = useLocalStorage<string>("usertoken", "");
 
-  // store the logged-in user's id to redirect to /users/[id] even after refresh
-  const {
-    value: userId, // used for redirecting logged-in users to their own profile page
-    set: setUserId, // store the id after successful login
-    clear: clearUserId, // to clear userId on logout
-  } = useLocalStorage<string>("userId", "");
+  const { value: token, set: setToken, clear: clearToken } = useLocalStorage<string>("token", "");
+  const { value: userId, set: setUserId, clear: clearUserId } = useLocalStorage<string>("userId", "");
 
-  // mount gate -> don't redirect before localStorage value is available (prevents redirect loops)
+  // 📝 mount gate — don't redirect before localStorage values are available
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
-  // if user is already logged in (token exists), redirect away from /login
+  // 📝 tracks whether submit was attempted — drives placeholder-as-error behaviour
+  const [showErrors, setShowErrors] = useState(false);
+  const usernameVal = Form.useWatch("username", form);
+  const passwordVal = Form.useWatch("password", form);
+
+  // 📝 redirect logged-in users away from /login
   useEffect(() => {
     if (!isMounted) return;
-
-    if (token && userId) router.replace("/"); // redirect logged-in users away from /login
-    else if (token && !userId) {
-      clearToken(); // if token exists but userId is missing, clear the token to prevent redirect loops to /login, which would happen because the app would keep trying to use the invalid token and getting 401 responses, thus clearing the token ensures that the app will redirect to /login and prompt the user to log in again, thus obtaining a new valid token with a userId.
-      clearUserId(); // to clear userId if it exists without token, to prevent redirect loops to /login. This can happen if the token is manually removed from localStorage while the userId remains, which would cause the app to keep trying to redirect to /users/[userId] and getting 401 responses, thus clearing the userId ensures that the app will redirect to /login and prompt the user to log in again, thus obtaining a new valid token with a userId.
-    }
-  }, [isMounted, token, userId, router, clearToken, clearUserId]); // added clearToken and clearUserId to dependency array to prevent eslint warnings
+    if (token && userId) router.replace("/");
+    else if (token && !userId) { clearToken(); clearUserId(); }
+  }, [isMounted, token, userId, router, clearToken, clearUserId]);
 
   const handleLogin = async (values: LoginForm) => {
+    setShowErrors(false);
     try {
-      // Call the API service and let it handle JSON serialization and error handling
       const response = await apiService.post<LoginResponse>("/users/login", values);
-
-      // Use the useLocalStorage hook that returned a setter function (setToken) to store the token if available
-      if (response.token) {
-        setToken(response.token);
-      }
-
-      // store the user id so future visits to /login can redirect to /users/[id]
+      if (response.token) setToken(response.token);
       setUserId(String(response.id));
-
-      // Navigate to the user's profile page — use replace to avoid going back to /login after successful login
       router.replace("/");
     } catch (error) {
       const err = error as ApplicationError;
@@ -87,83 +64,67 @@ const Login: React.FC = () => {
     }
   };
 
-  // while redirecting (already logged in), do not render the empty login form
-  if (!isMounted) {
-    return (
-      <>
-        <HomeButton />
-        <div className="login-container">Loading...</div>
-      </>
-    );
-  }
-  if (token && userId) {
-    return (
-      <>
-        <HomeButton />
-        <div className="login-container">Redirecting to home...</div>
-      </>
-    );
-  }
+  if (!isMounted) return <><HomeButton /><div style={{ maxWidth: 520, margin: "40px auto" }}>Loading...</div></>;
+  if (token && userId) return <><HomeButton /><div style={{ maxWidth: 520, margin: "40px auto" }}>Redirecting...</div></>;
 
   return (
-    <>
+    <div style={{ minHeight: "100vh" }}>
+      {/* 📝 Fixed full-screen background */}
+      <div style={{ position: "fixed", inset: 0, backgroundImage: "url('/login_wp.png')", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
       <HomeButton />
-      <div className="login-container">
-        <div style={{
-          width: 480,
-          background: "rgba(255,255,255,0.09)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(255,255,255,0.15)",
-          borderRadius: 1,
-          padding: "12px 24px 16px",
-          fontFamily: "var(--font-cinzel), serif",
-          color: "#ffffff",
-        }}>
-          <div style={{ textAlign: "center", marginBottom: 12 }}>
-            <div style={{ fontSize: 24, fontWeight: "bold" }}>Login</div>
-            <div style={{ fontSize: 16, marginTop: 4 }}>Please enter your credentials:</div>
+
+      <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 18, paddingBottom: 40 }}>
+
+        {/* 📝 Page title */}
+        <h1 className="login-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
+          LOGIN
+        </h1>
+        <div className="login-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: -15 }}>✦</div>
+
+        {/* 📝 Frame — height-driven, portrait 1086×1448 */}
+        <Form form={form} name="login" onFinish={handleLogin} onFinishFailed={() => setShowErrors(true)} className="login-form" validateTrigger="onSubmit">
+          <div style={{ position: "relative", height: "90vh", aspectRatio: "1086 / 1448", maxWidth: "95vw" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/login_finalv.png" alt="Login frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
+
+            {/* 📝 Username */}
+            <div style={{ position: "absolute", top: "53.5%", left: "25%", right: "25%" }}>
+              <Form.Item name="username" rules={[{ required: true, message: "Please input your username!" }]}>
+                <Input className={`login-input${showErrors && !usernameVal ? " login-input-error" : ""}`} placeholder={showErrors && !usernameVal ? "Please enter a username" : "Enter username"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(18px, 3vh, 27px)" }} />
+              </Form.Item>
+            </div>
+
+            {/* 📝 Password */}
+            <div style={{ position: "absolute", top: "59.5%", left: "25%", right: "25%" }}>
+              <Form.Item name="password" rules={[{ required: true, message: "Please input your password!" }]}>
+                <Input.Password className={`login-input${showErrors && !passwordVal ? " login-input-error" : ""}`} placeholder={showErrors && !passwordVal ? "Please enter a password" : "Enter password"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(18px, 3vh, 27px)" }} />
+              </Form.Item>
+            </div>
+
+            {/* 📝 Action buttons */}
+            <div style={{ position: "absolute", top: "82.9%", left: 0, right: 0, display: "flex", flexDirection: "row", gap: "clamp(8px, 1.2vh, 14px)", justifyContent: "center" }}>
+              <Button
+                className="login-secondary-btn"
+                onClick={() => router.push("/register")}
+                style={{ width: "clamp(90px, 11vh, 130px)", height: "clamp(32px, 4vh, 46px)", fontSize: "clamp(10px, 1.4vh, 15px)", padding: 0 }}
+              >
+                <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}><span>Go to</span><span>Register</span></span>
+              </Button>
+              <Button
+                className="login-submit-btn"
+                htmlType="submit"
+                style={{ width: "clamp(90px, 11vh, 130px)", height: "clamp(32px, 4vh, 46px)", fontSize: "clamp(10px, 1.4vh, 15px)", padding: 0 }}
+              >
+                Login
+              </Button>
+            </div>
+
           </div>
-          <Form
-            form={form}
-            name="login"
-            size="large"
-            variant="outlined"
-            onFinish={handleLogin}
-            layout="vertical"
-          >
-            <Form.Item
-              name="username"
-              rules={[{ required: true, message: "Please input your username!" }]}
-            >
-              <Input placeholder="Enter username" />
-            </Form.Item>
-            <Form.Item
-              name="password"
-              rules={[{ required: true, message: "Please input your password!" }]}
-            >
-              <Input.Password placeholder="Enter password" />
-            </Form.Item>
-            <Form.Item>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Button
-                  style={{ ["--btn-bg" as string]: "#4aa3d4", width: 150, height: 50, padding: 0, fontSize: "17px" } as React.CSSProperties}
-                  onClick={() => router.push("/register")}
-                >
-                  Go to Register
-                </Button>
-                <Button
-                  htmlType="submit"
-                  style={{ ["--btn-bg" as string]: "#0cd244", width: 110, height: 50, padding: 0, fontSize: "20px" } as React.CSSProperties}
-                >
-                  Login
-                </Button>
-              </div>
-            </Form.Item>
-          </Form>
-        </div>
-      </div>
-    </>
+        </Form>
+
+      </main>
+    </div>
   );
 };
 
-export default Login; // default export for NextJS page, so it can be rendered when visiting /login
+export default LoginPage;

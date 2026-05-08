@@ -11,7 +11,7 @@ export default function HomeButton() {
 
     return (
     <div style={{ position: "fixed", top: 16, left: 16, zIndex: 1000 }}>
-        <Button className="pregame-select-btn" onClick={() => router.push("/")} style={{ width: 80, height: 38, fontSize: 14, padding: 0 }}>Home</Button>
+        <Button className="pregame-select-btn" onClick={() => router.push("/")} style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}>Home</Button>
     </div>
     );
 }
