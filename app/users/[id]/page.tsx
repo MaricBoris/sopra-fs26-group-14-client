@@ -288,23 +288,27 @@ const Login: React.FC = () => {
         {/* 📝 Profile frame — height-driven so it reaches near bottom of screen */}
         <div style={{ position: "relative", height: "92vh", aspectRatio: "1145 / 1374", maxWidth: "95vw" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/profile_frame_final.png" alt="Profile frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
+          <img src="/profile_final.png" alt="Profile frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
 
           {/* 📝 All content inside frame */}
-          <div style={{ position: "absolute", top: "17%", left: "20%", right: "20%", bottom: "16%", display: "flex", flexDirection: "column", fontFamily: "var(--font-cinzel), serif", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: "15%", left: "17%", right: "18%", bottom: "14.5%", display: "flex", flexDirection: "column", fontFamily: "var(--font-cinzel), serif", overflow: "hidden" }}>
 
             {/* 📝 Profile info rows */}
             <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 6 }}>
               {[
                 { label: "USERNAME", value: users?.username ?? "—" },
                 { label: "MEMBER SINCE", value: users?.creationDate ? new Date(users.creationDate).toLocaleDateString() : "—" },
-                { label: "BIO", value: users?.bio ?? "—" },
               ].map(({ label, value }) => (
                 <div key={label} style={{ borderBottom: "1px solid #d4af5d80", paddingBottom: 4 }}>
                   <div className="profile-info-label" style={{ fontSize: "clamp(11px, 1.5vh, 15px)", letterSpacing: 2, color: "#d1bc6f", textAlign: "center" }}>{label}</div>
                   <div style={{ fontSize: "clamp(11px, 1.5vh, 15px)", color: "#f0e0b0", marginTop: 1, wordBreak: "break-word", whiteSpace: "normal", textAlign: "center" }}>{value}</div>
                 </div>
               ))}
+              {/* 📝 Bio row scrollable */}
+              <div style={{ borderBottom: "1px solid #d4af5d80", paddingBottom: 4 }}>
+                <div className="profile-info-label" style={{ fontSize: "clamp(11px, 1.5vh, 15px)", letterSpacing: 2, color: "#d1bc6f", textAlign: "center" }}>BIO</div>
+                <div style={{ fontSize: "clamp(11px, 1.5vh, 15px)", color: "#f0e0b0", marginTop: 1, wordBreak: "break-word", whiteSpace: "normal", textAlign: "center", maxHeight: "clamp(65px, 10vh, 110px)", overflowY: "auto" }}>{users?.bio ?? "—"}</div>
+              </div>
             </div>
 
             {/* 📝 Match history heading */}
@@ -342,7 +346,7 @@ const Login: React.FC = () => {
 
             {/* 📝 Action buttons — own profile only */}
             {isOwnProfile && (
-              <div style={{ marginTop: 10, display: "flex", gap: 8, justifyContent: "center" }}>
+              <div style={{ marginTop: 20, display: "flex", gap: 8, justifyContent: "center" }}>
                 <Button className="profile-red-btn" onClick={handleLogout} style={{ width: "clamp(78px, 10.7vh, 104px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.5vh, 15px)", padding: 0 }}>Logout</Button>
                 <Button className="profile-btn" onClick={handleEditBio} style={{ width: "clamp(78px, 10.7vh, 104px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.5vh, 15px)", padding: 0 }}>Edit Bio</Button>
                 <Button className="profile-btn" onClick={handleEditPassword} style={{ width: "clamp(78px, 10.7vh, 104px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.5vh, 15px)", padding: 0 }}>

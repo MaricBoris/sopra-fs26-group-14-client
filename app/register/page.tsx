@@ -77,7 +77,7 @@ export default function RegisterPage() {
         <Form form={form} name="register" onFinish={onFinish} className="register-form">
           <div style={{ position: "relative", height: "85vh", aspectRatio: "1448 / 1086", maxWidth: "95vw" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/register_03_transparent.png" alt="Register frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
+            <img src="/register_03_transparent2.png" alt="Register frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
 
             {/* 📝 Username — pinned to its label position in the image */}
             <div style={{ position: "absolute", top: "8.5%", left: "43%", right: "26%" }}>
@@ -108,18 +108,18 @@ export default function RegisterPage() {
             {/* 📝 Action buttons */}
             <div style={{ position: "absolute", top: "28%", left: "30%", display: "flex", flexDirection: "column", gap: "clamp(8px, 1.2vh, 14px)", alignItems: "center" }}>
               <Button
-                className="register-secondary-btn"
-                onClick={() => router.push("/login")}
-                style={{ width: "clamp(90px, 12vh, 130px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.4vh, 15px)", padding: 0 }}
-              >
-                Go to Login
-              </Button>
-              <Button
                 className="register-submit-btn"
                 htmlType="submit"
                 style={{ width: "clamp(90px, 12vh, 130px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.4vh, 15px)", padding: 0 }}
               >
                 Register
+              </Button>
+              <Button
+                className="register-secondary-btn"
+                onClick={() => router.push("/login")}
+                style={{ width: "clamp(90px, 12vh, 130px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.4vh, 15px)", padding: 0 }}
+              >
+                Go to Login
               </Button>
             </div>
 
