@@ -25,6 +25,11 @@ export default function RegisterPage() {
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
+  // 📝 tracks whether submit was attempted — drives placeholder-as-error behaviour
+  const [showErrors, setShowErrors] = useState(false);
+  const usernameVal = Form.useWatch("username", form);
+  const passwordVal = Form.useWatch("password", form);
+
   // 📝 redirect logged-in users away from /register
   useEffect(() => {
     if (!isMounted) return;
@@ -33,6 +38,7 @@ export default function RegisterPage() {
   }, [isMounted, token, userId, router, clearToken, clearUserId]);
 
   const onFinish = async (values: RegisterForm) => {
+    setShowErrors(false);
     try {
       await api.post("/users", values);
       const loginRes = await api.post<{ id: number; token: string }>("/users/login", {
@@ -74,7 +80,7 @@ export default function RegisterPage() {
         <div className="register-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: -15 }}>✦</div>
 
         {/* 📝 Frame — height-driven, landscape 1448×1086 */}
-        <Form form={form} name="register" onFinish={onFinish} className="register-form">
+        <Form form={form} name="register" onFinish={onFinish} onFinishFailed={() => setShowErrors(true)} className="register-form" validateTrigger="onSubmit">
           <div style={{ position: "relative", height: "85vh", aspectRatio: "1448 / 1086", maxWidth: "95vw" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/register_03_transparent2.png" alt="Register frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
@@ -82,14 +88,14 @@ export default function RegisterPage() {
             {/* 📝 Username — pinned to its label position in the image */}
             <div style={{ position: "absolute", top: "8.5%", left: "43%", right: "26%" }}>
               <Form.Item name="username" rules={[{ required: true, message: "Please input your username!" }]}>
-                <Input className="register-input" placeholder="Choose a username" style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(11px, 3vh, 18px)" }} />
+                <Input className={`register-input${showErrors && !usernameVal ? " register-input-error" : ""}`} placeholder={showErrors && !usernameVal ? "Please enter a username" : "Choose a username"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(11px, 3vh, 18px)" }} />
               </Form.Item>
             </div>
 
             {/* 📝 Password*/}
             <div style={{ position: "absolute", top: "14.5%", left: "43%", right: "26%" }}>
               <Form.Item name="password" rules={[{ required: true, message: "Please input your password!" }]}>
-                <Input.Password className="register-input" placeholder="Choose a password" style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(11px, 3vh, 18px)" }} />
+                <Input.Password className={`register-input${showErrors && !passwordVal ? " register-input-error" : ""}`} placeholder={showErrors && !passwordVal ? "Please enter a password" : "Choose a password"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(11px, 3vh, 18px)" }} />
               </Form.Item>
             </div>
 

@@ -1490,6 +1490,16 @@ text-shadow:
   color: #0a0e2774 !important;
   font-style: italic;
 }
+.register-input.ant-input:-webkit-autofill,
+.register-input .ant-input:-webkit-autofill,
+.register-input.ant-input:-webkit-autofill:hover,
+.register-input .ant-input:-webkit-autofill:hover,
+.register-input.ant-input:-webkit-autofill:focus,
+.register-input .ant-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  -webkit-text-fill-color: #0a0e27 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
 
 /* 📝 zero out antd's default Form.Item margin so gap on the flex Form controls spacing */
 .register-form .ant-form-item {
@@ -1514,8 +1524,10 @@ text-shadow:
 }
 
 /* 📝 scale down validation error messages inside the register form */
-.register-form .ant-form-item-explain-error {
-  font-size: clamp(9px, 1.3vh, 12px) !important;
+.register-form .ant-form-item-explain-error { display: none !important; }
+.register-input-error.ant-input::placeholder,
+.register-input-error .ant-input::placeholder {
+  color: rgba(220, 50, 50, 0.8) !important; font-style: italic;
 }
 
 /* Secondary button — Go to Login */
@@ -1543,6 +1555,87 @@ text-shadow:
 .register-submit-btn.ant-btn:hover,
 .register-submit-btn.ant-btn:focus {
   background: rgba(60, 50, 120, 0.9) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+/* -------------------------------------------- */
+/* LOGIN PAGE                                   */
+/* -------------------------------------------- */
+.login-title {
+  margin: 0; font-family: var(--font-display);
+  font-size: clamp(28px, 4.4vh, 44px); letter-spacing: 8px;
+  color: var(--gold-warm); text-shadow: 0 0 24px rgba(232,216,150,0.55), 0 0 8px rgba(0,0,0,0.8);
+  pointer-events: none;
+}
+.login-title-divider { color: var(--gold-rim); font-size: clamp(11px, 1.6vh, 16px); pointer-events: none; }
+
+.login-input.ant-input,
+.login-input.ant-input-affix-wrapper,
+.login-input .ant-input {
+  background: transparent !important; border: none !important; box-shadow: none !important;
+  color: #e8d896 !important; font-family: var(--font-cinzel), serif !important; caret-color: #ffffff;
+  text-align: center !important; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000, 1px 0 0 #000 !important;
+}
+.login-input.ant-input-affix-wrapper .ant-input {
+  background: transparent !important; border: none !important; box-shadow: none !important;
+  color: #e8d896 !important; font-family: var(--font-cinzel), serif !important; caret-color: #ffffff;
+  text-align: center !important; padding-left: 1em !important;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000, 1px 0 0 #000 !important;
+}
+.login-input.ant-input-affix-wrapper .ant-input-password-icon {
+  color: #f1e9d2 !important; opacity: 0; pointer-events: none;
+}
+.login-input.ant-input-affix-wrapper:has(.ant-input:not(:placeholder-shown)) .ant-input-password-icon {
+  opacity: 1; pointer-events: auto;
+}
+.login-input.ant-input::placeholder,
+.login-input .ant-input::placeholder {
+  color: #e8d896c7 !important; font-style: italic; text-shadow: 0 0 1px rgba(0, 0, 0, 0.9), 1px 1px 2px rgba(0,0,0,0.8);
+}
+.login-input.ant-input:-webkit-autofill,
+.login-input .ant-input:-webkit-autofill,
+.login-input.ant-input:-webkit-autofill:hover,
+.login-input .ant-input:-webkit-autofill:hover,
+.login-input.ant-input:-webkit-autofill:focus,
+.login-input .ant-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  -webkit-text-fill-color: #f1e9d2 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+.login-input-error.ant-input::placeholder,
+.login-input-error .ant-input::placeholder {
+  color: rgba(220, 50, 50, 0.8) !important; font-style: italic;
+}
+
+.login-form .ant-form-item { margin-bottom: 0 !important; }
+
+.login-form .ant-form-item-explain-error { display: none !important; }
+
+.login-submit-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.login-submit-btn.ant-btn:hover,
+.login-submit-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.7) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+.login-secondary-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.login-secondary-btn.ant-btn:hover,
+.login-secondary-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.7) !important;
   border-color: #e8d896 !important;
   color: #ffffff !important;
 }
