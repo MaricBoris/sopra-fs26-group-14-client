@@ -609,7 +609,8 @@ const genreToBullauge = (genre: string | null | undefined): string =>
                       marginTop: 3,
                     }}
                   >
-                    {expired ? "Quote expired!" : `Use in next ${turnsLeft} turn${turnsLeft !== 1 ? "s" : ""}`}
+                    {/*{expired ? "Quote expired!" : `Use in next ${turnsLeft} turn${turnsLeft !== 1 ? "s" : ""}`}*/}
+                    {expired ? "Quote expired!" : 'Use in the next turn'}
                   </div>
                 );
               })()}

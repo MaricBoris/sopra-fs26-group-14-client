@@ -121,9 +121,9 @@ export default function RegisterPage() {
         >
           <Form.Item
             name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
+            rules={[{ required: true, message: "Please input your username!" }, { max: 16, message: "Username cannot exceed 16 characters." },]}
           >
-            <Input placeholder="Enter username" />
+            <Input placeholder="Enter username" maxLength={16} />
           </Form.Item>
 
           <Form.Item
