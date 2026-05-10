@@ -51,9 +51,9 @@ export default function ResultsPage() {
       render: (_: unknown, __: Story, index: number) => index + 1,
     },
     {
-      title: "Story",
-      key: "story",
-      render: (_: unknown, record: Story) => `Story #${record.id}`,
+      title: "Title",
+      key: "title",
+      render: (_: unknown, record: Story) => `${record.title}`,
     },
     {
       title: "Winner",

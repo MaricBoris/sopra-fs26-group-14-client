@@ -74,6 +74,8 @@ const votingInProgress = useRef(false);
 const [gameEnded, setGameEnded] = useState(false);
 const [rulesVisible, setRulesVisible] = useState(false);
 const [frozenBullaugeSide, setFrozenBullaugeSide] = useState<"left" | "right" | null>(null);
+const [storyTitle, setStoryTitle] = useState("");
+const [titleSubmitted, setTitleSubmitted] = useState(false);
 
 // genre-bullauge logic:
 // writers always see their own genre on both sides
@@ -408,6 +410,8 @@ useEffect(() => {
 useEffect(() => {
   if (!resultModalVisible) {
     setRedirectCountdown(20); 
+    setStoryTitle("");       
+    setTitleSubmitted(false);
     return;
   }
 
@@ -1013,13 +1017,47 @@ return (
             ? `Winner is ${resultGame.story.winnerUsername ?? "unknown"}!`
             : "Winner undefined"}
         </div>
- 
+
         {resultGame?.story.hasWinner && (
           <div style={{ fontSize: 16, color: "rgba(245,230,200,0.7)" }}>
             Genre: {resultGame.story.winGenre ?? "—"}
           </div>
         )}
- 
+
+        {isJudge && (
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ fontSize: 14, color: "var(--gold)", textAlign: "center", letterSpacing: 1 }}>
+              DECIDE A TITLE FOR THE STORY
+            </div>
+            <Input
+              value={storyTitle}
+              onChange={(e) => setStoryTitle(e.target.value)}
+              placeholder="Enter a title..."
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(212,168,87,0.5)",
+                color: "#fff",
+                fontFamily: "var(--font-cinzel), serif",
+              }}
+            />
+            <Button
+              className="goldButton"
+              disabled={!storyTitle.trim() || titleSubmitted}
+              onClick={async () => {
+                try {
+                  await apiService.put(`/stories/${resultGame?.story.id}/title`, storyTitle.trim(), token);
+                  setTitleSubmitted(true);
+                } catch (e) {
+                  message.error("Failed to set story title.");
+                }
+              }}
+              style={{ width: "100%" }}
+            >
+              {titleSubmitted ? "TITLE SET" : "CONFIRM TITLE"}
+            </Button>
+          </div>
+        )}
+
         <div style={{ fontSize: 14, color: "rgba(245,230,200,0.5)", marginTop: 8 }}>
           Redirecting to home in {redirectCountdown} seconds...
         </div>

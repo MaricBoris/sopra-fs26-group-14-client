@@ -9,4 +9,5 @@ export interface Story {
   loseGenre: string | null;
   creationDate: string | null;
   objective: string | null;
+  title: string | null;
 }

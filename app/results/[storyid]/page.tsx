@@ -24,6 +24,7 @@ export default function StoryDetailPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [rating, setRating] = useState<GenreRating | null>(null);
   const [voting, setVoting] = useState(false);
+  const storyTitle = story?.title;
 
   useEffect(() => setIsMounted(true), []);
 
@@ -90,7 +91,7 @@ export default function StoryDetailPage() {
         {/* 📝 Title banner */}
         <div style={{ position: "relative", marginBottom: -22 }}>
           <Image src="/schriftrolle.png" alt="Story banner" width={400} height={100} style={{ maxWidth: "100%", height: "auto", display: "block" }} />
-          <h1 style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", margin: 0, fontSize: 40, fontFamily: "var(--font-cinzel), serif", color: "#3b2a1a", whiteSpace: "nowrap" }}>Story #{storyId}</h1>
+          <h1 style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", margin: 0, fontSize: 40, fontFamily: "var(--font-cinzel), serif", color: "#3b2a1a", whiteSpace: "nowrap" }}>{storyTitle}</h1>
         </div>
 
         {/* 📝 Outer row: P1 | box | P2 */}
