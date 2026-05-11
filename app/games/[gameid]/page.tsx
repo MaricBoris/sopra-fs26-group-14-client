@@ -228,7 +228,7 @@ const handleReduceTime = async (): Promise<void> => {
  
 const quoteIncorporatedP1 = !!(game?.writers[0]?.quote && wholeStoryText.toLowerCase().includes(game.writers[0].quote.toLowerCase()));
 const quoteIncorporatedP2 = !!(game?.writers[1]?.quote && wholeStoryText.toLowerCase().includes(game.writers[1].quote.toLowerCase()));
-const canReduceTime = isJudge && game?.phase === "WRITING" && reduceTimeLeft > 0 && countdown > 45;
+const canReduceTime = isJudge && game?.phase === "WRITING" && reduceTimeLeft > 0 && countdown > (game?.reducedTimeThreshold ?? 45);
 const prevReduceTimeRef = useRef<{ writerId: number | null | undefined; count: number } | null>(null);
  
  // "quote incorperated" for 3 seconds, triggers exactly once at the transition from false to true
@@ -899,7 +899,7 @@ return (
                 ? "Only available during a writer's turn"
                 : reduceTimeLeft <= 0
                 ? `Limit reached for ${activeWriter?.username ?? "this writer"}`
-                : `Cut ${activeWriter?.username ?? "the current writer"}\`s time to 45s (${reduceTimeLeft} use left)`
+                `Cut ${activeWriter?.username ?? "the current writer"}\`s time to ${game?.reducedTimeThreshold ?? 45}s (${reduceTimeLeft} use left)`
             }
           >
             <button

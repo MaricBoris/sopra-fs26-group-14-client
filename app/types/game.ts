@@ -11,4 +11,5 @@ export interface Game {
   currentRound: number;
   phase: string;
   maxRounds: number;
+  reducedTimeThreshold?: number;
 }
