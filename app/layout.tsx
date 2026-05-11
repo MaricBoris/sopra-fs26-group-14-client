@@ -20,8 +20,8 @@ const cinzel = Cinzel({
 });
 
 export const metadata: Metadata = {
-  title: "Student XX-XXX-XXX",
-  description: "sopra-fs26-template-client",
+  //title: "StoryWars", removed to test rotating slogans
+  description: "Quill powered duels",
 };
 
 export default function RootLayout({

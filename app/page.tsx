@@ -27,6 +27,21 @@ export default function Home() {
     });
   }, []);
 
+  useEffect(() => {
+    const TAGLINES = [
+      "StoryWars — Once upon a time",
+      "StoryWars — Ink shall be spilled",
+      "StoryWars — Write. Duel. Win.",
+      "StoryWars — May the Pen guide You",
+      "StoryWars — Quill powered duels",
+      "StoryWars — The plot thickens",
+      "StoryWars — Prose before foes",
+      "StoryWars — Loading plot twist",
+      "StoryWars — Between the lines"
+    ];
+    document.title = TAGLINES[Math.floor(Math.random() * TAGLINES.length)];
+  }, []);
+
   const handleLogout = async () => {
     try {
       await api.post("/users/logout", {}, token);

@@ -1112,20 +1112,20 @@ return (
  
           {isJudge ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <RuleItem icon="⚖️" text="You are the Judge. You observe the story but do not write." />
-              <RuleItem icon="💬" text="Assign a quote to either writer via Quote P1 / Quote P2. Each writer must incorporate it within 2 of their own turns." />
-              <RuleItem icon="🚫" text="You can only assign one quote per writer." />
-              <RuleItem icon="⏳" text="You can use Reduce Time to cut the active writer's remaining time to 45 seconds. Each writer can be punished once!" />
-              <RuleItem icon="🏆" text="After 20 rounds the game enters Evaluation. Use the Declare button to pick the winner — the writer whose genre best shaped the story." />
-              <RuleItem icon="⏱️" text="If you don't vote before the timer expires, a tie is recorded automatically." />
+              <RuleItem icon="⚖" text="You are the Judge. You observe the story but do not write." />
+              <RuleItem icon="✒" text="Assign a quote to either writer via Quote P1 / Quote P2. Each writer must incorporate it within 2 of their own turns." />
+              <RuleItem icon="✕" text="You can only assign one quote per writer." />
+              <RuleItem icon="⏱" text={`Use Reduce Time to cut the active writer's remaining time to ${game?.reducedTimeThreshold ?? 45}s. Each writer can be punished once!`} />
+              <RuleItem icon="♛" text={`After ${game?.maxRounds ?? 20} rounds the game enters Evaluation. Use the Declare button to pick the winner — the writer whose genre best shaped the story.`} />
+              <RuleItem icon="✦" text="If you don't vote before the timer expires, a tie is recorded automatically." />
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <RuleItem icon="✍️" text="Writers alternate turns building a shared story. Steer it toward your secret genre." />
-              <RuleItem icon="🎭" text="Your genre is shown in your genre field, hover onto it to see the full description. The opponent does not know your genre!" />
-              <RuleItem icon="💬" text="The Judge may assign you a quote. Weave it into the story within 2 of your own turns or face a penalty." />
-              <RuleItem icon="🔭" text="When it's the other player's turn, a porthole covers their panel — only the active writer's response is visible to everyone." />
-              <RuleItem icon="🏆" text="After 20 rounds the Judge decides whose genre dominated the story. Write convincingly!" />
+              <RuleItem icon="✍" text="Writers alternate turns building a shared story. Steer it toward your secret genre." />
+              <RuleItem icon="◈" text="Your genre is shown in your genre field, hover onto it to see the full description. The opponent does not know your genre!" />
+              <RuleItem icon="❝" text="The Judge may assign you a quote. Weave it into the story within 2 of your own turns or face a penalty." />
+              <RuleItem icon="⊙" text="When it's the other player's turn, a porthole covers their panel — only the active writer's response is visible to everyone." />
+              <RuleItem icon="♛" text={`After ${game?.maxRounds ?? 20} rounds the Judge decides whose genre dominated the story. Write convincingly!`} />
             </div>
           )}
  
