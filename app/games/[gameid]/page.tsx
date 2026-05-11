@@ -899,7 +899,7 @@ return (
                 ? "Only available during a writer's turn"
                 : reduceTimeLeft <= 0
                 ? `Limit reached for ${activeWriter?.username ?? "this writer"}`
-                `Cut ${activeWriter?.username ?? "the current writer"}\`s time to ${game?.reducedTimeThreshold ?? 45}s (${reduceTimeLeft} use left)`
+                :`Cut ${activeWriter?.username ?? "the current writer"}\`s time to ${game?.reducedTimeThreshold ?? 45}s (${reduceTimeLeft} use left)`
             }
           >
             <button
