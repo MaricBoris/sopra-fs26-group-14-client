@@ -275,7 +275,7 @@ type MenuItem = {
 
       <div className="tutorials-astronaut" aria-hidden="true">
         <div className="tutorials-astronaut-inner">
-          <img src="/astronaut.png" alt="" />
+          <img src="/astronaut.webp" alt="" />
         </div>
       </div>
 
