@@ -135,7 +135,7 @@ export default function RoomsPage() {
         <div className="elevator-wrap">
           {/*because we use a normal <img> instead of <Image />*/}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/elevator.png" alt="Elevator" className="elevator-img" />
+          <img src="/elevator.webp" alt="Elevator" className="elevator-img" />
 
           {/*  Inner panel: available matches table sits here */}
           <div className="elevator-panel">

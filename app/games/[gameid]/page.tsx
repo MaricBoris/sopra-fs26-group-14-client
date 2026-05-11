@@ -862,21 +862,24 @@ return (
           </div>
         )}
       </div>
- 
-      <div className="footerPillWrap">
-        <button
-          disabled={!isJudge || quotedP1}
-          onClick={() => handleQuoteFetch(1)}
-          className="footerPill"
-          style={{
-            borderTopRightRadius: 0,
-            borderBottomRightRadius: 0,
-          }}
-        >
-          ✒ QUOTE P1
-        </button>
+      
+       
+        <div className="footerPillWrap">
+          {isJudge && game.phase === "WRITING" && (
+            <button
+              disabled={ quotedP1}
+              onClick={() => handleQuoteFetch(1)}
+              className="footerPill"
+              style={{
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+              }}
+            >
+              ✒ QUOTE P1
+            </button>
+          )}
 
-        {isJudge && (
+        {isJudge && game.phase === "WRITING" && (
           <Tooltip
             title={
               game.phase !== "WRITING"
@@ -900,18 +903,20 @@ return (
             </button>
           </Tooltip>
         )}
-        <button
-          disabled={!isJudge || game.phase !== "EVALUATION"}
-          onClick={() => setDeclareModalVisible(true)}
-          className="footerPill footerPillCenter"
-          style={{
-            borderRadius: 0,
-            padding: "9px 28px",
-          }}
-        >
-          ♛ DECLARE
-        </button>
- 
+        {isJudge && game.phase === "EVALUATION" && (
+          <button
+            onClick={() => setDeclareModalVisible(true)}
+            className="footerPill footerPillCenter"
+            style={{
+              borderRadius: 0,
+              padding: "9px 28px",
+            }}
+          >
+            ♛ DECLARE
+          </button>
+        )}
+          
+      {isJudge && game.phase === "WRITING" && (
         <button
           disabled={!isJudge || quotedP2}
           onClick={() => handleQuoteFetch(2)}
@@ -923,6 +928,7 @@ return (
         >
           QUOTE P2 ✒
         </button>
+      )}
 
       </div>
  
