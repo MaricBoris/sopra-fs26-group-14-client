@@ -48,6 +48,7 @@ export default function StoryDetailPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [rating, setRating] = useState<GenreRating | null>(null);
   const [voting, setVoting] = useState(false);
+  const storyTitle = story?.title;
 
   useEffect(() => setIsMounted(true), []);
 

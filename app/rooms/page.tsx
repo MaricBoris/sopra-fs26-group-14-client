@@ -102,11 +102,18 @@ export default function RoomsPage() {
       key: "join",
       width: 70,
       align: "right" as const,
-      render: (_: unknown, record: Room) => (
-        <Button onClick={(e) => { e.stopPropagation(); handleJoin(record); }} style={{ width: 70, height: 30, fontSize: 13, padding: 0 }}>
-          Join
-        </Button>
-      ),
+      render: (_: unknown, record: Room) => {
+        const isCreator = record.lobbyLeader?.id === Number(userId);
+        return (
+          <Button
+            onClick={(e) => { e.stopPropagation(); handleJoin(record); }}
+            disabled={isCreator}
+            style={{ width: 70, height: 30, fontSize: 13, padding: 0 }}
+          >
+            {isCreator ? "Host" : "Join"}
+          </Button>
+        );
+      },
     },
   ];
 
