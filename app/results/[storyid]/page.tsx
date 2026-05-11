@@ -231,7 +231,21 @@ export default function StoryDetailPage() {
               <div className="drivein-story-divider">✦</div>
 
               <div className="drivein-story-text">
-                {story.storyText || "No story text available."}
+                {story.storyContributions && story.storyContributions.length > 0 ? (
+                  story.storyContributions.map((c, i) => {
+                    const isWinner = c.userId === leftWriter.userId;
+                    return (
+                      <span
+                        key={i}
+                        style={{ color: isWinner ? "var(--gold-bright)" : "#c0c0c0" }}
+                      >
+                        {c.text}{" "}
+                      </span>
+                    );
+                  })
+                ) : (
+                  "No story text available."
+                )}
               </div>
 
               <div className="drivein-winners">
