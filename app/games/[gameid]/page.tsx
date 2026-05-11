@@ -196,7 +196,8 @@ const handleReduceTime = async (): Promise<void> => {
       try {
         const latestGame = await apiService.get<Game>(`/games/${gameid}`, token);
         setGame(latestGame);
-        setStoryyText(latestGame.story.storyText);
+        setStoryyText(
+        latestGame.story.storyContributions?.map((c) => c.text).join(" ") ?? "");
         setGenre1(latestGame.writers[0]?.genre ?? "Genre");
         setGenre2(latestGame.writers[1]?.genre ?? "Genre");
         if (latestGame.story.hasWinner || latestGame.phase==="FINISHED") {
@@ -759,8 +760,20 @@ return (
               minHeight: 0,
             }}
           >
-            {wholeStoryText ? (
-              <div className="storyText">{wholeStoryText}</div>
+            {game.story.storyContributions && game.story.storyContributions.length > 0 ? (
+              <div className="storyText">
+                {game.story.storyContributions.map((c, i) => {
+                  const isWriter1 = c.userId === game.writers[0]?.id;
+                  return (
+                    <span
+                      key={i}
+                      style={{ color: isWriter1 ? "var(--gold-bright)" : "#c0c0c0" }}
+                    >
+                      {c.text}{" "}
+                    </span>
+                  );
+                })}
+              </div>
             ) : (
               <div className="storyTextEmpty">
                 The story will appear here as the writers contribute...
