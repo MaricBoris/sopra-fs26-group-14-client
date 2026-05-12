@@ -53,16 +53,16 @@ export default function ResultsPage() {
     <div className="results-page">
       <HomeButton />
 
-      {/* Title above the display board */}
+      {/*Main title */}
       <h1 className="results-title">STORIES</h1>
       <div className="results-title-divider">◆</div>
 
       
-      {/* Stage holds the panel overlays positioned over the gas-station background */}
+      {/* The gas-station background picture*/}
       <div className="results-stage">
         {/* Inner panel: sits on the dark display board in the background image */}
         <div className="results-panel">
-          {/* Table heading on the display board */}
+          {/* Table title */}
           <div className="results-screening-title">
             ✦ SCREENING TONIGHT ✦
           </div>
@@ -84,7 +84,7 @@ export default function ResultsPage() {
             />
           </div>
 
-          {/* Tagline under the table */}
+          {/*Textline under the table */}
           <div className="results-screening-tagline">
            ✦ Pick a Story — See you at the Drive-In ✦
           </div>
