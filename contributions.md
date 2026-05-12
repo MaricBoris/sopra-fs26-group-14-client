@@ -121,7 +121,8 @@ reason).
 ---
 
 ## Contributions Week 6 - [Begin Date] to [End Date]
-
+| **Student**        | **Date**     | **Link to Commit**                                                           | **Description**                                                                                                                                                                              | **Relevance**                                                                 |
+|--------------------|--------------|------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
 | **[@Monato11]**    | [date] | [Link to commit 1] | [Brief description of the task] | [why this contribution is relevant] |
 |                    | [date] | [Link to commit 2 ] | [Brief description of the task]                                                              | [Why this contribution is relevant]          |
 | **[@thomashonzi]** | [date]       | [Link to Commit 1]                                                           | [Brief description of the task]                                                                                                                                                              | [Why this contribution is relevant]                                           |
