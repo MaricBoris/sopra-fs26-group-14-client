@@ -8,7 +8,18 @@ import React, { useEffect, useState, useRef } from "react";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getApiDomain } from "@/utils/domain";
- 
+
+notification.config({
+  placement: "topRight",
+  duration: 3,
+  style: {
+    background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)",
+    border: "1px solid rgba(212,168,87,0.5)",
+    fontFamily: "var(--font-cinzel), serif",
+    color: "#fff",
+  },
+});
+
 const GamePage: React.FC = () => {
  
   const router = useRouter();
@@ -1121,7 +1132,7 @@ return (
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <RuleItem icon="✍" text="Writers alternate turns building a shared story. Steer it toward your secret genre." />
+              <RuleItem icon="✒" text="Writers alternate turns building a shared story. Steer it toward your secret genre." />
               <RuleItem icon="◈" text="Your genre is shown in your genre field, hover onto it to see the full description. The opponent does not know your genre!" />
               <RuleItem icon="❝" text="The Judge may assign you a quote. Weave it into the story within 2 of your own turns or face a penalty." />
               <RuleItem icon="⊙" text="When it's the other player's turn, a porthole covers their panel — only the active writer's response is visible to everyone." />

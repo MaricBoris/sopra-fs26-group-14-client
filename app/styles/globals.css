@@ -2235,3 +2235,50 @@ text-shadow:
   font-weight: 700;
   text-shadow: 0 1px 0 rgba(255, 245, 220, 0.5);
 }
+
+.ant-notification-notice-title {
+  color: var(--gold) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-notification-notice-description {
+  color: rgba(245, 230, 200, 0.85) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-modal-container {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%) !important;
+  border: 1px solid rgba(212,168,87,0.5) !important;
+  border-radius: 8px !important;
+}
+
+.ant-modal-container .goldButton {
+  background: transparent !important;
+  border: 1px solid var(--gold) !important;
+  color: var(--gold) !important;
+}
+
+.ant-modal-container .goldButton:hover {
+  background: rgba(212,168,87,0.15) !important;
+}
+
+.ant-message-notice-content {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%) !important;
+  border: 1px solid rgba(212,168,87,0.5) !important;
+  color: var(--gold) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-notification-notice {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%) !important;
+  border: 1px solid rgba(212,168,87,0.5) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-notification-notice-message {
+  color: var(--gold) !important;
+}
+
+.ant-notification-notice-description {
+  color: rgba(245,230,200,0.85) !important;
+}
