@@ -360,45 +360,93 @@ const Login: React.FC = () => {
       </main>
 
       {/* 📝 Modals */}
-      <Modal title="Edit Bio" open={isModalOpen}
+      <Modal
+        title={<span style={{ color: "var(--gold)", fontFamily: "var(--font-cinzel), serif", letterSpacing: 2 }}>✦ EDIT BIO ✦</span>}
+        open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
-        onOk={handleSaveBio}
-        okText="Save" okButtonProps={{ style: { fontFamily: "var(--font-cinzel), serif" } }}
         confirmLoading={loading}
+        centered
+        footer={
+          <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
+            <Button className="goldButton" onClick={() => setIsModalOpen(false)}>CANCEL</Button>
+            <Button className="goldButton" onClick={handleSaveBio} loading={loading}>SAVE</Button>
+          </div>
+        }
+        styles={{
+          content: { background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)", border: "1px solid rgba(212,168,87,0.5)", fontFamily: "var(--font-cinzel), serif" },
+          header: { background: "transparent", borderBottom: "1px solid rgba(212,168,87,0.2)" },
+          footer: { background: "transparent", borderTop: "1px solid rgba(212,168,87,0.2)", paddingTop: 16 },
+        }}
       >
         <TextArea rows={4} value={bio} onChange={(e) => setBio(e.target.value)}
           placeholder="A few words about yourself..."
-          style={{ background: "white", color: "black", border: "1px solid #d9d9d9", borderRadius: 4 }}
+          style={{ background: "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid rgba(212,168,87,0.5)", fontFamily: "var(--font-cinzel), serif", marginTop: 16, marginBottom: 8 }}
         />
       </Modal>
 
-      <Modal title="Edit Password" open={passwordModal.open}
+      <Modal
+        title={<span style={{ color: "var(--gold)", fontFamily: "var(--font-cinzel), serif", letterSpacing: 2 }}>✦ EDIT PASSWORD ✦</span>}
+        open={passwordModal.open}
         onCancel={() => setPasswordModal(p => ({ ...p, open: false }))}
-        onOk={handlePasswordEdit}
-        okText="Save" okButtonProps={{ style: { fontFamily: "var(--font-cinzel), serif" } }}
         confirmLoading={passwordModal.loading}
+        centered
+        footer={
+          <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
+            <Button className="goldButton" onClick={() => setPasswordModal(p => ({ ...p, open: false }))}>CANCEL</Button>
+            <Button className="goldButton" onClick={handlePasswordEdit} loading={passwordModal.loading}>SAVE</Button>
+          </div>
+        }
+        styles={{
+          content: { background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)", border: "1px solid rgba(212,168,87,0.5)", fontFamily: "var(--font-cinzel), serif" },
+          header: { background: "transparent", borderBottom: "1px solid rgba(212,168,87,0.2)" },
+          footer: { background: "transparent", borderTop: "1px solid rgba(212,168,87,0.2)", paddingTop: 16 },
+        }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16, marginBottom: 8 }}>
           {(["current", "next", "confirm"] as const).map((field) => (
             <Input.Password key={field}
               placeholder={{ current: "Current password", next: "New password", confirm: "Confirm new password" }[field]}
               value={passwordModal[field]}
               onChange={(e) => setPasswordModal(p => ({ ...p, [field]: e.target.value }))}
-              style={{ background: "white", color: "black", border: "1px solid #d9d9d9", borderRadius: 4 }}
+              style={{ background: "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid rgba(212,168,87,0.5)", fontFamily: "var(--font-cinzel), serif" }}
             />
           ))}
         </div>
       </Modal>
 
-      <Modal title="Delete Account" open={deleteModal.open}
+      <Modal
+        title={<span style={{ color: "#e74c3c", fontFamily: "var(--font-cinzel), serif", letterSpacing: 2 }}>✦ DELETE ACCOUNT ✦</span>}
+        open={deleteModal.open}
         onCancel={() => setDeleteModal(p => ({ ...p, open: false, password: "" }))}
-        onOk={handleDeleteAccount} confirmLoading={deleteModal.loading}
-        okText="Delete" okButtonProps={{ style: { backgroundColor: "#c0392b", color: "white", fontFamily: "var(--font-cinzel), serif", border: "1px solid #c0392b" } }}
-        styles={{ header: { background: "white" }, body: { background: "white" }, footer: { background: "white" } }}
+        confirmLoading={deleteModal.loading}
+        centered
+        footer={
+          <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
+            <Button className="goldButton" onClick={() => setDeleteModal(p => ({ ...p, open: false, password: "" }))}>CANCEL</Button>
+            <Button
+              className= "delete-btn"
+              onClick={handleDeleteAccount}
+              loading={deleteModal.loading}
+              style={{ border: "1px solid #e74c3c", color: "#e74c3c", background: "transparent", fontFamily: "var(--font-cinzel), serif" }}
+            >
+              DELETE
+            </Button>
+          </div>
+        }
+        styles={{
+          content: { background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)", border: "1px solid rgba(231,76,60,0.5)", fontFamily: "var(--font-cinzel), serif" },
+          header: { background: "transparent", borderBottom: "1px solid rgba(231,76,60,0.2)" },
+          footer: { background: "transparent", borderTop: "1px solid rgba(231,76,60,0.2)", paddingTop: 16 },
+        }}
       >
-        <Input.Password placeholder="Enter password to confirm" value={deleteModal.password}
+        <p style={{ color: "rgba(245,230,200,0.7)", fontFamily: "var(--font-cinzel), serif", fontSize: 13, textAlign: "center", marginBottom: 16 }}>
+          This action is permanent and cannot be undone.
+        </p>
+        <Input.Password
+          placeholder="Enter password to confirm"
+          value={deleteModal.password}
           onChange={(e) => setDeleteModal(p => ({ ...p, password: e.target.value }))}
-          style={{ background: "white", border: "1px solid #d9d9d9", color: "black" }}
+          style={{ background: "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid rgba(231,76,60,0.5)", fontFamily: "var(--font-cinzel), serif", marginBottom: 8 }}
         />
       </Modal>
 
