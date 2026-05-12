@@ -373,7 +373,7 @@ const Login: React.FC = () => {
           </div>
         }
         styles={{
-          content: { background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)", border: "1px solid rgba(212,168,87,0.5)", fontFamily: "var(--font-cinzel), serif" },
+          body: { background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)", border: "1px solid rgba(212,168,87,0.5)", fontFamily: "var(--font-cinzel), serif" },
           header: { background: "transparent", borderBottom: "1px solid rgba(212,168,87,0.2)" },
           footer: { background: "transparent", borderTop: "1px solid rgba(212,168,87,0.2)", paddingTop: 16 },
         }}
@@ -397,7 +397,7 @@ const Login: React.FC = () => {
           </div>
         }
         styles={{
-          content: { background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)", border: "1px solid rgba(212,168,87,0.5)", fontFamily: "var(--font-cinzel), serif" },
+          body: { background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)", border: "1px solid rgba(212,168,87,0.5)", fontFamily: "var(--font-cinzel), serif" },
           header: { background: "transparent", borderBottom: "1px solid rgba(212,168,87,0.2)" },
           footer: { background: "transparent", borderTop: "1px solid rgba(212,168,87,0.2)", paddingTop: 16 },
         }}
@@ -434,7 +434,7 @@ const Login: React.FC = () => {
           </div>
         }
         styles={{
-          content: { background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)", border: "1px solid rgba(231,76,60,0.5)", fontFamily: "var(--font-cinzel), serif" },
+          body: { background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)", border: "1px solid rgba(231,76,60,0.5)", fontFamily: "var(--font-cinzel), serif" },
           header: { background: "transparent", borderBottom: "1px solid rgba(231,76,60,0.2)" },
           footer: { background: "transparent", borderTop: "1px solid rgba(231,76,60,0.2)", paddingTop: 16 },
         }}

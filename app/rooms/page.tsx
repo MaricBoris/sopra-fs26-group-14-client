@@ -189,7 +189,7 @@ export default function RoomsPage() {
         }
         centered
         styles={{
-          content: {
+          body: {
             background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%) !important",
             border: "1px solid rgba(212,168,87,0.5)",
             fontFamily: "var(--font-cinzel), serif",

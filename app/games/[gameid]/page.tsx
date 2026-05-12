@@ -9,17 +9,6 @@ import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getApiDomain } from "@/utils/domain";
 
-notification.config({
-  placement: "topRight",
-  duration: 3,
-  style: {
-    background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)",
-    border: "1px solid rgba(212,168,87,0.5)",
-    fontFamily: "var(--font-cinzel), serif",
-    color: "#fff",
-  },
-});
-
 const GamePage: React.FC = () => {
  
   const router = useRouter();
