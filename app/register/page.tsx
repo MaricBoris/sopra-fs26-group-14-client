@@ -68,7 +68,7 @@ export default function RegisterPage() {
 
   return (
     <div style={{ minHeight: "100vh" }}>
-      <div style={{ position: "fixed", inset: 0, backgroundImage: "url('/register_04.png')", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
+      <div style={{ position: "fixed", inset: 0, backgroundImage: "url('/register_wp_table.png')", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
       <HomeButton />
 
       <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 18, paddingBottom: 40 }}>

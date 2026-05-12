@@ -70,7 +70,7 @@ const LoginPage: React.FC = () => {
   return (
     <div style={{ minHeight: "100vh" }}>
       {/* 📝 Fixed full-screen background */}
-      <div style={{ position: "fixed", inset: 0, backgroundImage: "url('/login_wp.png')", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
+      <div style={{ position: "fixed", inset: 0, backgroundImage: "url('/login_wp_jgl_04.png')", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
       <HomeButton />
 
       <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 18, paddingBottom: 40 }}>
@@ -88,16 +88,16 @@ const LoginPage: React.FC = () => {
             <img src="/login_finalv.png" alt="Login frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
 
             {/* 📝 Username */}
-            <div style={{ position: "absolute", top: "53.5%", left: "25%", right: "25%" }}>
-              <Form.Item name="username" rules={[{ required: true, message: "Please input your username!" }]}>
-                <Input className={`login-input${showErrors && !usernameVal ? " login-input-error" : ""}`} placeholder={showErrors && !usernameVal ? "Please enter a username" : "Enter username"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(18px, 3vh, 27px)" }} />
+            <div style={{ position: "absolute", top: "53.5%", left: "10%", right: "10%" }}>
+              <Form.Item name="username" rules={[{ required: true, message: "Input your username!" }]}>
+                <Input className={`login-input${showErrors && !usernameVal ? " login-input-error" : ""}`} placeholder={showErrors && !usernameVal ? "Enter a username" : "Enter username"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(18px, 3vh, 27px)" }} />
               </Form.Item>
             </div>
 
             {/* 📝 Password */}
-            <div style={{ position: "absolute", top: "59.5%", left: "25%", right: "25%" }}>
-              <Form.Item name="password" rules={[{ required: true, message: "Please input your password!" }]}>
-                <Input.Password className={`login-input${showErrors && !passwordVal ? " login-input-error" : ""}`} placeholder={showErrors && !passwordVal ? "Please enter a password" : "Enter password"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(18px, 3vh, 27px)" }} />
+            <div style={{ position: "absolute", top: "59.5%", left: "10%", right: "10%" }}>
+              <Form.Item name="password" rules={[{ required: true, message: "Input your password!" }]}>
+                <Input.Password className={`login-input${showErrors && !passwordVal ? " login-input-error" : ""}`} placeholder={showErrors && !passwordVal ? "Enter a password" : "Enter password"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(18px, 3vh, 27px)" }} />
               </Form.Item>
             </div>
 

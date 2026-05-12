@@ -254,7 +254,7 @@ const Login: React.FC = () => {
 
 
   return (
-    <div style={{ minHeight: "100vh", backgroundImage: "url('/profile_02.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed" }}>
+    <div style={{ minHeight: "100vh", backgroundImage: "url('/profile_03.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed" }}>
       <HomeButton />
 
       {/* 📝 Delete Account button — fixed bottom right, own profile only */}
