@@ -1642,6 +1642,8 @@ text-shadow:
 
 /* -----------------results page--------------------------*/
 
+/* -----------------results page--------------------------*/
+
 .results-page {
   position: fixed;
   inset: 0;
@@ -1694,7 +1696,7 @@ text-shadow:
   left: 37%;
   top: 39%;
   width: 26%;
-  height: 25%;
+  height: 33%;
   display: flex;
   flex-direction: column;
   padding: 8px 12px;
@@ -1717,14 +1719,14 @@ text-shadow:
 .results-table .ant-table-placeholder,
 .results-table .ant-table-cell {
   background: transparent !important;
-  border-bottom: 1px solid rgba(212, 175, 93, 0.25) !important;
+  border-bottom: 1px solid rgba(107, 100, 128, 0.55) !important;
 }
 .results-table .ant-table-thead > tr > th {
-  color: #d4c98a !important;
+  color: #cdb385 !important;
   font-size: 12px !important;
   letter-spacing: 2px !important;
   padding: 6px 8px !important;
-  border-bottom: 1px solid rgba(212, 175, 93, 0.5) !important;
+  border-bottom: 1px solid rgba(107, 100, 128, 0.7) !important;
 }
 .results-table .ant-table-tbody > tr > td {
   color: #e8d896 !important;
@@ -1829,6 +1831,50 @@ text-shadow:
   100%    { opacity: 0; }
 }
 
+/* ---- table heading on the display board ---- */
+.results-screening-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 5px;
+  color: #f5d996;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(245, 217, 150, 0.35), 0 0 6px rgba(0, 0, 0, 0.8);
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+/* ---- tagline under the table ---- */
+.results-screening-tagline {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  color: #d8bd78;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(212, 175, 93, 0.35), 0 0 6px rgba(0, 0, 0, 0.8);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+/* ---- empty-state text inside the table ---- */
+.results-empty-text {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #6b6480;
+  text-transform: uppercase;
+  padding: 12px 0;
+  opacity: 0.75;
+}
+
+/* hide the default empty-state icon (the inbox symbol) */
+.results-table .ant-empty-image {
+  display: none !important;
+}
+.results-table .ant-empty-normal {
+  margin: 4px 0 !important;
+}
 /*---------------------storyid page-------------------------------------------*/
 
 
