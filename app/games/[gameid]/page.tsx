@@ -8,7 +8,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { getApiDomain } from "@/utils/domain";
- 
+
 const GamePage: React.FC = () => {
  
   const router = useRouter();
@@ -228,7 +228,7 @@ const handleReduceTime = async (): Promise<void> => {
  
 const quoteIncorporatedP1 = !!(game?.writers[0]?.quote && wholeStoryText.toLowerCase().includes(game.writers[0].quote.toLowerCase()));
 const quoteIncorporatedP2 = !!(game?.writers[1]?.quote && wholeStoryText.toLowerCase().includes(game.writers[1].quote.toLowerCase()));
-const canReduceTime = isJudge && game?.phase === "WRITING" && reduceTimeLeft > 0 && countdown > 45;
+const canReduceTime = isJudge && game?.phase === "WRITING" && reduceTimeLeft > 0 && countdown > (game?.reducedTimeThreshold ?? 45);
 const prevReduceTimeRef = useRef<{ writerId: number | null | undefined; count: number } | null>(null);
  
  // "quote incorperated" for 3 seconds, triggers exactly once at the transition from false to true
@@ -899,7 +899,7 @@ return (
                 ? "Only available during a writer's turn"
                 : reduceTimeLeft <= 0
                 ? `Limit reached for ${activeWriter?.username ?? "this writer"}`
-                : `Cut ${activeWriter?.username ?? "the current writer"}\`s time to 45s (${reduceTimeLeft} use left)`
+                :`Cut ${activeWriter?.username ?? "the current writer"}\`s time to ${game?.reducedTimeThreshold ?? 45}s (${reduceTimeLeft} use left)`
             }
           >
             <button
@@ -1112,20 +1112,20 @@ return (
  
           {isJudge ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <RuleItem icon="⚖️" text="You are the Judge. You observe the story but do not write." />
-              <RuleItem icon="💬" text="Assign a quote to either writer via Quote P1 / Quote P2. Each writer must incorporate it within 2 of their own turns." />
-              <RuleItem icon="🚫" text="You can only assign one quote per writer." />
-              <RuleItem icon="⏳" text="You can use Reduce Time to cut the active writer's remaining time to 45 seconds. Each writer can be punished once!" />
-              <RuleItem icon="🏆" text="After 20 rounds the game enters Evaluation. Use the Declare button to pick the winner — the writer whose genre best shaped the story." />
-              <RuleItem icon="⏱️" text="If you don't vote before the timer expires, a tie is recorded automatically." />
+              <RuleItem icon="⚖" text="You are the Judge. You observe the story but do not write." />
+              <RuleItem icon="✒" text="Assign a quote to either writer via Quote P1 / Quote P2. Each writer must incorporate it within 2 of their own turns." />
+              <RuleItem icon="✕" text="You can only assign one quote per writer." />
+              <RuleItem icon="⏱" text={`Use Reduce Time to cut the active writer's remaining time to ${game?.reducedTimeThreshold ?? 45}s. Each writer can be punished once!`} />
+              <RuleItem icon="♛" text={`After ${game?.maxRounds ?? 20} rounds the game enters Evaluation. Use the Declare button to pick the winner — the writer whose genre best shaped the story.`} />
+              <RuleItem icon="✦" text="If you don't vote before the timer expires, a tie is recorded automatically." />
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <RuleItem icon="✍️" text="Writers alternate turns building a shared story. Steer it toward your secret genre." />
-              <RuleItem icon="🎭" text="Your genre is shown in your genre field, hover onto it to see the full description. The opponent does not know your genre!" />
-              <RuleItem icon="💬" text="The Judge may assign you a quote. Weave it into the story within 2 of your own turns or face a penalty." />
-              <RuleItem icon="🔭" text="When it's the other player's turn, a porthole covers their panel — only the active writer's response is visible to everyone." />
-              <RuleItem icon="🏆" text="After 20 rounds the Judge decides whose genre dominated the story. Write convincingly!" />
+              <RuleItem icon="✒" text="Writers alternate turns building a shared story. Steer it toward your secret genre." />
+              <RuleItem icon="◈" text="Your genre is shown in your genre field, hover onto it to see the full description. The opponent does not know your genre!" />
+              <RuleItem icon="❝" text="The Judge may assign you a quote. Weave it into the story within 2 of your own turns or face a penalty." />
+              <RuleItem icon="⊙" text="When it's the other player's turn, a porthole covers their panel — only the active writer's response is visible to everyone." />
+              <RuleItem icon="♛" text={`After ${game?.maxRounds ?? 20} rounds the Judge decides whose genre dominated the story. Write convincingly!`} />
             </div>
           )}
  

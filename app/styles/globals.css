@@ -2359,3 +2359,82 @@ text-shadow:
   font-weight: 700;
   text-shadow: 0 1px 0 rgba(255, 245, 220, 0.5);
 }
+
+/* notification and errors */
+
+.ant-notification-notice-title {
+  color: var(--gold) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-notification-notice-description {
+  color: rgba(245, 230, 200, 0.85) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-message-notice-content {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%) !important;
+  border: 1px solid rgba(212,168,87,0.5) !important;
+  color: var(--gold) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-notification-notice {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%) !important;
+  border: 1px solid rgba(212,168,87,0.5) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-notification-notice-message {
+  color: var(--gold) !important;
+}
+
+.ant-notification-notice-description {
+  color: rgba(245,230,200,0.85) !important;
+}
+
+.ant-message-notice-content .anticon-check-circle {
+  color: var(--gold) !important;
+}
+
+.ant-message-notice-content .anticon-info-circle,
+.ant-message-notice-content .anticon-exclamation-circle {
+  color: var(--gold) !important;
+}
+
+.ant-modal-container .goldButton {
+  background: transparent !important;
+  border: 1px solid var(--gold) !important;
+  color: var(--gold) !important;
+}
+
+.ant-modal-container .goldButton:hover {
+  background: rgba(212,168,87,0.15) !important;
+}
+
+.ant-modal-container .delete-btn,
+.ant-modal-container .delete-btn:hover,
+.ant-modal-container .delete-btn:focus,
+.ant-modal-container .delete-btn:active {
+  background: transparent !important;
+  border: 1px solid #e74c3c !important;
+  color: #e74c3c !important;
+  font-family: var(--font-cinzel), serif !important;
+  border-radius: 18px !important;
+  height: 32px !important;
+  padding: 0 20px !important;
+  font-size: 12px !important;
+  letter-spacing: 3px !important;
+}
+
+.ant-modal-container .delete-btn:hover {
+  background: rgba(231,76,60,0.15) !important;
+  box-shadow: 0 0 8px rgba(231,76,60,0.5) !important;
+  border: 2px solid #e74c3c !important;
+}
+
+.ant-modal-container {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%) !important;
+  border: 1px solid rgba(212,168,87,0.5) !important;
+  border-radius: 8px !important;
+}

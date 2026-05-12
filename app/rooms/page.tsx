@@ -168,11 +168,42 @@ export default function RoomsPage() {
 
       {/*  Modal: prompts user to enter a room name before creating */}
       <Modal
-        title="Create Match"
+        title={<span style={{ color: "var(--gold)", fontFamily: "var(--font-cinzel), serif", letterSpacing: 2 }}>✦ CREATE MATCH ✦</span>}
         open={isModalOpen}
-        onOk={handleCreateRoom}
         onCancel={() => { setIsModalOpen(false); setRoomName(""); }}
-        okText="Create"
+        footer={
+          <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
+            <Button
+              className="goldButton"
+              onClick={() => { setIsModalOpen(false); setRoomName(""); }}
+            >
+              CANCEL
+            </Button>
+            <Button
+              className="goldButton"
+              onClick={handleCreateRoom}
+            >
+              CREATE
+            </Button>
+          </div>
+        }
+        centered
+        styles={{
+          body: {
+            background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%) !important",
+            border: "1px solid rgba(212,168,87,0.5)",
+            fontFamily: "var(--font-cinzel), serif",
+          },
+          header: {
+            background: "transparent",
+            borderBottom: "1px solid rgba(212,168,87,0.2)",
+          },
+          footer: {
+            background: "transparent",
+            borderTop: "1px solid rgba(212,168,87,0.2)",
+            paddingTop: 16,
+          },
+        }}
       >
         <Input
           placeholder="Enter room name (max 15 chars)"
@@ -180,6 +211,14 @@ export default function RoomsPage() {
           maxLength={15}
           onChange={(e) => setRoomName(e.target.value)}
           onPressEnter={handleCreateRoom}
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(212,168,87,0.5)",
+            color: "#fff",
+            fontFamily: "var(--font-cinzel), serif",
+            marginTop: 10,
+            marginBottom: 8
+          }}
         />
       </Modal>
     </div>
