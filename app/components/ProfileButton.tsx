@@ -30,7 +30,7 @@ export default function ProfileButton() {
                 <Button
                     className="pregame-select-btn"
                     onClick={handleClick}
-                    style={{ width: 80, height: 38, fontSize: 14, padding: 0 }}
+                    style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}
                 >
                     Profile
                 </Button>
