@@ -254,7 +254,7 @@ const Login: React.FC = () => {
 
 
   return (
-    <div style={{ minHeight: "100vh", backgroundImage: "url('/profile_03.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed" }}>
+    <div style={{ minHeight: "100vh", backgroundImage: "url('/profile_wp.webp')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed" }}>
       <HomeButton />
 
       {/* 📝 Delete Account button — fixed bottom right, own profile only */}
@@ -288,7 +288,7 @@ const Login: React.FC = () => {
         {/* 📝 Profile frame — height-driven so it reaches near bottom of screen */}
         <div style={{ position: "relative", height: "92vh", aspectRatio: "1145 / 1374", maxWidth: "95vw" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/profile_final.png" alt="Profile frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
+          <img src="/profile_frame.webp" alt="Profile frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
 
           {/* 📝 All content inside frame */}
           <div style={{ position: "absolute", top: "15%", left: "17%", right: "18%", bottom: "14.5%", display: "flex", flexDirection: "column", fontFamily: "var(--font-cinzel), serif", overflow: "hidden" }}>

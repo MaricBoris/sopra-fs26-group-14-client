@@ -70,7 +70,7 @@ const LoginPage: React.FC = () => {
   return (
     <div style={{ minHeight: "100vh" }}>
       {/* 📝 Fixed full-screen background */}
-      <div style={{ position: "fixed", inset: 0, backgroundImage: "url('/login_wp_jgl_04.png')", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
+      <div style={{ position: "fixed", inset: 0, backgroundImage: "url('/login_wp.webp')", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
       <HomeButton />
 
       <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 18, paddingBottom: 40 }}>
@@ -85,7 +85,7 @@ const LoginPage: React.FC = () => {
         <Form form={form} name="login" onFinish={handleLogin} onFinishFailed={() => setShowErrors(true)} className="login-form" validateTrigger="onSubmit">
           <div style={{ position: "relative", height: "90vh", aspectRatio: "1086 / 1448", maxWidth: "95vw" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/login_finalv.png" alt="Login frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
+            <img src="/login_frame.webp" alt="Login frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
 
             {/* 📝 Username */}
             <div style={{ position: "absolute", top: "53.5%", left: "10%", right: "10%" }}>
