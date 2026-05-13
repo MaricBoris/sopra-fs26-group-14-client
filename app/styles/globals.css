@@ -1719,210 +1719,196 @@ text-shadow:
   color: #ffffff !important;
 }
 
+
 /* -----------------results page--------------------------*/
 
 
-.results-page {
-  position: fixed;
-  inset: 0;
-  background-color: var(--blue-deep);
-  overflow: hidden;
+.results-page {   /* the lowest level container, just blue, that fills the whole screen*/
+  position: fixed; /* fixed to the browser window, doesn't move when scrolling */
+  inset: 0; /* short for: top: 0; right: 0; bottom: 0; left: 0; aka no margins anywhere, fill the whole window*/
+  background-color: var(--blue-deep); /* deep blue background to match the starry sky */
+  overflow: hidden; /* no scrollbars, everything that overflows the window is hidden*/
 }
 
-.results-title {
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 38px;
-  letter-spacing: 8px;
-  color: var(--gold-warm);
-  text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0, 0, 0, 0.8);
-  z-index: 10;
-  pointer-events: none;
+.results-title { /* The "STORIES" title */
+  position: absolute; /* can be positioned freely within the parent element, here results-page*/
+  top: 16px; /* 16 pixels from the top of results-page*/
+  left: 50%; /* shifts the element right, such that its left border is in the middle of the page*/
+  transform: translateX(-50%); /* shifts the element left by 50% of it's own width, so now its perfectöy horizontally centered */
+  margin: 0; /* to ignore the standard margin*/
+  font-family: var(--font-display); /* sets the font to the cinzel*/
+  font-size: 38px; /* font size  */
+  letter-spacing: 8px; /* spacing between letters*/
+  color: var(--gold-warm); /* color of the title, a bright gold */
+  text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0, 0, 0, 0.8); 
+  /* two shadows: first: 0 offset to left/right and up/down, blur over 24 pixel, gold at 55% coverage, 
+                  second: hard black shadow, 0 x offset, 0 y offset, blur over 8px, black with 80% coverage
+     so it's gold with black shimmering through in the middle and then just soft gold around*/
+  z-index: 10; /* stack order, the higher the number, the more in the foreground, this is very much in the foreground*/
+  pointer-events: none; /* clicks go through it, it's "ignored" by clicks */
 }
-.results-title-divider {
-  position: absolute;
-  top: 62px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: var(--gold-rim);
-  font-size: 14px;
-  z-index: 10;
-  pointer-events: none;
-}
-
-.results-stage {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 100vw;
-  height: 0;
-  padding-bottom: 56.95%;
-  background-image: url('/background-stories.webp');
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  background-position: center;
-  z-index: 2;
+.results-title-divider { /* the caro symbol ◆ below the title*/
+  position: absolute; /* can be positioned freely within results-page */
+  top: 62px; /* margin from top (practically directly under title, 16 margin +38 font size)*/
+  left: 50%; /* same trick to horizontally center it*/
+  transform: translateX(-50%); /* same trick to horizontally center it */
+  color: var(--gold-rim); /* the gold colour of it*/
+  font-size: 14px; /* font size */
+  z-index: 10; /* how far in the foreground it is, same level as title */
+  pointer-events: none; /* ignored by clicks */
 }
 
-.results-panel {
-  position: absolute;
-  left: 37%;
-  top: 39%;
-  width: 26%;
-  height: 33%;
-  display: flex;
-  flex-direction: column;
-  padding: 8px 12px;
-  z-index: 2;
+.results-stage { /*the background image of the gas station */
+  position: absolute; /*can be positioned freely on results-page */
+  left: 0; /* zero margin from the left border*/
+  top: 50%; /* top border is in the middle of the page*/
+  transform: translateY(-50%); /* shifts the top border by 50% of it's own size up, trick to center it vertically*/
+  width: 100vw; /* 100& of the viewport width, fills the whole window horizontally*/
+  height: 0; /* height is set to 0 in preparation*/
+  padding-bottom: 56.95%; /* set height to 56.95% of width, so it's never distorted */
+  background-image: url('/background-stories.webp'); /* the path to the gas station image*/
+  background-size: 100% 100%; /* image should is set to 100% width and height of the container, that we made sure has the right proportions*/
+  background-repeat: no-repeat; /* image is never repeated, if it's small */
+  background-position: center; /* in case it's ever smaller than container, which is never really, it will be centered in the container*/
+  z-index: 2; /* how much in the foreground (less than title and caro) */
 }
 
-.results-cta {
-  position: absolute;
-  left: 44%;
-  top: 67%;
-  width: 12%;
-  display: flex;
-  justify-content: center;
-  z-index: 2;
+.results-panel { /* invisible container for the board in the middle of the gas station*/
+  position: absolute; /* can be positioned freely within results-stage*/
+  left: 37%; /* left boarder sits at 37% of the width of the results-stage (kinda in the middle of the picture) */
+  top: 39%; /* top boarder sits at 39& of the height of the results stage (kinda in the middle)*/
+  width: 26%; /* width is 26% of the width of the results-stage */
+  height: 33%; /* height is 33% of the height of results-stage */
+  display: flex; /* makes it a flexbox container, automatic distribution of space between children */
+  flex-direction: column; /* children will be placed below each other instead of side by side which would be flexboard standard*/
+  padding: 8px 12px; /* the table should be padded by 8 top and bottom and 12 left and right from the edges of this container*/
+  z-index: 2; /* how much in the foreground (less than title and caro, same as gas station image)*/
 }
 
-.results-table .ant-table,
-.results-table .ant-table-thead > tr > th,
-.results-table .ant-table-tbody > tr > td,
-.results-table .ant-table-placeholder,
-.results-table .ant-table-cell {
-  background: transparent !important;
-  border-bottom: 1px solid rgba(107, 100, 128, 0.55) !important;
+/* here we need to overwrite all the standard antd designs for tables that would be applied automatically, but specifically for out table marked with the results-table class*/
+.results-table .ant-table, /* within our results-table element the ant-table element that antd needs, that specifies the whole table, the outermost container of antd*/
+.results-table .ant-table-thead > tr > th, /*the header row cells (thead= table header, tr=table row, th=table header cell*/
+.results-table .ant-table-tbody > tr > td, /* the normal data cells (td=table data, tr > th means th (header cell) must be a direct child of tr (row))*/
+.results-table .ant-table-placeholder, /* the placeholder shown when no data, we have "no program yet" */
+.results-table .ant-table-cell { /* every cell in the table, doesn't matter what kind, our safety net*/
+  background: transparent !important; /* transparent background for all of them*/
+  border-bottom: 1px solid rgba(107, 100, 128, 0.55) !important; /* below each row a 1px thin, solid mauve separator line 55% transparent*/
 }
-.results-table .ant-table-thead > tr > th {
-  color: #cdb385 !important;
-  font-size: 12px !important;
-  letter-spacing: 2px !important;
-  padding: 6px 8px !important;
-  border-bottom: 1px solid rgba(107, 100, 128, 0.7) !important;
+.results-table .ant-table-thead > tr > th { /*the header row cells, wins over the previous rule, because further down*/
+  color: #c9ab76 !important; /* text colour, beige-gold*/
+  font-size: 12px !important; /*font size*/
+  letter-spacing: 2px !important; /* letter spacing*/
+  padding: 6px 8px !important; /* in the cells, 6 px margin top/down, 8px left/right*/
+  border-bottom: 1px solid rgba(107, 100, 128, 0.7) !important; /*1px thin, solid line under the header row, less transparent with 70%*/
 }
-.results-table .ant-table-tbody > tr > td {
-  color: #e8d896 !important;
-  font-size: 13px !important;
-  padding: 6px 8px !important;
+.results-table .ant-table-tbody > tr > td { /* data cells/ "normal rows" "*/
+  color:   #f0e6d0 !important; /* a bit brighter gold than the header, because data is more important*/
+  font-size: 13px !important; /* a bit bigger, because data is more important*/
+  padding: 6px 8px !important; /* in the cells, 6 px margin top/down, 8px left/right*/
 }
-.results-table .ant-table-tbody > tr:hover > td {
-  background: rgba(212, 175, 93, 0.08) !important;
-}
-.results-table .ant-table-placeholder .ant-empty-description {
-  color: #6b6480 !important;
+
+/*each td (table data cell) element, that is a direct child of a tr (table row) element, that the user hovers over at this moment*/
+.results-table .ant-table-tbody > tr:hover > td { 
+  background: rgba(212, 175, 93, 0.08) !important; /*very very lowkey golden background, only 8% coverage*/
 }
 
 
-/* light animations */
+
+/* light animations, we use pseudo elements for this (::before and ::after). Pseudo, because they don't need divs
+You can only use ::before and ::after once per element*/
 
 /* Star pulse */
-.results-stage::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 32%;
-  width: 4%;
-  height: 0;
-  padding-bottom: 4%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle,
-    rgba(255, 220, 130, 0.55) 0%,
-    rgba(255, 200, 100, 0.25) 35%,
-    rgba(255, 200, 100, 0) 70%);
-  pointer-events: none;
-  z-index: 1;
-  animation: starPulse 2.8s ease-in-out infinite;
+.results-stage::before { /*pseudo element, css will make a "ghost div" from it for us, without us needing to write an actual one into our jsx*/
+  content: ""; /*this always needs to be here for pseudo elements, otherwise the browser won't render them*/
+  position: absolute; /* freely positionable in the parent element, here results stage*/
+  left: 50%; /* left boarder sits at 50% of the width of the results-stage (in the middle of the picture, where the star is)*/
+  top: 32%; /*top border sits at 32% of the height of results stage (where the star is*/
+  width: 4%; /*width is 4% of the width of the results-stage (really small, like the star)*/
+  height: 0; /*height is set to 0 in preparation*/
+  padding-bottom: 4%; /* height is 4% of the width, so both 4%-> makes a perfect circle*/
+  transform: translate(-50%, -50%); /*shifts the element by 50% of it's width to the left and 50% of it's height to the top, so the middle of the circle (and not it's left upper corner) is in the middle of the picture and at 32% height*/
+  border-radius: 50%; /*makes 50% edgeradius, so it becomes a circle instead of a square*/
+  background: radial-gradient(circle, /*instead of a simple background, we have a radial gradient (from inside to outside instead of left to right) and in the shape of a circle instead of ellipse*/
+    rgba(255, 220, 130, 0.55) 0%, /*colour at the middle, light gold, 55% coverage*/
+    rgba(255, 200, 100, 0.25) 35%, /*colour at 35% from the middle, darker gold, 25% coverage*/
+    rgba(255, 200, 100, 0) 70%);/*colour at 70% from the middle, closer to the edge of the circle, same colour, zero coverage->transparent, so from 70-100% transparent*/
+  pointer-events: none; /*ignores clicks*/
+  z-index: 1; /*lies below the panel (only decides between siblings, parents are always below their children) */
+  animation: starPulse 2.8s ease-in-out infinite; /*starPulse is the name of the animation defined below, one cycle of the animation lasts 2.8 seconds, ease in ease out: animation starts slow, faster in middle and ends slow, infinite: repeats for infintiy*/
 }
-@keyframes starPulse {
-  0%, 100% {
-    opacity: 0.55;
-    transform: translate(-50%, -50%) scale(0.95);
+@keyframes starPulse { /*the concrete animation instruction*/
+  0%, 100% { /* at the beginning and end (0% of time and 100% of time (0 and 100% of these 2.8 seconds)*/
+    opacity: 0.55; /*coverage 55%*/
+    transform: translate(-50%, -50%) scale(0.95); /*makes it a little smaller 95%, we need the translate again, because otherwise, because of the scale, it would be set back to default*/
   }
-  50% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.15);
+  50% { /**/
+    opacity: 1; /*coverage 100%*/
+    transform: translate(-50%, -50%) scale(1.15); /*makes it a bit bigger, 115%*/
   }
 }
+ /*->star gets from small and darker to bigger and brighter and then smaller and darker again */
+
 
 /* Light bar flicker*/
-.results-stage::after {
-  content: "";
-  position: absolute;
-  left: 31%;
-  top: 36%;
-  width: 38%;
-  height: 1.8%;
-  background: rgba(8, 10, 25, 0.85);
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0;
-  animation: lightFlicker 7s linear infinite;
-}
-.results-stage::after {
-  content: "";
-  position: absolute;
-  left: 31%;
-  top: 35%;
-  width: 38%;
-  height: 1.8%;
-  background: rgba(8, 10, 25, 0.85);
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0;
-  animation: lightFlicker 11s steps(1, end) infinite;
+
+.results-stage::after { /*again a pseudo element*/
+  content: ""; /*again necessary for it to even take effect*/
+  position: absolute; /*can be positioned freely withing the parent results-stage*/
+  left: 31%; /*left border sits at 31% of the width of the results-stage*/
+  top: 35%; /*top border sits at 35% of the height of results stage, just below star over the light bar*/
+  width: 38%; /*width is 38% of the width of the results-stage, length of light bar approximately*/
+  height: 1.8%; /*height is 1.8% of the height of the results-stage, so very thin, like a light bar*/
+  background: rgba(8, 10, 25, 0.85); /*it's black and at 85% coverage, will cover the light bar, to make flicker effect*/
+  pointer-events: none; /*ignored by clicks*/
+  z-index: 1; /*same level as star pulse*/
+  opacity: 0; /*transparent at beginning*/
+  animation: lightFlicker 11s steps(1, end) infinite; /*lightFlicker: name of animation defined below, 11 seconds duration per cycle, steps(1,end): no soft transition, jump hard from state 1 to next state, infinitely repeat*/
 }
 
-@keyframes lightFlicker {
-  0%      { opacity: 0; }
+@keyframes lightFlicker { /* animation script*/
+  0%      { opacity: 0; } /*in the beginning transparent, light bar looks "on"*/
 
   /* First flicker: a quick triple-flicker */
-  14%     { opacity: 1; }
-  14.5%   { opacity: 0; }
-  15.1%   { opacity: 1; }
-  15.4%   { opacity: 0; }
+  14%     { opacity: 1; } /*at 14% of 11 seconds: 100% coverage: light bar seems off*/
+  14.5%   { opacity: 0; } /*on again*/
+  15.1%   { opacity: 1; } /*off again*/
+  15.4%   { opacity: 0; } /*on again*/
 
-  /* Long quiet stretch */
+  /* Long quiet stretch, where the light seems on */
 
   /* Second: single hard blink */
-  41%     { opacity: 1; }
-  41.6%   { opacity: 0; }
+  41%     { opacity: 1; } /*at 41% of 11seconds, light off again*/
+  41.6%   { opacity: 0; } /*on again*/
 
   /* Quiet again */
 
   /* Third: stutter */
-  68%     { opacity: 1; }
-  68.4%   { opacity: 0; }
-  69.0%   { opacity: 1; }
-  69.5%   { opacity: 0; }
+  68%     { opacity: 1; } /*off*/
+  68.4%   { opacity: 0; } /*on*/
+  69.0%   { opacity: 1; } /*off*/
+  69.5%   { opacity: 0; } /*on*/
 
   /* Fourth: short single */
-  88%     { opacity: 1; }
-  88.5%   { opacity: 0; }
+  88%     { opacity: 1; } /*off*/
+  88.5%   { opacity: 0; } /*on*/
 
-  100%    { opacity: 0; }
+  100%    { opacity: 0; } /*on*/
 }
 
-/* ---- table heading on the display board ---- */
+/* ---- the "Screening tonight" title ---- */
 .results-screening-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  letter-spacing: 5px;
-  color: #f5d996;
-  text-align: center;
-  text-transform: uppercase;
-  text-shadow: 0 0 12px rgba(245, 217, 150, 0.35), 0 0 6px rgba(0, 0, 0, 0.8);
-  margin-bottom: 8px;
-  flex-shrink: 0;
+  font-family: var(--font-display); /*the usual cinzel font*/
+  font-size: 18px; /*font size*/
+  letter-spacing: 5px; /*letter spacing*/
+  color: #f5d996; /*dark gold*/
+  text-align: center; /*horizontally centered*/
+  text-transform: uppercase; /*automatically transforms text to uppercase*/
+  text-shadow: 0 0 12px rgba(245, 217, 150, 0.35), 0 0 6px rgba(0, 0, 0, 0.8); /* again the double shadow trick*/
+  margin-bottom: 8px; /*space between title and table*/
+  flex-shrink: 0; /*makes it nonshrinkable within the flexbox panel*/
 }
 
-/* ---- tagline under the table ---- */
+/* ---- tagline under the table "chose a story-see you at the cinema"---- */
 .results-screening-tagline {
   font-family: var(--font-display);
   font-size: 11px;
@@ -1931,121 +1917,122 @@ text-shadow:
   text-align: center;
   text-transform: uppercase;
   text-shadow: 0 0 8px rgba(212, 175, 93, 0.35), 0 0 6px rgba(0, 0, 0, 0.8);
-  margin-top: 6px;
-  flex-shrink: 0;
+  margin-top: 6px; /*6 px margin from table*/
+  flex-shrink: 0; /*nonshrinkable*/
 }
 
-/* ---- empty-state text inside the table ---- */
+/* ---- empty-state text inside the table "No program yet" ---- */
 .results-empty-text {
   font-family: var(--font-display);
   font-size: 12px;
   letter-spacing: 3px;
   color: #6b6480;
   text-transform: uppercase;
-  padding: 12px 0;
-  opacity: 0.75;
+  padding: 12px 0; /*12 up down and 0 left right*/
+  opacity: 0.75; /*little bit transparent*/
 }
 
-/* hide the default empty-state icon (the inbox symbol) */
+/* hide the default empty-state icon (the ugly inbox symbol) */
 .results-table .ant-empty-image {
   display: none !important;
 }
-.results-table .ant-empty-normal {
+.results-table .ant-empty-normal { /*less than default margin around the empty table text*/
   margin: 4px 0 !important;
 }
 /*---------------------storyid page-------------------------------------------*/
 
 
-.drivein-page {
-  position: fixed;
-  inset: 0;
+.drivein-page { /* the lowest level container, just blue, that fills the whole screen*/
+  position: fixed; /* fixed to the browser window, doesn't move when scrolling */
+  inset: 0; /* short for: top: 0; right: 0; bottom: 0; left: 0; aka no margins anywhere, fill the whole window*/
   background-color: var(--blue-deep);
-  overflow: hidden;
+  overflow: hidden; /* no scrollbars, everything that overflows the window is hidden*/
 }
 
 /* full-viewport ambient fill */
 .drivein-fill {
   position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-color: var(--blue-deep);
+  inset: 0; /* short for: top: 0; right: 0; bottom: 0; left: 0; aka no margins anywhere, fill the whole window*/
+  z-index: 0; /*lowest level*/
+  background-color: var(--blue-deep); /*fallback colour*/
   background-image: url('/bg-fill-sky.webp');
-  background-size: cover;
-  background-position: center;
+  background-size: cover; /*scales the images to really cover the whole container*/
+  background-position: center; /*centers the image*/
   background-repeat: no-repeat;
   pointer-events: none;
 }
 
 /* subtle vignette so the seam between the fill and real image is invisible */
-.drivein-fill::after {
-  content: "";
+.drivein-fill::after { /*again a pseudo element*/
+  content: ""; /*necessary for pseudo elements*/
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at center, transparent 40%, rgba(5, 8, 24, 0.6) 100%);
+    radial-gradient(ellipse at center, transparent 40%, rgba(5, 8, 24, 0.6) 100%); /* form of ellipse, center at center of container, transparent until 40% from center, then gradually more dark blueisch gradient with max 60% cover*/
   pointer-events: none;
 }
 
 /*
-  --canvas-zoom controls how much larger than the viewport the image is, here slightely larger, so it gets a little cropped
+  --canvas-zoom controls how much larger than the viewport the image is, here slightely larger, zooms the image, so it gets a little cropped
 */
-.drivein-canvas {
-  --canvas-zoom: 1.18;
+.drivein-canvas { /* container for the main cinema image*/
+  --canvas-zoom: 1.18;  /* definition of a local css variable that only applies to drivin canvas and it's children*/
   position: absolute;
-  top: 50%;
+  top: 50%;  /*the known positioning trick to make it perfectly centered*/
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1;
-  width: calc(min(100vw, 100vh * 3749 / 2206) * var(--canvas-zoom));
-  aspect-ratio: 3749 / 2206;
+  z-index: 1;  /*above fill but below stage*/
+  width: calc(min(100vw, 100vh * 3749 / 2206) * var(--canvas-zoom));  /* width is calculated as the minimum of viewport width (browser width) and the width the image requires, if it fills the whole height of the viewport and then everything times 1.18 for the zoom*/
+  aspect-ratio: 3749 / 2206;  /*no matter what the width is, the height should be in this ratio to it*/
 }
 
 /* The image fills the canvas exactly */
-.drivein-bg {
+.drivein-bg {  /*the styles for the image itself, positioned within the canvas, filling it 100%*/
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   display: block;
-  user-select: none;
+  user-select: none;  /*cannot be selected by the user*/
   pointer-events: none;
-  z-index: 0;
+  z-index: 0;  /*within the canvas at the very back*/
 }
 
 /*
   how far from the cinema-screen edges the genre panels are
 */
-.drivein-stage {
+.drivein-stage {   /*the stage for the 3 panel inner area on the screen*/
   position: absolute;
-  left: 21.4%;
-  right: 22%;  
-  top: 31.8%;
-  bottom: 29.8%; 
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  grid-template-rows: 1fr;
+  /*the exact position of the cinema screen*/
+  left: 21.4%;  /*left border at 21.4% canvas width*/
+  right: 22%;  /*right border 22% from right canvas border*/
+  top: 31.8%; /*top border at 31.8% of canvas height*/
+  bottom: 29.8%; /*bottom border 29.8% from bottom border of canvas*/
+  display: grid; /*makes the container a grid*/
+  grid-template-columns: 1fr 2fr 1fr; /*defines 3 columns with the fractions 1:2:1, middle is twice as large as sides*/
+  grid-template-rows: 1fr; /*one row that takes the whole height, aka 1 fraction*/
   z-index: 2;
 }
 
 /* ---------- Side panels---------- */
 .drivein-side {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
+  position: relative; /*makes it the reference point for its children (all the stuff that comes on top of the sides)*/
+  overflow: hidden; /*hides the part of the genre images that potentially overflows the container*/
+  display: flex; /*makes the container a flexbox*/
+  flex-direction: column; /*children will be places beneath each other instead of next to each other*/
+  min-width: 0; /*allows it to be smaller than its content, if a username is for example to long, it doesn't get wider*/
+  min-height: 0; /*allows it to be smaller than its content*/
 }
 
-.drivein-side-left  { grid-column: 1 / 2; grid-row: 1; }
-.drivein-side-right { grid-column: 3 / 4; grid-row: 1; }
+.drivein-side-left  { grid-column: 1 / 2; grid-row: 1; } /*go from gridline 1 to gridline 2( first collumn) and into the one and only row*/
+.drivein-side-right { grid-column: 3 / 4; grid-row: 1; } /*go from gridline 3 to 4 (last column) and in the one and only row*/
 
 /* the genre images, cover ensures it always fills the column with no gaps */
 .drivein-side-bg {
   position: absolute;
   inset: 0;
   background-size: cover;
-  background-position: center center;
+  background-position: center center; /*horizontally and vertically centered*/
   background-repeat: no-repeat;
   background-color: var(--blue-deep);
   z-index: 0;
@@ -2058,40 +2045,40 @@ text-shadow:
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    180deg,
-    rgba(5, 8, 24, 0.78) 0%,
-    rgba(5, 8, 24, 0.55) 25%,
-    rgba(5, 8, 24, 0.20) 55%,
-    rgba(5, 8, 24, 0.15) 75%,
-    rgba(5, 8, 24, 0.55) 100%
+    180deg, /*from top to bottom*/
+    rgba(5, 8, 24, 0.78) 0%, /*on top very dark for text*/
+    rgba(5, 8, 24, 0.55) 25%, /*lighter*/
+    rgba(5, 8, 24, 0.20) 55%,/*lighter*/
+    rgba(5, 8, 24, 0.15) 75%,/*lighter*/
+    rgba(5, 8, 24, 0.55) 100% /*darker again for button*/
   );
   z-index: 1;
   pointer-events: none;
 }
 
-.drivein-side-content {
+.drivein-side-content { /*container for the text of the side panels*/
   position: relative;
   z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 6% 6% 6% 6%;
-  text-align: center;
+  display: flex; /*flexbox*/
+  flex-direction: column;/*beneath each other*/
+  align-items: center; /*horizontally centers all children in the container*/
+  padding: 6% 6% 6% 6%; /*inner padding on all sides*/
+  text-align: center; /*text within all children is centred horizontally*/
   height: 100%;
-  gap: clamp(2px, 0.4vw, 6px);
+  gap: clamp(2px, 0.4vw, 6px); /*distance between he children, min, preferred (4% of viewport width), max*/
 }
 
 .drivein-username {
-  background: transparent;
-  border: none;
-  cursor: pointer;
+  background: transparent; /*because it's technically a button, we need to remove the default grey background*/
+  border: none; /*and border*/
+  cursor: pointer; /*but should look clickable*/
   font-family: var(--font-cinzel), serif;
   font-size: clamp(14px, 1.35vw, 22px);
   letter-spacing: 2px;
   color: var(--gold-warm);
   text-shadow: 0 0 14px rgba(232, 216, 150, 0.45), 0 2px 4px rgba(0, 0, 0, 0.95);
   padding: 2px 6px;
-  transition: color 0.15s, text-shadow 0.15s, transform 0.1s;
+  transition: color 0.15s, text-shadow 0.15s, transform 0.1s; /*colour on hover changes over 0.15s and shadow too*/
   line-height: 1.1;
   text-transform: uppercase;
 }
@@ -2099,9 +2086,10 @@ text-shadow:
   color: var(--gold-bright);
   text-shadow: 0 0 18px rgba(240, 192, 64, 0.65), 0 2px 4px rgba(0, 0, 0, 0.95);
 }
-.drivein-username:active { transform: translateY(1px); }
+.drivein-username:active { transform: translateY(1px); } /*on click, the text shifts 1 pixel down, so it looks like a real click*/
 
-.drivein-genre {
+.drivein-genre { /*the genre text*/
+
   font-family: var(--font-cinzel), serif;
   font-size: clamp(10px, 0.9vw, 14px);
   letter-spacing: 1.5px;
@@ -2112,7 +2100,7 @@ text-shadow:
   margin-bottom: clamp(8px, 1vw, 16px);
 }
 
-.drivein-vote-status {
+.drivein-vote-status { /*"cast your vote text or similar*/
   font-family: var(--font-cinzel), serif;
   font-size: clamp(8px, 0.65vw, 11px);
   letter-spacing: 2px;
@@ -2120,10 +2108,10 @@ text-shadow:
   text-transform: uppercase;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
   opacity: 0.9;
-  min-height: 1em;
+  min-height: 1em; /*reserves space for it, even if it's not there, 1em is the current fontsize of it*/
 }
 
-.drivein-votes {
+.drivein-votes { /*the vote counts*/
   font-family: var(--font-cinzel), serif;
   font-size: clamp(9px, 0.78vw, 12px);
   letter-spacing: 2px;
@@ -2135,15 +2123,15 @@ text-shadow:
 /* Vote button  */
 .drivein-vote-btn-wrap {
   position: absolute;
-  left: 0;
+  left: 0; /*over the whole width of the side panel*/
   right: 0;
   bottom: clamp(8px, 1vw, 16px);
   z-index: 3;
   display: flex;
-  justify-content: center;
+  justify-content: center; /*centers the button horizontally within*/
   pointer-events: none; /* let the button itself handle clicks */
 }
-.drivein-vote-btn-wrap > * {
+.drivein-vote-btn-wrap > * { /*all direct children are again clickable*/
   pointer-events: auto;
 }
 
@@ -2346,7 +2334,7 @@ text-shadow:
 .drivein-winner-label {
   font-size: clamp(10px, 0.8vw, 12px);
   letter-spacing: 2px;
-  color: #30245c;
+  color: #2b1d0f;
   text-transform: uppercase;
   font-weight: 700;
 }

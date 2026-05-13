@@ -237,7 +237,7 @@ export default function StoryDetailPage() {
                     return (
                       <span
                         key={i}
-                        style={{ color: isWinner ? "var(--gold-bright)" : "#c0c0c0" }}
+                        style={{ color: isWinner ? "#2b1d0f" : "#26223b" }}
                       >
                         {c.text}{" "}
                       </span>
