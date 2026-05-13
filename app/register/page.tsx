@@ -88,7 +88,7 @@ export default function RegisterPage() {
             {/* 📝 Username — pinned to its label position in the image */}
             <div style={{ position: "absolute", top: "8.5%", left: "43%", right: "26%" }}>
               <Form.Item name="username" rules={[{ required: true, message: "Please input your username!" }]}>
-                <Input className={`register-input${showErrors && !usernameVal ? " register-input-error" : ""}`} placeholder={showErrors && !usernameVal ? "Please enter a username" : "Choose a username"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(11px, 3vh, 18px)" }} />
+                <Input className={`register-input${showErrors && !usernameVal ? " register-input-error" : ""}`} maxLength={12} placeholder={showErrors && !usernameVal ? "Please enter a username" : "Choose a username"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(11px, 3vh, 18px)" }} />
               </Form.Item>
             </div>
 

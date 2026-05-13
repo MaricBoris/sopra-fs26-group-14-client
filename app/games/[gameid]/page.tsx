@@ -157,7 +157,36 @@ const handleExit=async() : Promise<void> =>{
   }
  
 }
- 
+
+// Tab-close / refresh / navigation handler (desktop only tho)
+// beforeunload apparently fires on desktop browsers whenever the tab closes, the URL
+// changes or the page is reloaded. It does not cover browser crashes or letting the tab die openly 
+// somewhere in the back tho
+useEffect(() => {
+  if (!gameid || !token || gameEnded) return;
+
+  const onBeforeUnload = () => {
+    const url = `${getApiDomain()}/games/${gameid}/leave`;
+    try {
+      // keepalive lets the request outlive the page unload, can't use apiService.post because of that tho
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: "{}",
+        keepalive: true,
+      });
+    } catch (e) {
+      console.log("Tab-close leave failed:", e);
+    }
+  };
+
+  window.addEventListener("beforeunload", onBeforeUnload);
+  return () => window.removeEventListener("beforeunload", onBeforeUnload);
+}, [gameid, token, gameEnded]);
+
 const [quotedP1, setQuotedP1] = useState(false);
 const [quotedP2, setQuotedP2] = useState(false);
  
