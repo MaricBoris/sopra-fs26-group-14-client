@@ -576,7 +576,9 @@ const genreToBullauge = (genre: string | null | undefined): string =>
                 ? "Enter your next part of the story..."
                 : isJudge
                   ? "The writer's contribution will appear here..."
-                  : "Your opponent's contribution will appear here..."
+                  : !isUserThisPlayer && !isJudge
+                  ? "Your opponent's contribution will appear here..."
+                  :""
             }
             style={{ height: "100%", resize: "none" }}
           />
@@ -1091,6 +1093,7 @@ return (
             </div>
             <Input
               value={storyTitle}
+              maxLength={17}
               onChange={(e) => setStoryTitle(e.target.value)}
               placeholder="Enter a title..."
               style={{

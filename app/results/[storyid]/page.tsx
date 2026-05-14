@@ -227,7 +227,7 @@ export default function StoryDetailPage() {
           {/* Center screen: the story */}
           <div className="drivein-screen">
             <div className="drivein-screen-inner">
-              <h2 className="drivein-story-title">THE STORY</h2>
+              <h2 className="drivein-story-title">{story.title ?? "THE STORY"}</h2>
               <div className="drivein-story-divider">✦</div>
 
               <div className="drivein-story-text">
