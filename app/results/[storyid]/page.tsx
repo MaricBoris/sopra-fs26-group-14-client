@@ -48,7 +48,7 @@ export default function StoryDetailPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [rating, setRating] = useState<GenreRating | null>(null);
   const [voting, setVoting] = useState(false);
-  const storyTitle = story?.title;
+  const [hqLoaded, setHqLoaded] = useState(false);
 
   useEffect(() => setIsMounted(true), []);
 
@@ -107,7 +107,7 @@ export default function StoryDetailPage() {
 
   if (!isMounted || !story) return null;
 
-  // Left = winner side, Right = loser side 
+  // Left = winner side, Right = loser side
   // Each side is a writer with username, genre, votes and a vote action button
   const leftWriter = rating
     ? {
@@ -211,13 +211,25 @@ export default function StoryDetailPage() {
       <div className="drivein-fill" aria-hidden />
 
       <div className="drivein-canvas">
-        {/*main image */}
+        {/* LQ-Hintergrund: sofort sichtbar */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/bg-storiespage.webp"
+          src="/bg-storiespage2.webp"
           alt=""
           className="drivein-bg"
           aria-hidden
           draggable={false}
+        />
+        {/* HQ-Hintergrund: lädt im Hintergrund, faded ein, wenn fertig */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/bg-storiespage.webp"
+          alt=""
+          className={`drivein-bg drivein-bg-hq ${hqLoaded ? "is-loaded" : ""}`}
+          aria-hidden
+          draggable={false}
+          onLoad={() => setHqLoaded(true)}
+          decoding="async"
         />
 
         <div className="drivein-stage">
