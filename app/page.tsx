@@ -87,9 +87,6 @@ export default function Home() {
       />
       {/*  Top-right button stack: Profile + Login/Register/Logout depending on auth */}
       <div className="home-top-buttons">
-        <Button className="home-nav-btn" onClick={() => router.push("/tutorial")}>
-          TUTORIAL
-        </Button>
       {token && userId && (
         <>
           <div style={{ position: "fixed", top: 16, right: 16, zIndex: 1000 }}>
