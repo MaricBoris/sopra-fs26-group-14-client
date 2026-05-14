@@ -184,7 +184,7 @@ a {
 /* Top area reduced to save vertical space */
 .topGameRow {
   display: grid;
-  grid-template-columns: 180px 1fr 180px;
+  grid-template-columns: clamp(140px, 13.5vw, 180px) 1fr clamp(140px, 13.5vw, 180px);
   align-items: start;
   gap: 16px;
   width: 100%;
@@ -677,21 +677,21 @@ text-shadow:
 }
 
 .startOverlayTitle {
-  font-size: 64px;
+  font-size: clamp(40px, 8.5vh, 64px);
   font-weight: bold;
   letter-spacing: 6px;
   color: var(--gold);
 }
 
 .startOverlaySmall {
-  font-size: 16px;
+  font-size: clamp(13px, 2.1vh, 16px);
   letter-spacing: 3px;
   color: rgba(212, 168, 87, 0.5);
   text-transform: uppercase;
 }
 
 .startOverlayRole {
-  font-size: 36px;
+  font-size: clamp(24px, 4.8vh, 36px);
   font-weight: bold;
   letter-spacing: 4px;
   color: var(--gold);
@@ -699,13 +699,13 @@ text-shadow:
 
 .startOverlayText {
   margin-top: 8px;
-  font-size: 15px;
+  font-size: clamp(12px, 2vh, 15px);
   letter-spacing: 1px;
   color: #e8e4d8;
 }
 
 .startOverlayCountdown {
-  font-size: 100px;
+  font-size: clamp(60px, 13vh, 100px);
   font-weight: bold;
   line-height: 1;
   margin-top: 16px;
@@ -780,7 +780,7 @@ text-shadow:
   transform: translateX(-50%);
   margin: 0;
   font-family: var(--font-display);
-  font-size: 38px;
+  font-size: clamp(26px, 5vh, 38px);
   letter-spacing: 8px;
   color: var(--gold-warm);
   text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0,0,0,0.8);
@@ -789,7 +789,7 @@ text-shadow:
 }
 .lobby-title-divider {
   position: absolute;
-  top: 62px;
+  top: calc(24px + clamp(26px, 5vh, 38px));
   left: 50%;
   transform: translateX(-50%);
   color: var(--gold-rim);
@@ -1180,7 +1180,7 @@ text-shadow:
 .available-matches-heading {
   text-align: center;
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: clamp(13px, 2.1vh, 16px);
   letter-spacing: 4px;
   color: var(--gold-warm);
   margin-bottom: 10px;
@@ -1262,8 +1262,8 @@ text-shadow:
   color: var(--gold-muted) !important;
   font-family: var(--font-display) !important;
   letter-spacing: 2px !important;
-  font-size: 14px !important;
-  height: 42px !important;
+  font-size: clamp(12px, 1.8vh, 14px) !important;
+  height: clamp(34px, 5.5vh, 42px) !important;
   padding: 0 22px !important;
 }
 .home-nav-btn.ant-btn:hover,
@@ -1290,7 +1290,7 @@ text-shadow:
   width: min(720px, 90vw);
   text-align: center;
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: clamp(13px, 2.1vh, 16px);
   line-height: 1.8;
   color: #d4d8e8;
 }
@@ -1309,7 +1309,7 @@ text-shadow:
   bottom: 8%;
   transform: translateX(-50%);
   display: flex;
-  gap: 40px;
+  gap: clamp(24px, 3.5vw, 40px);
 }
 /* stories and lobby button
    Aliased with .btn-hero */
@@ -1322,8 +1322,8 @@ text-shadow:
   box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
   font-size: 26px !important;
   letter-spacing: 4px !important;
-  width: 240px !important;
-  height: 70px !important;
+  width: clamp(180px, 18.75vw, 240px) !important;
+  height: clamp(52px, 8.5vh, 70px) !important;
   padding: 0 !important;
   transition: all 0.2s !important;
 }
@@ -1773,7 +1773,7 @@ text-shadow:
   transform: translateX(-50%); /* shifts the element left by 50% of it's own width, so now its perfectöy horizontally centered */
   margin: 0; /* to ignore the standard margin*/
   font-family: var(--font-display); /* sets the font to the cinzel*/
-  font-size: 38px; /* font size  */
+  font-size: clamp(26px, 5vh, 38px); /* font size  */
   letter-spacing: 8px; /* spacing between letters*/
   color: var(--gold-warm); /* color of the title, a bright gold */
   text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0, 0, 0, 0.8); 
@@ -1785,7 +1785,7 @@ text-shadow:
 }
 .results-title-divider { /* the caro symbol ◆ below the title*/
   position: absolute; /* can be positioned freely within results-page */
-  top: 62px; /* margin from top (practically directly under title, 16 margin +38 font size)*/
+  top: calc(24px + clamp(26px, 5vh, 38px)); /* margin from top (practically directly under title, 16 margin + font size + gap)*/
   left: 50%; /* same trick to horizontally center it*/
   transform: translateX(-50%); /* same trick to horizontally center it */
   color: var(--gold-rim); /* the gold colour of it*/
@@ -2260,9 +2260,9 @@ You can only use ::before and ::after once per element*/
   color: #e8d896;
   font-family: var(--font-cinzel), serif;
   letter-spacing: 2px;
-  font-size: 14px;
-  height: 42px;
-  padding: 0 32px;
+  font-size: clamp(12px, 1.8vh, 14px);
+  height: clamp(36px, 5.5vh, 42px);
+  padding: 0 clamp(20px, 2.5vw, 32px);
   border-radius: 2px;
   box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
   cursor: pointer;
