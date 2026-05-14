@@ -121,7 +121,7 @@ const UsersPage: React.FC = () => {
         <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 18, paddingBottom: 40 }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", transform: "translateX(calc(0.02 * min(85vw, 85vh * 1672 / 941)))" }}>
             <h1 className="profile-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
-              Users
+              USERS
             </h1>
             <div className="profile-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 8 }}>✦</div>
           </div>

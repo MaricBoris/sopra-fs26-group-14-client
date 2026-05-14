@@ -109,7 +109,7 @@ export default function RoomsPage() {
             className="pregame-select-btn"
             onClick={(e) => { e.stopPropagation(); handleJoin(record); }}
             disabled={isCreator}
-            style={{ width: "100%", height: "clamp(20px, 2.8vh, 30px)", fontSize: "clamp(9px, 1.2vh, 13px)", padding: 0 }}
+            style={{ width: "100%", height: "clamp(20px, 2.1vw, 30px)", fontSize: "clamp(9px, 0.9vw, 13px)", padding: 0 }}
           >
             {isCreator ? "Host" : "Join"}
           </Button>
