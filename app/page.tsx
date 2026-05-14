@@ -75,32 +75,21 @@ export default function Home() {
 
  return (
     <div className="home-page">
-      {/*  Top-right button stack: Profile + Login/Register/Logout depending on auth */}
-      <div className="home-top-buttons">
-        <Button className="home-nav-btn" onClick={() => router.push("/tutorial")}>
-          TUTORIAL
-        </Button>
+{/* 📝 Profile + Logout fixed top right, visible when logged in */}
       {token && userId && (
-        <Button className="home-nav-btn" onClick={handleProfileClick}>
-          ◉ PROFILE
-        </Button>
-        )}
-        {!token && !userId && (
-          <>
-            <Button className="home-nav-btn" onClick={() => router.push("/login")}>
-              LOGIN
+        <>
+          <div style={{ position: "fixed", top: 16, right: 16, zIndex: 1000 }}>
+            <Button className="profile-nav-btn" onClick={handleProfileClick} style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}>
+              Profile
             </Button>
-            <Button className="home-nav-btn" onClick={() => router.push("/register")}>
-              REGISTER
+          </div>
+          <div style={{ position: "fixed", top: 76, right: 16, zIndex: 1000 }}>
+            <Button className="users-logout-btn" onClick={handleLogout} style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}>
+              Logout
             </Button>
-          </>
-        )}
-        {token && userId && (
-          <Button className="home-nav-btn" onClick={handleLogout}>
-            ⎋ LOGOUT
-          </Button>
-        )}
-      </div>
+          </div>
+        </>
+      )}
 
       {/* the text that describes the game */}
       <p className="home-description">
@@ -114,12 +103,31 @@ export default function Home() {
 
       {/* stories and lobby buttons*/}
       <div className="home-main-buttons">
-        <Button className="home-main-btn" onClick={() => router.push("/results")}>
-          STORIES
-        </Button>
-        <Button className="home-main-btn" onClick={handleLobbyClick}>
-          LOBBY
-        </Button>
+        {token && userId ? (
+          <>
+            <Button className="home-main-btn" onClick={() => router.push("/results")}>
+              STORIES
+            </Button>
+            <Button className="home-main-btn" onClick={() => router.push("/tutorial")}>
+              TUTORIAL
+            </Button>
+            <Button className="home-main-btn" onClick={handleLobbyClick}>
+              LOBBY
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button className="home-main-btn" onClick={() => router.push("/register")}>
+              REGISTER
+            </Button>
+            <Button className="home-main-btn" onClick={() => router.push("/tutorial")}>
+              TUTORIAL
+            </Button>
+            <Button className="home-main-btn" onClick={() => router.push("/login")}>
+              LOGIN
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ export default function ProfileButton() {
     return (
         <div style={{ position: "fixed", top: 16, right: 16, zIndex: 1000 }}>
                 <Button
-                    className="pregame-select-btn"
+                    className="profile-nav-btn"
                     onClick={handleClick}
                     style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}
                 >

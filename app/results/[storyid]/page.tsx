@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { message } from "antd";
 import HomeButton from "@/components/HomeButton";
+import ProfileButton from "@/components/ProfileButton";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
 import { Story } from "@/types/story";
@@ -206,6 +207,7 @@ export default function StoryDetailPage() {
   return (
     <div className="drivein-page">
       <HomeButton />
+      <ProfileButton />
 
       {/* Full-viewport ambient fill */}
       <div className="drivein-fill" aria-hidden />

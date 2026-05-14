@@ -90,14 +90,14 @@ const LoginPage: React.FC = () => {
             {/* 📝 Username */}
             <div style={{ position: "absolute", top: "53.5%", left: "10%", right: "10%" }}>
               <Form.Item name="username" rules={[{ required: true, message: "Input your username!" }]}>
-                <Input className={`login-input${showErrors && !usernameVal ? " login-input-error" : ""}`} placeholder={showErrors && !usernameVal ? "Enter a username" : "Enter username"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(18px, 3vh, 27px)" }} />
+                <Input className={`login-input${showErrors && !usernameVal ? " login-input-error" : ""}`} placeholder={showErrors && !usernameVal ? "Enter a username" : "Enter Username"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(18px, 3vh, 27px)" }} />
               </Form.Item>
             </div>
 
             {/* 📝 Password */}
             <div style={{ position: "absolute", top: "59.5%", left: "10%", right: "10%" }}>
               <Form.Item name="password" rules={[{ required: true, message: "Input your password!" }]}>
-                <Input.Password className={`login-input${showErrors && !passwordVal ? " login-input-error" : ""}`} placeholder={showErrors && !passwordVal ? "Enter a password" : "Enter password"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(18px, 3vh, 27px)" }} />
+                <Input.Password className={`login-input${showErrors && !passwordVal ? " login-input-error" : ""}`} placeholder={showErrors && !passwordVal ? "Enter a password" : "Enter Password"} style={{ height: "clamp(28px, 3.8vh, 40px)", fontSize: "clamp(18px, 3vh, 27px)" }} />
               </Form.Item>
             </div>
 
