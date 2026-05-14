@@ -104,6 +104,7 @@ export default function Home() {
           </div>
         </>
       )}
+      </div>
 
       {/* the text that describes the game */}
       <p className="home-description">
