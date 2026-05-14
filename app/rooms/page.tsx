@@ -84,12 +84,12 @@ export default function RoomsPage() {
   };
 
   const columns = [
-    { title: "#", key: "index", width: 25, align: "left" as const, render: (_: unknown, __: Room, index: number) => index + 1 },
-    { title: "Room Name", dataIndex: "name", key: "name", align: "left" as const, width: 120 },
+    { title: "#", key: "index", width: "8%", align: "left" as const, render: (_: unknown, __: Room, index: number) => index + 1 },
+    { title: "Room Name", dataIndex: "name", key: "name", align: "left" as const },
     {
       title: <div style={{ textAlign: "center" }}>Players</div>,
       key: "playerCount",
-      width: 80,
+      width: "22%",
       // count all participants: unassigned + writers + judges
       render: (_: unknown, record: Room) => (
         <div style={{ textAlign: "center" }}>
@@ -100,7 +100,7 @@ export default function RoomsPage() {
     {
       title: "",
       key: "join",
-      width: 70,
+      width: "22%",
       align: "right" as const,
       render: (_: unknown, record: Room) => {
         const isCreator = record.lobbyLeader?.id === Number(userId);
@@ -108,7 +108,7 @@ export default function RoomsPage() {
           <Button
             onClick={(e) => { e.stopPropagation(); handleJoin(record); }}
             disabled={isCreator}
-            style={{ width: 70, height: 30, fontSize: 13, padding: 0 }}
+            style={{ width: "100%", height: "clamp(20px, 2.8vh, 30px)", fontSize: "clamp(9px, 1.2vh, 13px)", padding: 0 }}
           >
             {isCreator ? "Host" : "Join"}
           </Button>

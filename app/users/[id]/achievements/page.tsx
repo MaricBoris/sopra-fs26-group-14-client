@@ -73,7 +73,8 @@ const AchievementsPage: React.FC = () => {
       }
     };
     validateToken();
-  }, [isMounted, token, id, apiService, router, clearId, clearToken]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMounted, token, id]);
 
   // Fetch viewed user, all possible achievements and the users unlocked ones
   useEffect(() => {
@@ -118,7 +119,8 @@ const AchievementsPage: React.FC = () => {
     fetchUser();
     fetchAllAchievements();
     fetchUnlocked();
-  }, [isMounted, viewedUserId, token, apiService, clearId, clearToken, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMounted, viewedUserId, token]);
 
   return (
     <div
@@ -163,8 +165,8 @@ const AchievementsPage: React.FC = () => {
         <div
           style={{
             display: "grid", //activates the grid layout
-            gridTemplateColumns: "repeat(auto-fill, minmax(min(240px, 38vw), 1fr))", //make as many columns as possible, min width scales with viewport
-            gap: "clamp(18px, 2.5vw, 28px)", //horizontal and vertical margin between the grid cells, scales with viewport
+            gridTemplateColumns: "repeat(auto-fill, minmax(min(180px, 25vw), 1fr))", //make as many columns as possible, min width scales with viewport
+            gap: "clamp(12px, 2vw, 28px)", //horizontal and vertical margin between the grid cells, scales with viewport
             width: "min(90vw, 1100px)", //take the smaller of both for width, either 90% of viewport or 1100 pixel
             padding: "0 16px", //top/down 0 and left/right 16 within the container
           }}
@@ -204,7 +206,7 @@ const AchievementsPage: React.FC = () => {
                     alt={a.displayName} //what's displayed if the image is not there
                     style={{
                       width: "100%", //image should fill the container
-                      maxWidth: "min(240px, 38vw)", //but max width scales with viewport
+                      maxWidth: "min(180px, 25vw)", //but max width scales with viewport
                       height: "auto", //and proportional height
                       filter: isUnlocked //the filter applied dependant on if unlocked or not
                         ? "drop-shadow(0 0 18px rgba(232, 216, 150, 0.35))" //if unlocked we want a golden drop shadow (goes exactly around shape of image, not for example in rectangle), 0 horizontal and vertical offset, 18 pixel blurr
