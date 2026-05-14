@@ -253,9 +253,9 @@ export default function PreGameRoomPage() {
           position: "fixed",
           top: 16,
           left: 16,
-          width: 80,
-          height: 38,
-          fontSize: 14,
+          width: 104,
+          height: 50,
+          fontSize: 18,
           zIndex: 100,
         } as React.CSSProperties}
       >

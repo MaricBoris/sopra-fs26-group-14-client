@@ -748,9 +748,13 @@ return (
  
     <div className="gameContentWrapper">
       <div className="topGameRow">
-        <button onClick={handleExit} className="cornerButton">
-          ← EXIT
-        </button>
+        <Button
+          className="pregame-exit-btn"
+          onClick={handleExit}
+          style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}
+        >
+          Exit
+        </Button>
  
         <div style={{ textAlign: "center" }}>
           <h1 className="gameRoomTitle">GAME ROOM</h1>
@@ -769,9 +773,13 @@ return (
         </div>
  
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button onClick={() => setRulesVisible(true)} className="cornerButton">
-            HELP →
-          </button>
+          <Button
+            className="home-corner-btn"
+            onClick={() => setRulesVisible(true)}
+            style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}
+          >
+            Help
+          </Button>
         </div>
       </div>
  
