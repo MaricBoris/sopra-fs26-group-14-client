@@ -27,7 +27,7 @@ export default function RoomsPage() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [roomName, setRoomName] = useState("");
-
+  const [hqLoaded, setHqLoaded] = useState(false);
   // mount gate -> don't read localStorage before it's available (prevents hydration mismatch)
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
@@ -134,8 +134,18 @@ export default function RoomsPage() {
       <div className="elevator-stage">
         <div className="elevator-wrap">
           {/*because we use a normal <img> instead of <Image />*/}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/elevator.webp" alt="Elevator" className="elevator-img" />
+          <div className="elevator-img-stack">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/elevator-low.webp" alt="" className="elevator-img" aria-hidden="true" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/elevator.webp"
+              alt="Elevator"
+              className={`elevator-img elevator-img-hq ${hqLoaded ? "is-loaded" : ""}`}
+              onLoad={() => setHqLoaded(true)}
+              decoding="async"
+            />
+          </div>
 
           {/*  Inner panel: available matches table sits here */}
           <div className="elevator-panel">

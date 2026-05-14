@@ -277,6 +277,16 @@ const Login: React.FC = () => {
         Users
       </Button>
 
+      {/* Achievements button */}
+      <Button
+        className="profile-btn"
+        onClick={() => router.push(`/users/${viewedUserId}/achievements`)}
+        style={{ position: "fixed", top: 76, right: 16, width: 104, height: 50, fontSize: 18, zIndex: 100 } as React.CSSProperties}
+      >
+        Trophies
+      </Button>
+
+
       <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 18, paddingBottom: 40 }}>
 
         {/* 📝 Page title */}

@@ -157,7 +157,41 @@ const handleExit=async() : Promise<void> =>{
   }
  
 }
- 
+
+// Tab-close / refresh / navigation handler (desktop only tho)
+// beforeunload apparently fires on desktop browsers whenever the tab closes, the URL
+// changes or the page is reloaded. It does not cover browser crashes or letting the tab die openly 
+// somewhere in the back tho
+/*useEffect(() => {
+  if (!gameid || !token || gameEnded) return;
+
+  const onBeforeUnload = () => {
+    //  Detect reload via Navigation API → don't leave the game
+  const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+  if (nav?.type === "reload") {
+    return;
+  }
+    const url = `${getApiDomain()}/games/${gameid}/leave`;
+    try {
+      // keepalive lets the request outlive the page unload, can't use apiService.post because of that tho
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: "{}",
+        keepalive: true,
+      });
+    } catch (e) {
+      console.log("Tab-close leave failed:", e);
+    }
+  };
+
+  window.addEventListener("beforeunload", onBeforeUnload);
+  return () => window.removeEventListener("beforeunload", onBeforeUnload);
+}, [gameid, token, gameEnded]);*/
+
 const [quotedP1, setQuotedP1] = useState(false);
 const [quotedP2, setQuotedP2] = useState(false);
  
@@ -537,7 +571,15 @@ const genreToBullauge = (genre: string | null | undefined): string =>
             disabled={!isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION"}
             value={responseValue}
             onChange={(e) => setDraftValue(e.target.value)}
-            placeholder={showFirstTurnHint ? "" : "Enter your next part of the story..."}
+            placeholder={
+              isUserThisPlayer && !showFirstTurnHint
+                ? "Enter your next part of the story..."
+                : isJudge
+                  ? "The writer's contribution will appear here..."
+                  : !isUserThisPlayer && !isJudge
+                  ? "Your opponent's contribution will appear here..."
+                  :""
+            }
             style={{ height: "100%", resize: "none" }}
           />
           {showFirstTurnHint && (
@@ -767,7 +809,7 @@ return (
                   return (
                     <span
                       key={i}
-                      style={{ color: isWriter1 ? "var(--gold-bright)" : "#c0c0c0" }}
+                      style={{ color: isWriter1 ? "#dca94b" : "#c0c0c0" }}
                     >
                       {c.text}{" "}
                     </span>
@@ -1051,6 +1093,7 @@ return (
             </div>
             <Input
               value={storyTitle}
+              maxLength={17}
               onChange={(e) => setStoryTitle(e.target.value)}
               placeholder="Enter a title..."
               style={{

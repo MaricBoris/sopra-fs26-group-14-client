@@ -86,7 +86,7 @@ export default function ResultsPage() {
 
           {/*Textline under the table */}
           <div className="results-screening-tagline">
-           ✦ Pick a Story — See you at the Drive-In ✦
+           ✦ Pick a Story—See you at the Drive-In ✦
           </div>
         </div>
       </div>
