@@ -286,6 +286,15 @@ const Login: React.FC = () => {
         Trophies
       </Button>
 
+      {/* 📝 Logout button */}
+      <Button
+        className="users-logout-btn"
+        onClick={handleLogout}
+        style={{ position: "fixed", top: 136, right: 16, width: 104, height: 50, fontSize: 18, padding: 0, zIndex: 100 } as React.CSSProperties}
+      >
+        Logout
+      </Button>
+
 
       <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 18, paddingBottom: 40 }}>
 
@@ -357,8 +366,7 @@ const Login: React.FC = () => {
             {/* 📝 Action buttons — own profile only */}
             {isOwnProfile && (
               <div style={{ marginTop: 20, display: "flex", gap: 8, justifyContent: "center" }}>
-                <Button className="profile-red-btn" onClick={handleLogout} style={{ width: "clamp(78px, 10.7vh, 104px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.5vh, 15px)", padding: 0 }}>Logout</Button>
-                <Button className="profile-btn" onClick={handleEditBio} style={{ width: "clamp(78px, 10.7vh, 104px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.5vh, 15px)", padding: 0 }}>Edit Bio</Button>
+<Button className="profile-btn" onClick={handleEditBio} style={{ width: "clamp(78px, 10.7vh, 104px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.5vh, 15px)", padding: 0 }}>Edit Bio</Button>
                 <Button className="profile-btn" onClick={handleEditPassword} style={{ width: "clamp(78px, 10.7vh, 104px)", height: "clamp(32px, 4.5vh, 46px)", fontSize: "clamp(10px, 1.5vh, 15px)", padding: 0 }}>
                   <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}><span>Edit</span><span>Password</span></span>
                 </Button>

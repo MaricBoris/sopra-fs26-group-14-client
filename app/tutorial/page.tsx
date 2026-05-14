@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import HomeButton from "@/components/HomeButton";
 
 const menu = [
   {
@@ -37,8 +37,6 @@ const menu = [
 ];
 
 const Tutorial: React.FC = () => {
-  const router = useRouter();
-
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   //checks if what was clicked on is already open, if yes, close, otherwise open
@@ -269,9 +267,7 @@ type MenuItem = {
 
   return (
     <div className="tutorials-page gameStarryBg">
-      <button onClick={()=>router.push("/")} className="cornerButton tutorials-back">
-        ← EXIT
-      </button>
+      <HomeButton />
 
       <div className="tutorials-astronaut" aria-hidden="true">
         <div className="tutorials-astronaut-inner">

@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Table, message } from "antd";
 import HomeButton from "@/components/HomeButton";
+import ProfileButton from "@/components/ProfileButton";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
 import { Story } from "@/types/story";
@@ -53,10 +54,11 @@ export default function ResultsPage() {
   return (
     <div className="results-page">
       <HomeButton />
+      <ProfileButton />
 
       {/*Main title */}
       <h1 className="results-title">STORIES</h1>
-      <div className="results-title-divider">◆</div>
+      <div className="results-title-divider">✦</div>
 
       
       {/* The gas-station background picture*/}

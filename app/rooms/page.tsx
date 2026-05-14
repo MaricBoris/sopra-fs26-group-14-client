@@ -106,6 +106,7 @@ export default function RoomsPage() {
         const isCreator = record.lobbyLeader?.id === Number(userId);
         return (
           <Button
+            className="pregame-select-btn"
             onClick={(e) => { e.stopPropagation(); handleJoin(record); }}
             disabled={isCreator}
             style={{ width: "100%", height: "clamp(20px, 2.1vw, 30px)", fontSize: "clamp(9px, 0.9vw, 13px)", padding: 0 }}

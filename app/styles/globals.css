@@ -1242,6 +1242,36 @@ text-shadow:
   gap: 10px;
 }
 
+/* 📝 Fixed top-right Profile button */
+.profile-nav-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.profile-nav-btn.ant-btn:hover,
+.profile-nav-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.7) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+/* 📝 Fixed top-left Home button */
+.home-corner-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.home-corner-btn.ant-btn:hover,
+.home-corner-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.7) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
 /* Outline-button in lobby style (Home/Profile/Logout/Login/Register)
    Aliased with .btn-outline-blue */
 .home-nav-btn.ant-btn,
@@ -1274,7 +1304,7 @@ text-shadow:
 .home-description {
   position: absolute;
   left: 50%;
-  top: 58%;
+  top: 54%;
   transform: translateX(-50%);
   width: min(720px, 90vw);
   text-align: center;
@@ -1304,26 +1334,25 @@ text-shadow:
    Aliased with .btn-hero */
 .home-main-btn.ant-btn,
 .btn-hero.ant-btn {
-  background: var(--blue-button-hero) !important;
-  border: 1px solid var(--gold-rim) !important;
-  color: var(--gold-warm) !important;
-  font-family: var(--font-display) !important;
-  font-size: clamp(19px, 2.6vh, 26px) !important;
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+  font-size: 26px !important;
   letter-spacing: 4px !important;
   width: clamp(180px, 18.75vw, 240px) !important;
   height: clamp(52px, 8.5vh, 70px) !important;
   padding: 0 !important;
-  box-shadow: var(--glow-gold-soft) !important;
   transition: all 0.2s !important;
 }
 .home-main-btn.ant-btn:hover,
 .home-main-btn.ant-btn:focus,
 .btn-hero.ant-btn:hover,
 .btn-hero.ant-btn:focus {
-  background: var(--blue-button-hero-hover) !important;
-  border-color: var(--gold-warm) !important;
+  background: rgba(60, 50, 120, 0.7) !important;
+  border-color: #e8d896 !important;
   color: #ffffff !important;
-  box-shadow: var(--glow-gold-strong) !important;
 }
 /* --------------Active-Turn-Highlight für die ersten zwei Runden--------------------- */
 
@@ -1577,7 +1606,8 @@ text-shadow:
   border: none !important;
   box-shadow: none !important;
   color: #0a0e27 !important;
-  font-family: var(--font-cinzel), serif !important;
+  font-family: var(--font-cormorant), serif !important;
+  font-size: 25px !important;
   caret-color: #0a0e27;
 }
 /* inner input inside password wrapper — no double border */
@@ -1585,7 +1615,8 @@ text-shadow:
   background: transparent !important;
   border: none !important;
   color: #0a0e27 !important;
-  font-family: var(--font-cinzel), serif !important;
+  font-family: var(--font-cormorant), serif !important;
+  font-size: 25px !important;
   caret-color: #0a0e27;
 }
 .register-input.ant-input::placeholder,
@@ -1677,12 +1708,12 @@ text-shadow:
 .login-input.ant-input-affix-wrapper,
 .login-input .ant-input {
   background: transparent !important; border: none !important; box-shadow: none !important;
-  color: #e8d896 !important; font-family: var(--font-cinzel), serif !important; caret-color: #ffffff;
+  color: #e8d896 !important; font-family: var(--font-cormorant), serif !important; font-size: 36px !important; caret-color: #ffffff;
   text-align: center !important; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000, 1px 0 0 #000 !important;
 }
 .login-input.ant-input-affix-wrapper .ant-input {
   background: transparent !important; border: none !important; box-shadow: none !important;
-  color: #e8d896 !important; font-family: var(--font-cinzel), serif !important; caret-color: #ffffff;
+  color: #e8d896 !important; font-family: var(--font-cormorant), serif !important; font-size: 36px !important; caret-color: #ffffff;
   text-align: center !important; padding-left: 1em !important;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000, 1px 0 0 #000 !important;
 }
@@ -2256,15 +2287,16 @@ You can only use ::before and ::after once per element*/
 
 .drivein-return-btn {
   display: inline-block;
-  background: var(--blue-outline-bg);
-  border: 1px solid var(--blue-rim);
-  color: var(--gold-muted);
-  font-family: var(--font-display);
+  background: rgba(40, 35, 90, 0.55);
+  border: 1px solid #d4af5d;
+  color: #e8d896;
+  font-family: var(--font-cinzel), serif;
   letter-spacing: 2px;
   font-size: clamp(12px, 1.8vh, 14px);
   height: clamp(36px, 5.5vh, 42px);
   padding: 0 clamp(20px, 2.5vw, 32px);
   border-radius: 2px;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
   cursor: pointer;
   outline: none;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -2272,8 +2304,8 @@ You can only use ::before and ::after once per element*/
 }
 .drivein-return-btn:hover,
 .drivein-return-btn:focus {
-  background: var(--blue-outline-bg-hover);
-  border-color: var(--gold-rim);
+  background: rgba(60, 50, 120, 0.7);
+  border-color: #e8d896;
   color: var(--gold-warm);
 }
 
