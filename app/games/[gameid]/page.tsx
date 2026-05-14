@@ -563,7 +563,7 @@ const genreToBullauge = (genre: string | null | undefined): string =>
   
         <div
           className={`goldInput goldInputFlex ${showFirstTurnHint ? "flashHighlight-1" : ""}`}
-          style={{ flex: 1, minHeight: "clamp(50px, 8vh, 120px)", position: "relative" }}
+          style={{ flex: 1, minHeight: "clamp(20px, 8.7vw, 120px)", position: "relative" }}
         >
           <TextArea
             maxLength={2000}
@@ -677,7 +677,7 @@ const genreToBullauge = (genre: string | null | undefined): string =>
           style={{
             display: "flex",
             justifyContent: "center",
-            marginTop: "clamp(4px, 1.5vh, 16px)",
+            marginTop: "clamp(4px, 1.16vw, 16px)",
             flexShrink: 0,
           }}
         >
@@ -686,7 +686,7 @@ const genreToBullauge = (genre: string | null | undefined): string =>
             disabled={!isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION"}
             className="goldButton"
             style={{
-              width: 120,
+              width: "clamp(60px, 8.3vw, 120px)",
               opacity: !isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION" ? 0.4 : 1,
             }}
           >
@@ -798,7 +798,8 @@ return (
             style={{
               flex: 1,
               overflowY: "auto",
-              padding: "35px 12px 0 20px",
+              overflowX: "hidden",
+              padding: "clamp(10px, 2.4vw, 35px) 12px 0 20px",
               minHeight: 0,
             }}
           >

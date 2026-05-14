@@ -17,6 +17,7 @@ export default function Home() {
   //mount gate -> don't read localStorage before it's available (prevents hydration mismatch)
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
+  const [hqLoaded, setHqLoaded] = useState(false);
 
   //clears token and UserId if they are expired
   useEffect(() => {
@@ -75,6 +76,15 @@ export default function Home() {
 
  return (
     <div className="home-page">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/background_home_hq.webp"
+        alt=""
+        aria-hidden="true"
+        className={`home-page-hq ${hqLoaded ? "is-loaded" : ""}`}
+        onLoad={() => setHqLoaded(true)}
+        decoding="async"
+      />
       {/*  Top-right button stack: Profile + Login/Register/Logout depending on auth */}
       <div className="home-top-buttons">
         <Button className="home-nav-btn" onClick={() => router.push("/tutorial")}>

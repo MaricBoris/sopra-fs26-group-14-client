@@ -15,6 +15,7 @@ export default function ResultsPage() {
 
   const [stories, setStories] = useState<Story[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [hqLoaded, setHqLoaded] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
   const fetchStories = useCallback(async () => {
@@ -60,6 +61,15 @@ export default function ResultsPage() {
       
       {/* The gas-station background picture*/}
       <div className="results-stage">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/background-stories-hq.webp"
+          alt=""
+          aria-hidden="true"
+          className={`results-stage-hq ${hqLoaded ? "is-loaded" : ""}`}
+          onLoad={() => setHqLoaded(true)}
+          decoding="async"
+        />
         {/* Inner panel: sits on the dark display board in the background image */}
         <div className="results-panel">
           {/* Table title */}
