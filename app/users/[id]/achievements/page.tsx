@@ -37,6 +37,9 @@ const AchievementsPage: React.FC = () => {
   const viewedUserId = params?.id;
   const apiService = useApi();
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
   const [viewedUser, setViewedUser] = useState<User | null>(null);
   const [allAchievements, setAllAchievements] = useState<Achievement[]>([]);
   const [unlocked, setUnlocked] = useState<UserAchievement[]>([]);
@@ -53,6 +56,7 @@ const AchievementsPage: React.FC = () => {
 
   //  Auth check-> push to /login if no token
   useEffect(() => {
+    if (!isMounted) return;
     if (token === "") {
       router.push("/login");
       return;
@@ -69,11 +73,11 @@ const AchievementsPage: React.FC = () => {
       }
     };
     validateToken();
-  }, [token, id, apiService, router, clearId, clearToken]);
+  }, [isMounted, token, id, apiService, router, clearId, clearToken]);
 
   // Fetch viewed user, all possible achievements and the users unlocked ones
   useEffect(() => {
-    if (!token || !viewedUserId) return;
+    if (!isMounted || !token || !viewedUserId) return;
 
     const fetchUser = async () => {
       try {
@@ -114,7 +118,7 @@ const AchievementsPage: React.FC = () => {
     fetchUser();
     fetchAllAchievements();
     fetchUnlocked();
-  }, [viewedUserId, token, apiService, clearId, clearToken, router]);
+  }, [isMounted, viewedUserId, token, apiService, clearId, clearToken, router]);
 
   return (
     <div
@@ -135,8 +139,8 @@ const AchievementsPage: React.FC = () => {
           display: "flex", //makes it a flexbox
           flexDirection: "column", //arranges children beneath each other instead of next to each other
           alignItems: "center", //aligns the children horizontally
-          paddingTop: 24, //24 pixels from upper viewport border
-          paddingBottom: 60,
+          paddingTop: "clamp(14px, 3.2vh, 24px)", //scales with viewport height
+          paddingBottom: "clamp(40px, 8vh, 60px)",
         }}
       >
         {/* Page title */}
@@ -150,7 +154,7 @@ const AchievementsPage: React.FC = () => {
         </h1>
         <div
           className="profile-title-divider"
-          style={{ position: "relative", marginBottom: 50 }}
+          style={{ position: "relative", marginBottom: "clamp(28px, 6.5vh, 50px)" }}
         >
           ✦
         </div>
@@ -159,9 +163,9 @@ const AchievementsPage: React.FC = () => {
         <div
           style={{
             display: "grid", //activates the grid layout
-            gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", //make as many colums as possible, min width 240px, fill the remaining space equally (1fr each)
-            gap: 28, //horizontal and vertical margin between the grid cells
-            width: "min(90vw, 1100px)", //take the smaller of both for width, either 90& of viewport or 1100 pixel
+            gridTemplateColumns: "repeat(auto-fill, minmax(min(240px, 38vw), 1fr))", //make as many columns as possible, min width scales with viewport
+            gap: "clamp(18px, 2.5vw, 28px)", //horizontal and vertical margin between the grid cells, scales with viewport
+            width: "min(90vw, 1100px)", //take the smaller of both for width, either 90% of viewport or 1100 pixel
             padding: "0 16px", //top/down 0 and left/right 16 within the container
           }}
         >
@@ -199,8 +203,8 @@ const AchievementsPage: React.FC = () => {
                     src={badgeImage(a.name)} //uses the helper function to make the path to the image
                     alt={a.displayName} //what's displayed if the image is not there
                     style={{
-                      width: "100%", //image should fill the container 
-                      maxWidth: 240, //but max width 240 pixel
+                      width: "100%", //image should fill the container
+                      maxWidth: "min(240px, 38vw)", //but max width scales with viewport
                       height: "auto", //and proportional height
                       filter: isUnlocked //the filter applied dependant on if unlocked or not
                         ? "drop-shadow(0 0 18px rgba(232, 216, 150, 0.35))" //if unlocked we want a golden drop shadow (goes exactly around shape of image, not for example in rectangle), 0 horizontal and vertical offset, 18 pixel blurr
