@@ -551,7 +551,7 @@ const genreToBullauge = (genre: string | null | undefined): string =>
 
         {/*the username-title*/}
 
-        <div style={{ flexShrink: 0, marginBottom: 4 }}>
+        <div style={{ flexShrink: 0, marginBottom: "clamp(1px, 0.4vh, 4px)" }}>
           <div className="playerNameTitle">
             {(writer?.username ?? `Player ${playerNum}`).toUpperCase()}
           </div>
@@ -563,7 +563,7 @@ const genreToBullauge = (genre: string | null | undefined): string =>
   
         <div
           className={`goldInput goldInputFlex ${showFirstTurnHint ? "flashHighlight-1" : ""}`}
-          style={{ flex: 1, minHeight: 120, position: "relative" }}
+          style={{ flex: 1, minHeight: "clamp(50px, 8vh, 120px)", position: "relative" }}
         >
           <TextArea
             maxLength={2000}
@@ -589,7 +589,7 @@ const genreToBullauge = (genre: string | null | undefined): string =>
           )}
         </div>
   
-        <div style={{ marginTop: 6, flexShrink: 0 }}>
+        <div style={{ marginTop: "clamp(2px, 0.8vh, 6px)", flexShrink: 0 }}>
           <div className="sectionLabel" style={{ marginBottom: 2 }}>
             GENRE
           </div>
@@ -602,7 +602,7 @@ const genreToBullauge = (genre: string | null | undefined): string =>
         </div>
   
         {(isUserThisPlayer || isJudge) && writer?.quote && (!(quoteUsed || quoteIncorporated) || (playerIdx === 0 ? showIncorporatedHintP1 : showIncorporatedHintP2)) && (
-          <div style={{ marginTop: 6, flexShrink: 0 }}>
+          <div style={{ marginTop: "clamp(2px, 0.8vh, 6px)", flexShrink: 0 }}>
             <div
               style={{
                 display: "flex",
@@ -629,8 +629,8 @@ const genreToBullauge = (genre: string | null | undefined): string =>
                 placeholder="Quote will appear here..."
                 value={writer?.quote ?? ""}
                 readOnly
-                rows={3}
-                style={{ fontSize: 12, resize: "none" }}
+                rows={2}
+                style={{ fontSize: "clamp(9px, 1.1vh, 12px)", resize: "none" }}
               />
             </div>
   
@@ -677,7 +677,7 @@ const genreToBullauge = (genre: string | null | undefined): string =>
           style={{
             display: "flex",
             justifyContent: "center",
-            marginTop: 16,
+            marginTop: "clamp(4px, 1.5vh, 16px)",
             flexShrink: 0,
           }}
         >
