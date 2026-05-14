@@ -68,7 +68,7 @@ export default function RegisterPage() {
 
   return (
     <div style={{ minHeight: "100vh" }}>
-      <div style={{ position: "fixed", inset: 0, backgroundImage: "url('/register_wp_table.png')", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
+      <div style={{ position: "fixed", inset: 0, backgroundImage: "url('/register_wp.webp')", backgroundSize: "cover", backgroundPosition: "center", zIndex: -1 }} />
       <HomeButton />
 
       <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 18, paddingBottom: 40 }}>
@@ -83,7 +83,7 @@ export default function RegisterPage() {
         <Form form={form} name="register" onFinish={onFinish} onFinishFailed={() => setShowErrors(true)} className="register-form" validateTrigger="onSubmit">
           <div style={{ position: "relative", height: "85vh", aspectRatio: "1448 / 1086", maxWidth: "95vw" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/register_03_transparent2.png" alt="Register frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
+            <img src="/register_frame.webp" alt="Register frame" style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }} />
 
             {/* 📝 Username — pinned to its label position in the image */}
             <div style={{ position: "absolute", top: "8.5%", left: "43%", right: "26%" }}>

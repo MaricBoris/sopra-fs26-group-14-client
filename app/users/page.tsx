@@ -15,24 +15,10 @@ import ProfileButton from "@/components/ProfileButton";
 // 📝 Columns for user list table
 const columns: TableProps<User>["columns"] = [
   {
-    title: "",
-    key: "left-star",
-    width: "3cqw",
-    render: () => "✦",
-    onCell: () => ({ style: { textAlign: "center" as const, color: "#d4af5d", opacity: 0.7 } }),
-  },
-  {
     title: "Username",
     dataIndex: "username",
     key: "username",
     onCell: () => ({ style: { textAlign: "center" as const } }),
-  },
-  {
-    title: "",
-    key: "right-star",
-    width: "3cqw",
-    render: () => "✦",
-    onCell: () => ({ style: { textAlign: "center" as const, color: "#d4af5d", opacity: 0.7 } }),
   },
 ];
 
@@ -126,7 +112,7 @@ const UsersPage: React.FC = () => {
 
       <div style={{
         minHeight: "100vh",
-        backgroundImage: "url('/users_wp.png')",
+        backgroundImage: "url('/users_wp.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -146,7 +132,7 @@ const UsersPage: React.FC = () => {
             <div className="users-frame" style={{ position: "relative", width: "min(85vw, calc(85vh * 1672 / 941))", aspectRatio: "1672 / 941" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/users_final.webp"
+                src="/users_frame.webp"
                 alt="Users frame"
                 style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }}
               />

@@ -1147,7 +1147,7 @@ text-shadow:
 }
 .users-table .ant-table-tbody > tr > td {
   color: #e8d896 !important;
-  font-size: clamp(13px, 1.8vh, 18px) !important;
+  font-size: clamp(12px, 1.7vh, 17px) !important;
 }
 .users-table .ant-table-tbody > tr:hover > td {
   background: rgba(212, 175, 93, 0.08) !important;
@@ -1198,7 +1198,7 @@ text-shadow:
   position: relative;
   min-height: 100vh;
   width: 100%;
-  background-image: url('/background_home.webp');
+  background-image: url('/background_home_1920.webp');
   background-size: cover;
   background-position: center;
   background-color: var(--blue-deep);

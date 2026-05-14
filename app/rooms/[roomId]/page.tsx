@@ -238,7 +238,7 @@ export default function PreGameRoomPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      backgroundImage: "url('/rooms_id_04.png')",
+      backgroundImage: "url('/rooms_id_wp.webp')",
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
@@ -271,7 +271,7 @@ export default function PreGameRoomPage() {
           <div className="pregame-frame" style={{ position: "relative", width: "min(100vw, calc(100vh * 1448 / 1086))", aspectRatio: "1448 / 1086" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/rooms_id_new_t.png"
+              src="/rooms_id_frame.webp"
               alt="Room frame"
               style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }}
             />
