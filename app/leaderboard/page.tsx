@@ -8,9 +8,8 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
 import { LeaderboardEntry as ApiLeaderboardEntry } from "@/types/leaderboardEntry";
 
-// 14 genres, split into the drawer's two compartment rows (7 each).
-// Top row sits behind / above, bottom row in front. Order is left-to-right
-// in each row.
+// 14 genres, split into the drawer's two compartment rows (7 each)
+// Order is left to right in each row
 const GENRES_TOP = [
   "Horror",
   "Utopian",
@@ -36,8 +35,7 @@ export default function LeaderboardPage() {
   const { value: token } = useLocalStorage<string>("token", "");
   const { value: userId } = useLocalStorage<string>("userId", "");
 
-  // mount gate: don't read localStorage before it's available (avoids SSR
-  // hydration mismatch, same pattern as the lobby page).
+  // mount gate: don't read localStorage before it's available 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
@@ -45,7 +43,7 @@ export default function LeaderboardPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
 
-  // leaderboard data — overall by default, per-genre when selectedGenre is set
+  // leaderboard data: overall by default, per-genre when selectedGenre is set
   const [entries, setEntries] = useState<ApiLeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -69,9 +67,7 @@ export default function LeaderboardPage() {
         setEntries(data);
       } catch (e) {
         message.error(
-          `Failed to load leaderboard: ${
-            e instanceof Error ? e.message : String(e)
-          }`
+          `Failed to load leaderboard`
         );
         setEntries([]);
       } finally {
@@ -83,10 +79,9 @@ export default function LeaderboardPage() {
   }, [isMounted, token, selectedGenre, api]);
 
   const handleGenreSelect = (genre: string) => {
-    setSelectedGenre(genre);
-    // Could close the drawer after selection; left open here so the user can
-    // switch genres without reopening every time.
-    // setIsDrawerOpen(false);
+    setSelectedGenre((currentGenre) =>
+      currentGenre === genre ? null : genre
+    );
   };
 
   const columns = [
@@ -94,13 +89,14 @@ export default function LeaderboardPage() {
       title: "#",
       key: "rank",
       width: 50,
-      align: "left" as const,
-      render: (_: unknown, __: ApiLeaderboardEntry, index: number) =>
+      align: "left" as const, //as const, so typescript is happy. It expects either left, center or right and not a random string
+      render: (_: unknown, __: ApiLeaderboardEntry, index: number) => //we ignore the first 2 argument/don't need them, only index is of interest for us here
+      //value (dataindex, for example username or score, set in the other columns, but not here), record (the whole leaderboardentry object for this row), index
         index + 1,
     },
     {
       title: "Player",
-      dataIndex: "username",
+      dataIndex: "username", //specifies, which field from apileaderboardentry we want here: username
       key: "username",
       align: "left" as const,
     },
@@ -120,16 +116,16 @@ export default function LeaderboardPage() {
     <button
       key={genre}
       className={`drawer-genre-btn ${
-        selectedGenre === genre ? "is-active" : ""
+        selectedGenre === genre ? "is-active" : "" //styling is always drawer-genre-btn and (in case of selectedGenre === genre) also is-active 
       }`}
       onClick={() => handleGenreSelect(genre)}
       // Only interactive when drawer is actually open
-      tabIndex={isDrawerOpen ? 0 : -1}
-      aria-hidden={!isDrawerOpen}
+      tabIndex={isDrawerOpen ? 0 : -1} //ignored by tabs
+      aria-hidden={!isDrawerOpen} //ignored by screenreaders
     >
-      {/* "Psychological" gets a soft hyphen so it breaks between Psycho-
-          and logical if the cell is too narrow. "Love Story" gets a
-          forced line break so it sits on two lines like "Dark Fantasy". */}
+      {/* Psychological gets a soft hyphen so it breaks between Psycho-
+          and logical if the cell is too small. Love Story and Fairy Tale gets a
+          forced line break so it sits on two lines like Dark Fantasy. */}
       {genre === "Psychological" ? (
         <>Psycho&shy;logical</>
       ) : genre === "Love Story" ? (
@@ -155,28 +151,16 @@ export default function LeaderboardPage() {
       <HomeButton />
       <ProfileButton />
 
-      {/* No page title — the LEADERBOARD wordmark is engraved on the
-          chessboard graphic itself, and skipping the title gives the drawer
-          more vertical room to slide out below the chessboard. */}
-
-      {/* Stage: holds the 3 stacked image layers + the toggle button + the
-          leaderboard panel that sits inside the chessboard's dark area. */}
+      {/* Stage: holds the 3 stacked image layers + the open/close button + the
+          leaderboard panel that sits inside the chessboards dark area. */}
       <div className="chessboard-stage">
         <div className="chessboard-wrap">
-          {/* Layer (z=2): bottom piece — the sub-base with a flat black
-              "drawer slot" area in the middle. The drawer image will sit
-              on top of this when closed. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/Unterteil_Schachbrett_mit_schublade.webp"
             alt=""
             className="chessboard-bottom"
           />
-
-          {/* Layer (z=3): drawer — slides between bottom (z=2) and top (z=4).
-              When closed, only the drawer-front strip is visible and it
-              covers the bottom piece's black slot area. When open, the
-              compartments are revealed above the drawer-front. */}
           <div
             className={`chessboard-drawer ${isDrawerOpen ? "is-open" : ""}`}
           >
@@ -186,9 +170,7 @@ export default function LeaderboardPage() {
               alt=""
               className="chessboard-drawer-img"
             />
-            {/* Genre buttons split into two independent grids — one per
-                row of the drawer's compartments. The drawer is shown in
-                slight perspective, so the rows have different bounds. */}
+  
             <div className="drawer-genres-row drawer-genres-row--top">
               {GENRES_TOP.map((genre) => renderGenreButton(genre))}
             </div>
@@ -197,9 +179,6 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          {/* Layer (z=4): top piece — the chessboard with statuettes and the
-              engraved "LEADERBOARD" title. Hides the upper part of the
-              drawer when retracted. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/perfektes_oberes_schachbrett_teil.webp"
@@ -207,36 +186,29 @@ export default function LeaderboardPage() {
             className="chessboard-top"
           />
 
-          {/* Drawer toggle button: positioned over the plaque on the top
-              piece's plinth. Label stays "Pick a Genre" / "Close" regardless
-              of which genre is currently selected — the selection is
-              communicated by the highlighted button inside the drawer and
-              by the leaderboard table below. */}
+          {/* Drawer open/close button */}
           <button
             className="chessboard-drawer-toggle"
             onClick={() => setIsDrawerOpen((v) => !v)}
-            aria-label={isDrawerOpen ? "Close drawer" : "Open drawer"}
-            aria-expanded={isDrawerOpen}
           >
             {isDrawerOpen ? "Close" : "Pick a Genre"}
           </button>
 
-          {/* Leaderboard panel: sits inside the dark inset on the top piece,
-              below the engraved LEADERBOARD title. */}
+          {/* Leaderboard panel*/}
           <div className="leaderboard-panel">
             <div className="leaderboard-table">
               <Table
-                dataSource={entries}
-                columns={columns}
+                dataSource={entries} //the data that should go in the table, our entries
+                columns={columns} //the columns defined above
                 rowKey="userId"
-                pagination={false}
+                pagination={false} //does not do pages for the table, for example first 10 on page 1, next 10 on page 2 etc
                 size="small"
-                loading={loading}
+                loading={loading} //shows a loading status if loading is true
                 locale={{
-                  emptyText: (
+                  emptyText: ( //configures the empty text
                     <span
                       style={{
-                        color: "#6b6480",
+                        color: "#8A775F",
                         fontFamily: "var(--font-cinzel), serif",
                       }}
                     >

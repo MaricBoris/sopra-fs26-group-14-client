@@ -311,7 +311,7 @@ const Login: React.FC = () => {
         <h1 className="profile-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
           USER PROFILE
         </h1>
-        <div className="profile-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: -15 }}>✦</div>
+        <div className="profile-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: -35 }}>✦</div>
 
         {/* 📝 Profile frame — height-driven so it reaches near bottom of screen */}
         <div style={{ position: "relative", height: "92vh", aspectRatio: "1145 / 1374", maxWidth: "95vw" }}>

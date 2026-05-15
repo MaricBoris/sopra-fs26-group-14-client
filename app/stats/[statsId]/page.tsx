@@ -186,7 +186,7 @@ export default function UserStatsPage() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 2rem 1rem 4rem;
+          padding: 0.5rem 1rem 4rem;
           position: relative;
         }
         .stats-bg-lq,
@@ -212,7 +212,7 @@ export default function UserStatsPage() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          margin: 2rem 0 0.5rem;
+          margin: 1rem 0 0.5rem;
         }
         .stats-title-wrap .results-title-divider {
           position: static;
@@ -223,8 +223,8 @@ export default function UserStatsPage() {
         }
         .stats-title {
           font-family: var(--font-display);
-          font-size: clamp(26px, 5vh, 38px);
-          letter-spacing: 8px;
+          font-size: clamp(18px, 2.7vw, 38px);
+          letter-spacing: clamp(3px, 0.56vw, 8px);
           color: var(--gold-warm);
           text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0, 0, 0, 0.8);
           margin: 0;
@@ -237,11 +237,11 @@ export default function UserStatsPage() {
           flex-direction: column;
           align-items: center;
           gap: 1rem;
-          margin-top: 2rem;
+          margin-top: 0.5rem;
         }
         .stats-username {
           font-family: var(--font-cinzel), serif;
-          font-size: 1.6rem;
+          font-size: clamp(14px, 2.2vw, 26px);
           letter-spacing: 0.1em;
           margin-bottom: 0.5rem;
           text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0, 0, 0, 0.8);
@@ -258,14 +258,14 @@ export default function UserStatsPage() {
         .stats-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 0.75rem;
+          gap: clamp(6px, 0.83vw, 12px);
           width: 100%;
         }
         .stats-card {
           background: rgba(10, 14, 40, 0.55);
           border: 1px solid rgba(212, 175, 93, 0.25);
           border-radius: 4px;
-          padding: 1.1rem 1rem;
+          padding: clamp(8px, 1.2vw, 18px) clamp(6px, 1.1vw, 16px);
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -283,7 +283,7 @@ export default function UserStatsPage() {
         }
         .stats-card-value {
           font-family: var(--font-cinzel), serif;
-          font-size: 1.8rem;
+          font-size: clamp(16px, 3.5vw, 29px);
           font-weight: 700;
           line-height: 1;
         }
