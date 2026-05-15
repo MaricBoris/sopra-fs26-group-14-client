@@ -59,28 +59,33 @@ const Tutorial: React.FC = () => {
 
           <p>
             Go to the homepage and click the <strong>Lobby</strong> button.
-            There, you can create a match room and invite two other players to join.
+            There, you can create a match room. Just click on <strong>Create Match</strong>
+            and then choose a name for your room. Once the room is created, you'll need
+            two people, that want to play with you. They both need to join your room in 
+            the lobby.
           </p>
 
           <figure className="tutorials-figure">
             <img
-              src="/tutorials/lobby-create-match.png"
+              src="/tutorials/exp1.webp"
               alt="Lobby with Create Match button" //image described in textform, in case image is not found
             />
           </figure>
 
-          <p>
-            Once all three players are in the room, click{" "}
-            <strong>Create Match</strong>.
-          </p>
-
-          <p>Before the match begins, each player chooses a role:</p>
+          <p>Once all 3 players are in the pre-game room, each player chooses a role:</p>
 
           <p>Two players become <strong>Writers</strong></p>
           <p>One player becomes the <strong>Judge</strong></p>
-         
+                   <figure className="tutorials-figure">
+            <img
+              src="/tutorials/eexp2.webp"
+              alt="Pregame room" //image described in textform, in case image is not found
+            />
+          </figure>
 
-          <p>You can also choose how many rounds the match will last.</p>
+          <p>You can also choose how many rounds the game should have
+             and how long a round will take.</p>
+          <p>As soon as all roles are assigned, you can start your game! </p>
         </>
       );
     }
@@ -100,6 +105,12 @@ const Tutorial: React.FC = () => {
           <p>
             Your genre is shown in your genre field. Hover over it to read the full
             description. Your opponent cannot see your genre.
+            <figure className="tutorials-figure">
+            <img
+              src="/tutorials/eexp3.webp"
+              alt="game room 1" //image described in textform, in case image is not found
+            />
+          </figure>
           </p>
 
           <p>
@@ -111,13 +122,24 @@ const Tutorial: React.FC = () => {
             When it is your opponent&apos;s turn, your writing panel is covered by a
             porthole. You can still see what your opponent types into their story field.
           </p>
-
+            <figure className="tutorials-figure">
+            <img
+              src="/tutorials/exp4.webp"
+              alt="game room 2" //image described in textform, in case image is not found
+            />
+          </figure>
           <p>
             The judge may assign you a quote during the match. If you receive a quote,
             you must include it in the story within your next two turns. If you do not,
-            you receive a penalty.
+            the judge might penalize you, by reducing the time you have to write in 
+            one of your next rounds.
           </p>
-
+            <figure className="tutorials-figure">
+            <img
+              src="/tutorials/exp5.webp"
+              alt="Quotes" //image described in textform, in case image is not found
+            />
+          </figure>
           <p>
             At the end of the selected number of rounds, the judge decides whose genre
             had the strongest influence on the final story.
@@ -125,7 +147,7 @@ const Tutorial: React.FC = () => {
 
           <p>
             <em>
-              Write creatively, react quickly, and make your genre impossible to ignore.
+              So write creatively, react quickly and make your genre impossible to ignore!
             </em>
           </p>
         </>
@@ -158,6 +180,13 @@ const Tutorial: React.FC = () => {
             remaining time to 45 seconds. Each writer can only be affected by Reduce
             Time once.
           </p>
+
+                    <figure className="tutorials-figure">
+            <img
+              src="/tutorials/exp6.webp"
+              alt="Judge tools" //image described in textform, in case image is not found
+            />
+          </figure>
         </>
       );
     }
@@ -171,7 +200,12 @@ const Tutorial: React.FC = () => {
             The judge has 90 seconds to choose a winner using the{" "}
             <strong>Declare</strong> button.
           </p>
-
+            <figure className="tutorials-figure">
+            <img
+              src="/tutorials/exp7.webp"
+              alt="Declare" //image described in textform, in case image is not found
+            />
+          </figure>
           <p>
             The winner should be the writer whose genre shaped the story most clearly
             and convincingly.
@@ -194,7 +228,12 @@ const Tutorial: React.FC = () => {
             Click the <strong>Stories</strong> button on the homepage to read your
             finished story.
           </p>
-
+            <figure className="tutorials-figure">
+            <img
+              src="/tutorials/exp8.webp"
+              alt="Declare" //image described in textform, in case image is not found
+            />
+          </figure>
           <p>You can also browse stories written by other players and vote on them.</p>
         </>
       );
@@ -204,17 +243,17 @@ const Tutorial: React.FC = () => {
       return (
         <ul>
           <li>
-            <strong>Writers:</strong> Take turns writing, follow the story objective,
+            <strong>Writers:</strong> Take turns writing, follow the story objective
             and secretly push the story toward your genre.
           </li>
 
           <li>
-            <strong>Judge:</strong> Watch the story, assign quotes, reduce time, and
+            <strong>Judge:</strong> Watch the story, assign quotes, reduce time and
             decide whose genre dominated the final story.
           </li>
 
           <li>
-            <strong>Goal:</strong> Create the most convincing story — or judge it wisely.
+            <strong>Goal:</strong> Create the most convincing story or be a wise judge
           </li>
         </ul>
       );
