@@ -286,11 +286,20 @@ const Login: React.FC = () => {
         Trophies
       </Button>
 
+      {/* Stats button */}
+      <Button
+        className="profile-btn"
+        onClick={() => router.push(`/stats/${viewedUserId}`)}
+        style={{ position: "fixed", top: 136, right: 16, width: 104, height: 50, fontSize: 18, zIndex: 100 } as React.CSSProperties}
+      >
+        Stats
+      </Button>
+
       {/* 📝 Logout button */}
       <Button
         className="users-logout-btn"
         onClick={handleLogout}
-        style={{ position: "fixed", top: 136, right: 16, width: 104, height: 50, fontSize: 18, padding: 0, zIndex: 100 } as React.CSSProperties}
+        style={{ position: "fixed", top: 196, right: 16, width: 104, height: 50, fontSize: 18, padding: 0, zIndex: 100 } as React.CSSProperties}
       >
         Logout
       </Button>

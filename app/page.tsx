@@ -95,6 +95,11 @@ export default function Home() {
             </Button>
           </div>
           <div style={{ position: "fixed", top: 76, right: 16, zIndex: 1000 }}>
+            <Button className="home-corner-btn" onClick={() => router.push("/leaderboard")} style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}>
+              Ranking
+            </Button>
+          </div>
+          <div style={{ position: "fixed", top: 136, right: 16, zIndex: 1000 }}>
             <Button className="users-logout-btn" onClick={handleLogout} style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}>
               Logout
             </Button>
