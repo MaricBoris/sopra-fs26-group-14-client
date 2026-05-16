@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button, Table, message } from "antd";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -21,6 +21,12 @@ interface JudgeGetDTO {
   username: string;
 }
 
+interface ChatMessage {
+  username: string;
+  message: string;
+  timestamp: string;
+}
+
 interface Room {
   id: number;
   name: string;
@@ -31,6 +37,7 @@ interface Room {
   judges: JudgeGetDTO[];
   timer: number;
   maxRounds: number;
+  chat: ChatMessage[];
 }
 
 interface GameGetDTO {
@@ -61,6 +68,9 @@ export default function PreGameRoomPage() {
   const [timerOpen, setTimerOpen] = useState(false);
   const [maxRounds, setMaxRounds] = useState(4);
   const [timer, setTimer] = useState(90);
+  const [chatInput, setChatInput] = useState("");
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => setIsMounted(true), []);
 
@@ -156,6 +166,16 @@ export default function PreGameRoomPage() {
       router.push(`/games/${game.gameId}`);
     } catch (e) {
       message.error(`Could not start game: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  };
+
+  const handleSendChat = async () => {
+    if (!chatInput.trim()) return;
+    try {
+      await api.put(`/rooms/${roomId}/chat`, { message: chatInput.trim() }, token);
+      setChatInput("");
+    } catch {
+      message.error("Failed to send message.");
     }
   };
 
@@ -332,6 +352,122 @@ export default function PreGameRoomPage() {
               </div>
 
             </div>
+            {/* 📝 Chat sidebar toggle button */}
+            <button
+              onClick={() => setChatOpen(o => !o)}
+              style={{
+                position: "fixed",
+                right: chatOpen ? "260px" : "0px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "rgba(15,20,48,0.95)",
+                border: "1px solid rgba(212,168,87,0.3)",
+                borderRight: "none",
+                borderRadius: "4px 0 0 4px",
+                color: "var(--gold)",
+                fontFamily: "var(--font-cinzel), serif",
+                fontSize: 12,
+                padding: "12px 6px",
+                cursor: "pointer",
+                zIndex: 200,
+                writingMode: "vertical-rl",
+                letterSpacing: 2,
+                transition: "right 0.3s ease",
+              }}
+            >
+              {chatOpen ? "✕" : "✒ CHAT"}
+            </button>
+
+            {/* 📝 Chat sidebar */}
+            {chatOpen && (
+              <div style={{
+                position: "fixed",
+                right: 0,
+                top: 0,
+                bottom: 0,
+                width: 260,
+                background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)",
+                border: "1px solid rgba(212,168,87,0.3)",
+                borderRight: "none",
+                display: "flex",
+                flexDirection: "column",
+                zIndex: 199,
+                fontFamily: "var(--font-cinzel), serif",
+              }}>
+                {/* header */}
+                <div style={{
+                  padding: "12px 16px",
+                  borderBottom: "1px solid rgba(212,168,87,0.2)",
+                  color: "var(--gold)",
+                  fontSize: 13,
+                  letterSpacing: 2,
+                }}>
+                  ✒ CHAT
+                </div>
+
+                {/* messages */}
+                <div style={{
+                  flex: 1,
+                  overflowY: "auto",
+                  padding: "8px 12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}>
+                  {(room?.chat ?? []).length === 0 ? (
+                    <span style={{ color: "#6b6480", fontSize: 11 }}>No messages yet...</span>
+                  ) : (
+                    (room?.chat ?? []).map((msg, i) => (
+                      <div key={i} style={{ fontSize: 11 }}>
+                        <span style={{ color: "var(--gold)" }}>{msg.username}</span>
+                        <span style={{ color: "rgba(245,230,200,0.4)" }}> ✦ </span>
+                        <span style={{ color: "rgba(245,230,200,0.85)" }}>{msg.message}</span>
+                      </div>
+                    ))
+                  )}
+                  <div ref={chatBottomRef} />
+                </div>
+
+                {/* input */}
+                <div style={{
+                  display: "flex",
+                  borderTop: "1px solid rgba(212,168,87,0.2)",
+                  padding: "4px 0",
+                }}>
+                  <input
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSendChat()}
+                    placeholder="Say something..."
+                    maxLength={200}
+                    style={{
+                      flex: 1,
+                      background: "transparent",
+                      border: "none",
+                      outline: "none",
+                      color: "#fff",
+                      fontFamily: "var(--font-cinzel), serif",
+                      fontSize: 11,
+                      padding: "6px 10px",
+                    }}
+                  />
+                  <button
+                    onClick={handleSendChat}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      borderLeft: "1px solid rgba(212,168,87,0.2)",
+                      color: "var(--gold)",
+                      fontSize: 14,
+                      padding: "6px 10px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    ✒
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* 📝 Settings row  */}
             <div style={{ position: "absolute", top: "31%", left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5 }}>
