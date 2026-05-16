@@ -60,7 +60,7 @@ const Tutorial: React.FC = () => {
           <p>
             Go to the homepage and click the <strong>Lobby</strong> button.
             There, you can create a match room. Just click on <strong>Create Match</strong>
-            and then choose a name for your room. Once the room is created, you'll need
+            and then choose a name for your room. Once the room is created, you&apos;ll need
             two people, that want to play with you. They both need to join your room in 
             the lobby.
           </p>
