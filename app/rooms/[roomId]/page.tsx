@@ -357,16 +357,16 @@ export default function PreGameRoomPage() {
               onClick={() => setChatOpen(o => !o)}
               style={{
                 position: "fixed",
-                right: chatOpen ? "260px" : "0px",
+                right: chatOpen ? "clamp(160px, 15vw, 220px)" : "0px",
                 top: "50%",
                 transform: "translateY(-50%)",
-                background: "rgba(15,20,48,0.95)",
-                border: "1px solid rgba(212,168,87,0.3)",
-                borderRight: "none",
+                background: "rgba(15, 12, 50, 0.85)",
+                border: "1px solid rgba(212, 175, 93, 0.55)",
+                borderRight: "None",
                 borderRadius: "4px 0 0 4px",
                 color: "var(--gold)",
                 fontFamily: "var(--font-cinzel), serif",
-                fontSize: 12,
+                fontSize: "clamp(9px, 1.2vh, 12px)",
                 padding: "12px 6px",
                 cursor: "pointer",
                 zIndex: 200,
@@ -382,13 +382,17 @@ export default function PreGameRoomPage() {
             {chatOpen && (
               <div style={{
                 position: "fixed",
-                right: 0,
-                top: 0,
-                bottom: 0,
-                width: 260,
-                background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)",
-                border: "1px solid rgba(212,168,87,0.3)",
+                right: 1,
+                top: "25%",
+                bottom: "25%",
+                width: "min(clamp(160px, 15vw, 220px), 60vw)",
+                overflow: "hidden",
+                background: "rgba(15, 12, 50, 0.65)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(212, 175, 93, 0.55)",
+                boxShadow: "0 0 18px rgba(212, 175, 93, 0.15)",
                 borderRight: "none",
+                borderRadius: "8px 0 0 8px",
                 display: "flex",
                 flexDirection: "column",
                 zIndex: 199,
@@ -396,10 +400,10 @@ export default function PreGameRoomPage() {
               }}>
                 {/* header */}
                 <div style={{
-                  padding: "12px 16px",
+                  padding: "10px 16px",
                   borderBottom: "1px solid rgba(212,168,87,0.2)",
                   color: "var(--gold)",
-                  fontSize: 13,
+                  fontSize: "clamp(10px, 1.3vh, 13px)",
                   letterSpacing: 2,
                 }}>
                   ✒ CHAT
@@ -409,19 +413,26 @@ export default function PreGameRoomPage() {
                 <div style={{
                   flex: 1,
                   overflowY: "auto",
+                  overflowX: "hidden",
                   padding: "8px 12px",
                   display: "flex",
                   flexDirection: "column",
                   gap: 8,
                 }}>
                   {(room?.chat ?? []).length === 0 ? (
-                    <span style={{ color: "#6b6480", fontSize: 11 }}>No messages yet...</span>
+                    <span style={{ color: "#6b6480", fontSize: "clamp(11px, 1.5vh, 14px)" }}>No messages yet...</span>
                   ) : (
                     (room?.chat ?? []).map((msg, i) => (
-                      <div key={i} style={{ fontSize: 11 }}>
+                      <div key={i} style={{
+                        fontSize: "clamp(11px, 1.5vh, 14px)",
+                        color: "#e8d896",
+                        fontFamily: "var(--font-cinzel), serif",
+                        wordBreak: "break-all",
+                        overflowWrap: "break-word",
+                      }}>
                         <span style={{ color: "var(--gold)" }}>{msg.username}</span>
-                        <span style={{ color: "rgba(245,230,200,0.4)" }}> ✦ </span>
-                        <span style={{ color: "rgba(245,230,200,0.85)" }}>{msg.message}</span>
+                        <span style={{ color: "rgba(245,230,200,0.5)" }}> ✦ </span>
+                        <span>{msg.message}</span>
                       </div>
                     ))
                   )}
@@ -432,7 +443,9 @@ export default function PreGameRoomPage() {
                 <div style={{
                   display: "flex",
                   borderTop: "1px solid rgba(212,168,87,0.2)",
-                  padding: "4px 0",
+                  padding: "8px 0",
+                  boxSizing: "border-box",
+                  width: "100%",
                 }}>
                   <input
                     value={chatInput}
@@ -441,25 +454,27 @@ export default function PreGameRoomPage() {
                     placeholder="Say something..."
                     maxLength={200}
                     style={{
-                      flex: 1,
+                      width: "calc(100% - 36px)",
                       background: "transparent",
                       border: "none",
                       outline: "none",
                       color: "#fff",
                       fontFamily: "var(--font-cinzel), serif",
-                      fontSize: 11,
-                      padding: "6px 10px",
+                      fontSize: "clamp(11px, 1.5vh, 14px)",
+                      padding: "10px 10px",
+                      boxSizing: "border-box",
                     }}
                   />
                   <button
                     onClick={handleSendChat}
                     style={{
+                      width: 36,
+                      flexShrink: 0,
                       background: "transparent",
                       border: "none",
                       borderLeft: "1px solid rgba(212,168,87,0.2)",
                       color: "var(--gold)",
                       fontSize: 14,
-                      padding: "6px 10px",
                       cursor: "pointer",
                     }}
                   >
