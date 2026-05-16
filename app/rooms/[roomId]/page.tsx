@@ -71,6 +71,7 @@ export default function PreGameRoomPage() {
   const [chatInput, setChatInput] = useState("");
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const [chatOpen, setChatOpen] = useState(false);
+  const [sendFlash, setSendFlash] = useState(false);
 
   useEffect(() => setIsMounted(true), []);
 
@@ -178,6 +179,8 @@ useEffect(() => {
     try {
       await api.put(`/rooms/${roomId}/chat`, { message: chatInput.trim() }, token);
       setChatInput("");
+      setSendFlash(true);
+      setTimeout(() => setSendFlash(false), 300);
     } catch {
       message.error("Failed to send message.");
     }
@@ -474,7 +477,7 @@ useEffect(() => {
                     style={{
                       width: 36,
                       flexShrink: 0,
-                      background: "transparent",
+                      background: sendFlash ? "rgba(15, 12, 50, 0.8)" : "transparent",
                       border: "none",
                       borderLeft: "1px solid rgba(212,168,87,0.2)",
                       color: "var(--gold)",
