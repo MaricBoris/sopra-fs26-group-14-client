@@ -1,13 +1,39 @@
 "use client";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
-import { Button, message } from "antd";
+import { message } from "antd";
 import HomeButton from "@/components/HomeButton";
+import ProfileButton from "@/components/ProfileButton";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
 import { Story } from "@/types/story";
 import { User } from "@/types/user";
+import { GenreRating } from "@/types/genreRating";
+
+// maps genre names to the file slugs
+const GENRE_TO_SLUG: Record<string, string> = {
+  "Horror": "horror",
+  "Drama": "drama",
+  "Thriller": "thriller",
+  "Tragedy": "tragedy",
+  "Dystopian Sci-Fi": "dystopian",
+  "Survival": "survival",
+  "Crime": "crime",
+  "Psychological": "psychological",
+  "Dark Fantasy": "darkfantasy",
+  "Comedy": "comedy",
+  "Love Story": "love",
+  "Utopian Sci-Fi": "utopian",
+  "Fairy Tale": "fairytale",
+  "Kids / Disney Fantasy": "kidsfantasy",
+};
+
+const genreImage = (genre: string | null | undefined): string | null => {
+  if (!genre) return null;
+  const slug = GENRE_TO_SLUG[genre];
+  if (!slug) return null;
+  return `/genres/genre-${slug}-left.webp`;
+};
 
 export default function StoryDetailPage() {
   const router = useRouter();
@@ -21,6 +47,10 @@ export default function StoryDetailPage() {
   const [winnerUser, setWinnerUser] = useState<User | null>(null);
   const [loserUser, setLoserUser] = useState<User | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [rating, setRating] = useState<GenreRating | null>(null);
+  const [voting, setVoting] = useState(false);
+  const [hqLoaded, setHqLoaded] = useState(false);
+
   useEffect(() => setIsMounted(true), []);
 
   useEffect(() => {
@@ -29,10 +59,12 @@ export default function StoryDetailPage() {
 
     const load = async () => {
       try {
-        const [found, users] = await Promise.all([
+        const [found, users, rate] = await Promise.all([
           api.get<Story>(`/results/story/${storyId}`, token),
           api.get<User[]>("/users", token),
+          api.get<GenreRating>(`/stories/${storyId}/genre-rating`, token),
         ]);
+        setRating(rate);
         setStory(found);
         if (found.winnerUsername) {
           setWinnerUser(users.find((u) => u.username === found.winnerUsername) ?? null);
@@ -56,85 +88,220 @@ export default function StoryDetailPage() {
     }
   };
 
+  const handleVote = async (votedForUserId: number | null) => {
+    if (!votedForUserId || !token) return;
+    setVoting(true);
+    try {
+      const updated = await api.post<GenreRating>(
+        `/stories/${storyId}/genre-rating`,
+        { votedForUserId },
+        token,
+      );
+      setRating(updated);
+      message.success("Vote recorded");
+    } catch (e) {
+      message.error(`Failed to vote: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setVoting(false);
+    }
+  };
+
   if (!isMounted || !story) return null;
 
+  // Left = winner side, Right = loser side
+  // Each side is a writer with username, genre, votes and a vote action button
+  const leftWriter = rating
+    ? {
+        userId: rating.winnerUserId,
+        name: rating.winnerUsername ?? story.winnerUsername ?? "Player 1",
+        genre: rating.winnerGenre ?? story.winGenre ?? null,
+        votes: rating.winnerVotes ?? 0,
+        userObj: winnerUser,
+      }
+    : {
+        userId: null,
+        name: story.winnerUsername ?? "Player 1",
+        genre: story.winGenre ?? null,
+        votes: 0,
+        userObj: winnerUser,
+      };
+
+  const rightWriter = rating
+    ? {
+        userId: rating.loserUserId,
+        name: rating.loserUsername ?? story.loserUsername ?? "Player 2",
+        genre: rating.loserGenre ?? story.loseGenre ?? null,
+        votes: rating.loserVotes ?? 0,
+        userObj: loserUser,
+      }
+    : {
+        userId: null,
+        name: story.loserUsername ?? "Player 2",
+        genre: story.loseGenre ?? null,
+        votes: 0,
+        userObj: loserUser,
+      };
+
+  const leftBg = genreImage(leftWriter.genre);
+  const rightBg = genreImage(rightWriter.genre);
+
+  const renderWriterPanel = (
+    writer: typeof leftWriter,
+    side: "left" | "right",
+    bgUrl: string | null,
+  ) => {
+    const isMyVote = !!(rating && writer.userId && rating.userVotedForId === writer.userId);
+    // check: can the user actually make/change a vote on this writer?
+    const canVoteNow = !!(rating && rating.canVote && writer.userId);
+    // status line text, only shown if voting is possible
+    const statusText = canVoteNow
+      ? (rating!.userVotedForId ? "Change your vote" : "Cast your vote")
+      : null;
+
+    return (
+      <div className={`drivein-side drivein-side-${side}`}>
+        {bgUrl && (
+          <div
+            className="drivein-side-bg"
+            style={{ backgroundImage: `url('${bgUrl}')` }}
+            aria-hidden
+          />
+        )}
+        <div className="drivein-side-overlay" aria-hidden />
+
+        <div className="drivein-side-content">
+          <button
+            type="button"
+            className="drivein-username"
+            onClick={() => handlePlayerClick(writer.userObj)}
+          >
+            {writer.name}
+          </button>
+          <div className="drivein-genre">{writer.genre ?? "—"}</div>
+
+          {statusText && (
+            <div className="drivein-vote-status">{statusText}</div>
+          )}
+
+          <div className="drivein-votes">
+            {writer.votes} vote{writer.votes === 1 ? "" : "s"}
+          </div>
+        </div>
+
+        {canVoteNow && (
+          <div className="drivein-vote-btn-wrap">
+            <button
+              type="button"
+              className={`drivein-vote-btn ${isMyVote ? "drivein-vote-btn-active" : ""}`}
+              disabled={voting}
+              onClick={() => handleVote(writer.userId)}
+            >
+              {isMyVote ? "♥ VOTED" : "♥ VOTE"}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div className="drivein-page">
       <HomeButton />
-      <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20 }}>
+      <ProfileButton />
 
-        {/* 📝 Title banner */}
-        <div style={{ position: "relative", marginBottom: -22 }}>
-          <Image src="/schriftrolle.png" alt="Story banner" width={400} height={100} style={{ maxWidth: "100%", height: "auto", display: "block" }} />
-          <h1 style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", margin: 0, fontSize: 40, fontFamily: "var(--font-cinzel), serif", color: "#3b2a1a", whiteSpace: "nowrap" }}>Story #{storyId}</h1>
-        </div>
+      {/* Full-viewport ambient fill */}
+      <div className="drivein-fill" aria-hidden />
 
-        {/* 📝 Outer row: P1 | box | P2 */}
-        <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+      <div className="drivein-canvas">
+        {/* LQ-Hintergrund: sofort sichtbar */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/bg-storiespage2.webp"
+          alt=""
+          className="drivein-bg"
+          aria-hidden
+          draggable={false}
+        />
+        {/* HQ-Hintergrund: lädt im Hintergrund, faded ein, wenn fertig */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/bg-storiespage.webp"
+          alt=""
+          className={`drivein-bg drivein-bg-hq ${hqLoaded ? "is-loaded" : ""}`}
+          aria-hidden
+          draggable={false}
+          onLoad={() => setHqLoaded(true)}
+          decoding="async"
+        />
 
-          {/* 📝 Player 1 (winner) — outside the box, aligned to top */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start", flexShrink: 0, paddingTop: 0 }}>
-            <Button
-              onClick={() => handlePlayerClick(winnerUser)}
-              style={{ background: "#4a7c59", color: "#fff", border: "none", fontFamily: "var(--font-cinzel), serif" }}
-            >
-              {story.winnerUsername ?? "Player 1"}
-            </Button>
-            <span style={{ fontSize: 13, fontFamily: "var(--font-cinzel), serif", color: "rgba(255,255,255,0.75)" }}>
-              {story.winGenre ?? "—"}
-            </span>
-          </div>
+        <div className="drivein-stage">
+          {/* Left writer panel */}
+          {renderWriterPanel(leftWriter, "left", leftBg)}
 
-          {/* 📝 Box: winner line + story text + return button */}
-          <div style={{ width: 560, maxWidth: "100%", background: "rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", borderRadius: 1, border: "1px solid rgba(255,255,255,0.15)", padding: 24 }}>
-            {/* 📝 Winner line */}
-            <div style={{ textAlign: "center", marginBottom: 16, fontFamily: "var(--font-cinzel), serif", fontSize: 15, color: "rgba(255,255,255,0.85)" }}>
-              {story.hasWinner && story.winnerUsername ? `Winner: ${story.winnerUsername}` : "No winner"}
+          {/* Center screen: the story */}
+          <div className="drivein-screen">
+            <div className="drivein-screen-inner">
+              <h2 className="drivein-story-title">{story.title ?? "THE STORY"}</h2>
+              <div className="drivein-story-divider">✦</div>
+
+              <div className="drivein-story-text">
+                {story.storyContributions && story.storyContributions.length > 0 ? (
+                  story.storyContributions.map((c, i) => {
+                    const isWinner = c.userId === leftWriter.userId;
+                    return (
+                      <span
+                        key={i}
+                        style={{ color: isWinner ? "#2b1d0f" : "#26223b" }}
+                      >
+                        {c.text}{" "}
+                      </span>
+                    );
+                  })
+                ) : (
+                  "No story text available."
+                )}
+              </div>
+
+              <div className="drivein-winners">
+                <div className="drivein-winner-row">
+                  <span className="drivein-winner-label">WINNER BY JUDGE</span>
+                  <span className="drivein-winner-value">
+                    {story.hasWinner && story.winnerUsername ? story.winnerUsername : "—"}
+                  </span>
+                </div>
+                <div className="drivein-winner-row">
+                  <span className="drivein-winner-label">WINNER BY VOTES</span>
+                  <span className="drivein-winner-value">
+                    {(() => {
+                      if (!rating) return "—";
+                      const w = rating.winnerVotes ?? 0;
+                      const l = rating.loserVotes ?? 0;
+                      if (w === 0 && l === 0) return "—";
+                      if (w > l) return rating.winnerUsername ?? "—";
+                      if (l > w) return rating.loserUsername ?? "—";
+                      return "Tie";
+                    })()}
+                  </span>
+                </div>
+              </div>
             </div>
-
-            {/* 📝 Story text */}
-            <div
-              style={{
-                maxHeight: 360,
-                overflowY: "auto",
-                background: "rgba(255,255,255,0.07)",
-                borderRadius: 4,
-                border: "1px solid rgba(255,255,255,0.15)",
-                padding: 16,
-                fontFamily: "var(--font-cinzel), serif",
-                fontSize: 14,
-                lineHeight: 1.7,
-                color: "rgba(255,255,255,0.9)",
-                whiteSpace: "pre-wrap",
-              }}
-            >
-              {story.storyText || "No story text available."}
-            </div>
-
           </div>
 
-          {/* 📝 Player 2 (loser) — outside the box, aligned to top */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end", flexShrink: 0, paddingTop: 0 }}>
-            <Button
-              onClick={() => handlePlayerClick(loserUser)}
-              style={{ background: "#4a7c59", color: "#fff", border: "none", fontFamily: "var(--font-cinzel), serif" }}
-            >
-              {story.loserUsername ?? "Player 2"}
-            </Button>
-            <span style={{ fontSize: 13, fontFamily: "var(--font-cinzel), serif", color: "rgba(255,255,255,0.75)", alignSelf: "flex-start" }}>
-              {story.loseGenre ?? "—"}
-            </span>
-          </div>
-
+          {/* Right writer panel */}
+          {renderWriterPanel(rightWriter, "right", rightBg)}
         </div>
+      </div>
 
-        {/* 📝 Return button */}
-        <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
-          <Button style={{ width: 180, height: 38, fontSize: 14 }} onClick={() => router.push("/results")}>
-            Return to Stories
-          </Button>
-        </div>
-      </main>
+      {/* Return button */}
+      <div className="drivein-return-wrap">
+        <button
+          type="button"
+          className="drivein-return-btn"
+          onClick={() => router.push("/results")}
+        >
+          Return to Stories
+        </button>
+      </div>
     </div>
   );
 }

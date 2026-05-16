@@ -1,77 +1,61 @@
-
 "use client";
 import { useRouter, useParams, } from "next/navigation"; // use NextJS router for navigation
-
-import { Button, Input , message, Modal } from "antd";
-import styles from "@/styles/page.module.css";
+ 
+import { Button, Input , message, Modal, Tooltip, notification } from "antd";
 import { Game } from "@/types/game";
-import { Writer } from "@/types/writer";
 import { ApplicationError } from "@/types/error";
 import React, { useEffect, useState, useRef } from "react";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { getApiDomain } from "@/utils/domain";
 
 const GamePage: React.FC = () => {
-
+ 
   const router = useRouter();
   const params = useParams<{ gameid: string }>();
   const gameid = params?.gameid;
   const apiService = useApi();
   const [countdown, setCountdown] = useState<number>(0);
-  const [game, setGame] = useState<Game | null>(null); 
-  const [writer1Genre, setGenre1] = useState<string>("Genre"); 
+  const [game, setGame] = useState<Game | null>(null);
+  const [writer1Genre, setGenre1] = useState<string>("Genre");
   const [writer2Genre, setGenre2] = useState<string>("Genre");
   const [quoteUsedP1, setQuoteUsedP1] = useState(false);
   const [quoteUsedP2, setQuoteUsedP2] = useState(false);
+  const [showIncorporatedHintP1, setShowIncorporatedHintP1] = useState(false);
+  const [showIncorporatedHintP2, setShowIncorporatedHintP2] = useState(false);
+  const hasTypedThisTurnP1 = useRef(false);
+  const hasTypedThisTurnP2 = useRef(false);
   const { TextArea } = Input;
-
-  const panelStyle: React.CSSProperties = {
-    background: "rgba(255,255,255,0.025)",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 1,
-  };
-
-  const inputInnerStyle: React.CSSProperties = {
-    height: "100%",
-    background: "rgba(255,255,255,0.07)",
-    color: "#ffffff",
-    border: "1px solid rgba(255,255,255,0.10)",
-    resize: "none",
-    fontFamily: "var(--font-cinzel), serif",
-  };
-
-  const smallFieldStyle: React.CSSProperties = {
-    height: 40,
-    background: "rgba(255,255,255,0.05)",
-    color: "#ffffff",
-    border: "1px solid rgba(255,255,255,0.10)",
-    fontFamily: "var(--font-cinzel), serif",
-  };
-
- const activePlayerStyle: React.CSSProperties = {
-   boxShadow: "0 0 0 2px #25d366, 0 0 18px 2px rgba(37,211,102,0.25)",
-   borderRadius: 4,
-   padding: 6,
-   transition: "box-shadow 0.4s",
- };
- const inactivePlayerStyle: React.CSSProperties = {
-   boxShadow: "none",
-   borderRadius: 4,
-   padding: 6,
-   transition: "box-shadow 0.4s",
- };
-
+  const [starting, setStarting] = useState(true);
+  const [startCountdown, setStartCountdown] = useState(5);
+  const [redirectCountdown, setRedirectCountdown] = useState(20);
+  const [reduceTimeLoading, setReduceTimeLoading] = useState(false);
+ const [timerReduced, setTimerReduced] = useState(false);
 const {
   value: token,
   clear: clearToken,
 } = useLocalStorage<string>("token", "");
-
+ 
 const {
   value: userId,
   clear: clearId,
 } = useLocalStorage<string>("userId", "");
-
+ 
+const RuleItem: React.FC<{ icon: string; text: string }> = ({ icon, text }) => (
+  <div
+    style={{
+      display: "flex",
+      gap: 12,
+      alignItems: "flex-start",
+      fontSize: 14,
+      lineHeight: 1.6,
+    }}
+  >
+    <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
+    <span style={{ color: "rgba(245,230,200,0.85)" }}>{text}</span>
+  </div>
+);
+ 
 const [ wholeStoryText,setStoryyText] = useState<string>("");
 const [TwoInput, setTwoInput] = useState("");
 const [OneInput, setOneInput] = useState("");
@@ -82,23 +66,66 @@ const isPlayer2Active = !!game?.writers[1]?.turn;
 const isUserPlayer1 = game?.writers?.[0]?.id === Number(userId);
 const isUserPlayer2 = game?.writers?.[1]?.id === Number(userId);
 const isJudge = !isUserPlayer1 && !isUserPlayer2;
+const reduceTimeLeft = 1 - (activeWriter?.reduceTimeReceived ?? 0);
 const [declareModalVisible, setDeclareModalVisible] = useState(false);
 const [resultModalVisible, setResultModalVisible] = useState(false);
 const [resultGame, setResultGame] = useState<Game | null>(null);
 const votingInProgress = useRef(false);
+const [gameEnded, setGameEnded] = useState(false);
+const [rulesVisible, setRulesVisible] = useState(false);
+const [frozenBullaugeSide, setFrozenBullaugeSide] = useState<"left" | "right" | null>(null);
+const [storyTitle, setStoryTitle] = useState("");
+const [titleSubmitted, setTitleSubmitted] = useState(false);
 
+// genre-bullauge logic:
+// writers always see their own genre on both sides
+// judge sees the genre-pictures of both
+const bullaugeGenreLeft = isUserPlayer1
+  ? game?.writers[0]?.genre              // Player 1: own genre
+  : isUserPlayer2
+    ? game?.writers[1]?.genre            // Player 2: own genre
+    : game?.writers[0]?.genre;           // Judge: player1 genre
+
+const bullaugeGenreRight = isUserPlayer1
+  ? game?.writers[0]?.genre              // Player 1: own
+  : isUserPlayer2
+    ? game?.writers[1]?.genre            // Player 2: own
+    : game?.writers[1]?.genre;           // Judge: player2 genre
+ 
+//to remember where it last was before evaluation
+useEffect(() => {
+  if (!game) return;
+  if (game.phase === "EVALUATION") return;
+ 
+  if (isPlayer1Active && !isPlayer2Active) setFrozenBullaugeSide("right");
+  else if (isPlayer2Active && !isPlayer1Active) setFrozenBullaugeSide("left");
+}, [isPlayer1Active, isPlayer2Active, game?.phase]);
+ 
+//determine where it should be right now
+let showBullaugeOnLeft = false;
+let showBullaugeOnRight = false;
+ 
+if (game) {
+  if (game.phase === "EVALUATION") {
+    showBullaugeOnLeft = frozenBullaugeSide === "left";
+    showBullaugeOnRight = frozenBullaugeSide === "right";
+  } else {
+    showBullaugeOnLeft = !isPlayer1Active && isPlayer2Active;
+    showBullaugeOnRight = !isPlayer2Active && isPlayer1Active;
+  }
+}
+ 
 const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
   const prettyinput=input.trim();
   try {
-    const response=await apiService.post<Game>(`/games/${gameid}/input`,{ player: player, input: prettyinput },token);
-    setGame(response);
+    await apiService.post<Game>(`/games/${gameid}/input`,{ player: player, input: prettyinput },token);
+ 
     const quote = game?.writers[player - 1]?.quote;
     if (quote && prettyinput.toLowerCase().includes(quote.toLowerCase())) {
         if (player === 1) setQuoteUsedP1(true);
         else setQuoteUsedP2(true);
     }
-    const holeStoryText=response.story.storyText;
-    setStoryyText(holeStoryText);
+ 
     if (player===2){
       setTwoInput("");
     }
@@ -107,19 +134,19 @@ const handleSubmit = async (player: 1 | 2, input: string): Promise<void> => {
     }
   } catch (error: unknown) {
       if (error instanceof Error) {
-        const appError = error as ApplicationError; 
+        const appError = error as ApplicationError;
         if(appError.status===403){
            alert("It's not your turn");
         }else {
           alert(`Saving player input failed, pls try again`);
           console.log("Saving Player input failed", error);
         }
-      
+ 
       }
     };
 }
-
-
+ 
+ 
 const handleExit=async() : Promise<void> =>{
   try{
     await apiService.post(`/games/${gameid}/leave`, {}, token);
@@ -128,106 +155,136 @@ const handleExit=async() : Promise<void> =>{
     console.log("Closing game failed", error);
     alert("Exit failed, pls try again");
   }
-  
+ 
 }
+
+// Tab-close / refresh / navigation handler (desktop only tho)
+// beforeunload apparently fires on desktop browsers whenever the tab closes, the URL
+// changes or the page is reloaded. It does not cover browser crashes or letting the tab die openly 
+// somewhere in the back tho
+/*useEffect(() => {
+  if (!gameid || !token || gameEnded) return;
+
+  const onBeforeUnload = () => {
+    //  Detect reload via Navigation API → don't leave the game
+  const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+  if (nav?.type === "reload") {
+    return;
+  }
+    const url = `${getApiDomain()}/games/${gameid}/leave`;
+    try {
+      // keepalive lets the request outlive the page unload, can't use apiService.post because of that tho
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: "{}",
+        keepalive: true,
+      });
+    } catch (e) {
+      console.log("Tab-close leave failed:", e);
+    }
+  };
+
+  window.addEventListener("beforeunload", onBeforeUnload);
+  return () => window.removeEventListener("beforeunload", onBeforeUnload);
+}, [gameid, token, gameEnded]);*/
 
 const [quotedP1, setQuotedP1] = useState(false);
 const [quotedP2, setQuotedP2] = useState(false);
-
+ 
 const handleQuoteFetch = async (player: 1 | 2): Promise<void> => {
     try {
-        const response = await apiService.get<Game>(`/games/${gameid}/quotes?player=${player}`, token);
-        setGame(response);
-        if (player === 1) setQuotedP1(true);
-        else setQuotedP2(true);
+        await apiService.get<Game>(`/games/${gameid}/quotes?player=${player}`, token);
+        if (player === 1) {
+            setQuotedP1(true);
+            }
+        else {
+            setQuotedP2(true);
+            }
     } catch (error) {
         message.error("Failed to fetch quote.");
     }
 };
 
-useEffect(() => { 
-  
-  if (!token || !gameid) return; 
-  const getGame = async () => { 
-    try { 
-      const ourGame: Game = await apiService.get<Game>(`/games/${gameid}`, token); 
-      setGame(ourGame);
-      
-      const writer1 = ourGame.writers[0];
-      const writer2 = ourGame.writers[1];
-
-      setGenre1(writer1?.genre ?? "Genre");
-      setGenre2(writer2?.genre ?? "Genre");
-
-      setStoryyText(ourGame.story.storyText);
-      
-      
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        alert(`Fetching game failed:\n${error.message}`);
-      } else {
-        alert("Fetching game failed (unknown error).");
-        console.error("Unknown error:", error);
+const handleReduceTime = async (): Promise<void> => {
+  if (!canReduceTime) return;
+  setReduceTimeLoading(true);
+  try {
+    await apiService.post<Game>(`/games/${gameid}/reduce-time`, {}, token);
+  } catch (error) {
+    message.error("Failed to reduce time.");
+  } finally {
+    setReduceTimeLoading(false);
+  }
+};
+ 
+  // Polling
+  useEffect(() => {
+    if (!token || !gameid) return;
+    if (gameEnded) return;
+ 
+    const interval = setInterval(async () => {
+      try {
+        const latestGame = await apiService.get<Game>(`/games/${gameid}`, token);
+        setGame(latestGame);
+        setStoryyText(
+        latestGame.story.storyContributions?.map((c) => c.text).join(" ") ?? "");
+        setGenre1(latestGame.writers[0]?.genre ?? "Genre");
+        setGenre2(latestGame.writers[1]?.genre ?? "Genre");
+        if (latestGame.story.hasWinner || latestGame.phase==="FINISHED") {
+          setResultModalVisible(prev => {
+            if (!prev) {
+              setResultGame(latestGame);
+              return true;
+            }
+            return prev;
+          });
+        }
+      } catch (error) {
+        const appError = error as ApplicationError;
+        if (appError?.status === 404) {
+          setResultModalVisible(prev => {
+            if (!prev && !votingInProgress.current) {
+              setGameEnded(true);
+            }
+            return prev;
+          });
+        }
+ 
       }
-
+    }, 1000);
+ 
+    return () => clearInterval(interval);
+  }, [token, gameid, gameEnded]);
+ 
+const quoteIncorporatedP1 = !!(game?.writers[0]?.quote && wholeStoryText.toLowerCase().includes(game.writers[0].quote.toLowerCase()));
+const quoteIncorporatedP2 = !!(game?.writers[1]?.quote && wholeStoryText.toLowerCase().includes(game.writers[1].quote.toLowerCase()));
+const canReduceTime = isJudge && game?.phase === "WRITING" && reduceTimeLeft > 0 && countdown > (game?.reducedTimeThreshold ?? 45);
+const prevReduceTimeRef = useRef<{ writerId: number | null | undefined; count: number } | null>(null);
+ 
+ // "quote incorperated" for 3 seconds, triggers exactly once at the transition from false to true
+  useEffect(() => {
+    if (quoteIncorporatedP1 || quoteUsedP1) {
+      setShowIncorporatedHintP1(true);
+      const t = setTimeout(() => setShowIncorporatedHintP1(false), 3000);
+      return () => clearTimeout(t);
     }
-  } 
-  getGame();
+  }, [quoteIncorporatedP1, quoteUsedP1]);
 
-   
-  }, [apiService, token, gameid]);
-
-  const [gameEnded, setGameEnded] = useState(false);
-
+  useEffect(() => {
+    if (quoteIncorporatedP2 || quoteUsedP2) {
+      setShowIncorporatedHintP2(true);
+      const t = setTimeout(() => setShowIncorporatedHintP2(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [quoteIncorporatedP2, quoteUsedP2]);
   useEffect(() => {
     if (!token || !gameid ) return;
-
-    const checkIfGameStillExists = async () => {
-    if (resultModalVisible || votingInProgress.current) return;
-    try {
-        const latestGame=await apiService.get<Game>(`/games/${gameid}`, token);
-        setGame(latestGame);
-        
-        setStoryyText(latestGame.story.storyText);
-
-        if (latestGame.story.winnerUsername !== null || latestGame.story.hasWinner !== undefined) {
-          if (latestGame.story.hasWinner && !resultModalVisible) {
-            setResultGame(latestGame);
-            setResultModalVisible(true);
-          }
-        }
-        
-      } catch (error: unknown) {
-          const appError = error as ApplicationError;
-            if (appError?.status === 404) {
-              if (!resultModalVisible && !votingInProgress.current) {
-                setGameEnded(true);
-              }
-            }
-      }
-    };
-
-    const id = setInterval(checkIfGameStillExists, 1000); 
-
-    return () => clearInterval(id); 
-  }, [apiService, token, gameid]);
-
-  /*useEffect(() => {
-    if (!game?.writers) return;
-
-    if (game.writers?.[0]?.id === Number(userId) && OneInput === "") {
-      setOneInput(game.writers[0]?.text ?? "");
-    }
-
-    if (game.writers?.[1]?.id === Number(userId) && TwoInput === "") {
-      setTwoInput(game.writers[1]?.text ?? "");
-    }
-  }, [game, userId, OneInput, TwoInput]);*/
-
-  useEffect(() => {
-    if (!token || !gameid || !game) return;
     if (!isUserPlayer1 || !isPlayer1Active) return;
-
+ 
     const timeout = setTimeout(() => {
       apiService.post<Game>(
         `/games/${gameid}/draft`,
@@ -236,15 +293,15 @@ useEffect(() => {
       ).catch((error) => {
         console.log("Saving Player 1 draft failed", error);
       });
-    }, 400);
-
+    }, 100);
+ 
     return () => clearTimeout(timeout);
-  }, [OneInput, token, gameid, game, isUserPlayer1, isPlayer1Active, apiService]);
-
+  }, [OneInput, token, gameid, isUserPlayer1, isPlayer1Active, apiService]);
+ 
   useEffect(() => {
-    if (!token || !gameid || !game) return;
+    if (!token || !gameid ) return;
     if (!isUserPlayer2 || !isPlayer2Active) return;
-
+ 
     const timeout = setTimeout(() => {
       apiService.post<Game>(
         `/games/${gameid}/draft`,
@@ -253,41 +310,69 @@ useEffect(() => {
       ).catch((error) => {
         console.log("Saving Player 2 draft failed", error);
       });
-    }, 400);
-
+    }, 100);
+ 
     return () => clearTimeout(timeout);
-  }, [TwoInput, token, gameid, game, isUserPlayer2, isPlayer2Active, apiService]);
-
+  }, [TwoInput, token, gameid, isUserPlayer2, isPlayer2Active, apiService]);
+ 
+  useEffect(() => {
+    if (isUserPlayer1 && !isPlayer1Active) {
+      setOneInput("");
+    }
+  }, [isUserPlayer1, isPlayer1Active]);
+ 
+  useEffect(() => {
+    if (isUserPlayer2 && !isPlayer2Active) {
+      setTwoInput("");
+    }
+  }, [isUserPlayer2, isPlayer2Active]);
+ 
+ 
+ 
   useEffect(() => { //executes the "cleanup", after a writer leave was detected
   if (!gameEnded) return;
-
+ 
   message.error("Game ended because a writer or judge left or disconnected.");
-
+ 
   const timeout = setTimeout(() => {
     router.push("/");
   }, 3000);
-
+ 
   return () => clearTimeout(timeout); //in case the component is unmounted (if the user redirects himself or something), before the timer expires, because then we obvioulsy don't want the message anymore
 }, [gameEnded, router]);
-
-useEffect(() => {
+ 
+useEffect(() => { //pre game countdown
+  if (!starting) return;
+  if (startCountdown <= 0) {
+    const id = setTimeout(() => setStarting(false), 1000);
+    return () => clearTimeout(id);
+  }
+  const id = setTimeout(() => setStartCountdown(x => x - 1), 1000);
+  return () => clearTimeout(id);
+}, [startCountdown, starting]);
+ 
+useEffect(() => { //actual timer countdown
   if (!game?.turnStartedAt) return;
-
+   if (starting) return;
+ 
   const updateCountdown = () => {
     const elapsed = Math.floor((Date.now() - game.turnStartedAt) / 1000);
     const remaining = Math.max(0, game.timer - elapsed);
     setCountdown(remaining);
   };
-
+ 
   updateCountdown();
   const id = setInterval(updateCountdown, 1000);
-
+ 
   return () => clearInterval(id);
-}, [game?.turnStartedAt, game?.timer]);
-
+}, [game?.turnStartedAt, game?.timer, starting]);
+ 
 const handleVoteWinner = async (writerId: number): Promise<void> => {
   votingInProgress.current = true;
   setDeclareModalVisible(false);
+  console.log("writers:", game?.writers);
+  console.log("writer[0] id:", game?.writers[0]?.id);
+  console.log("writer[1] id:", game?.writers[1]?.id);
   try {
     const response = await apiService.post<Game>(
       `/games/${gameid}/vote`,
@@ -304,629 +389,804 @@ const handleVoteWinner = async (writerId: number): Promise<void> => {
   }
 };
 
+useEffect(() => {
+  const currentWriterId = activeWriter?.id;
+  const current = activeWriter?.reduceTimeReceived ?? 0;
+  const prev = prevReduceTimeRef.current;
 
+  // Different writer or first run — just initialize, never compare
+  if (!prev || prev.writerId !== currentWriterId) {
+    prevReduceTimeRef.current = { writerId: currentWriterId, count: current };
+    return;
+  }
+
+  if (current <= prev.count) {
+    prevReduceTimeRef.current = { writerId: currentWriterId, count: current };
+    return;
+  }
+
+  // Same writer, value increased — genuine reduction
+  prevReduceTimeRef.current = { writerId: currentWriterId, count: current };
+  if (!isJudge && CurrentUserisActiveWriter) {
+    setTimerReduced(true);
+    notification.warning({
+      title: "⏱ Time Reduced!",
+      description: "A judge has reduced your writing time!",
+      placement: "top",
+      duration: 3,
+      style: {
+        background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)",
+        border: "1px solid rgba(212,168,87,0.5)",
+        fontFamily: "var(--font-cinzel), serif",
+      },
+      className: "timerReducedNotif",
+    });
+    const t = setTimeout(() => setTimerReduced(false), 3000);
+    return () => clearTimeout(t);
+  }
+}, [activeWriter?.reduceTimeReceived, activeWriter?.id]);
+ 
 const autoVoteFired = useRef(false);
-
+ 
 useEffect(() => {
   if (!game || !isJudge) return;
   if (game.phase !== "EVALUATION") return;
   if (autoVoteFired.current) return;
   if (!game.turnStartedAt || !game.timer) return; // new guard
-  
+ 
   const elapsed = Math.floor((Date.now() - game.turnStartedAt) / 1000); //Could autotrigger effect (Async problems)
   if (elapsed < game.timer) return;
-
+ 
   autoVoteFired.current = true;
   handleVoteWinner(-1);
 }, [countdown, game, isJudge]);
-
-
+ 
+ 
 useEffect(() => {
-  if (!resultModalVisible) return;
+  if (!resultModalVisible) {
+    setRedirectCountdown(20); 
+    setStoryTitle("");       
+    setTitleSubmitted(false);
+    return;
+  }
 
+  const countdownInterval = setInterval(() => {
+    setRedirectCountdown(prev => {
+      if (prev <= 1) {
+        clearInterval(countdownInterval);
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
+ 
   const timeout = setTimeout(async () => {
     try {
       await apiService.delete(`/games/${gameid}`, {}, token);
     } catch (e) {
-      
+ 
     }
     setResultModalVisible(false);
     router.push("/");
   }, 20000);
-
-  return () => clearTimeout(timeout);
+ 
+  return () => {
+    clearTimeout(timeout);
+    clearInterval(countdownInterval);
+  };
 }, [resultModalVisible, router]);
-
-
-
+ 
+ 
+ 
 if (!game) { //beim ersten rendern ist user noch null, dann zeigen wir erst mal "loading"
-  return <div>Loading Game...</div>;
+  return (
+    <div
+      className="gameStarryBg"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "var(--gold)",
+        fontFamily: "var(--font-cinzel), serif",
+        fontSize: 24,
+        letterSpacing: 4,
+      }}
+    >
+      Loading Game...
+    </div>
+  );
 }
+ 
+
+//convert the timer seconds to minutes and seconds: instead of 90s->1:30 
+const formatTime = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+};
+
+// mapps genre names to the file names
+const GENRE_TO_SLUG: Record<string, string> = {
+  "Horror": "horror",
+  "Drama": "drama",
+  "Thriller": "thriller",
+  "Tragedy": "tragedy",
+  "Dystopian Sci-Fi": "dystopian",
+  "Survival": "survival",
+  "Crime": "crime",
+  "Psychological": "psychological",
+  "Dark Fantasy": "darkfantasy",
+  "Comedy": "comedy",
+  "Love Story": "love",
+  "Utopian Sci-Fi": "utopian",
+  "Fairy Tale": "fairytale",
+  "Kids / Disney Fantasy": "kidsfantasy",
+};
+
+const genreToBullauge = (genre: string | null | undefined): string =>
+  genre ? (GENRE_TO_SLUG[genre] ?? "") : "";
+ 
+//----------------renderplayerslot function so we don't have to write the same thing twice-----------------------
+
+  const renderPlayerSlot = (playerIdx: 0 | 1) => {
+    const writer = game.writers[playerIdx];
+    const isUserThisPlayer = playerIdx === 0 ? isUserPlayer1 : isUserPlayer2;
+    const isThisPlayerActive = !!writer?.turn;
+    const playerNum = (playerIdx + 1) as 1 | 2;
+    const draftValue = playerIdx === 0 ? OneInput : TwoInput;
+    const hasTypedRef = playerIdx === 0 ? hasTypedThisTurnP1 : hasTypedThisTurnP2;
+    if (draftValue.length > 0) {
+      hasTypedRef.current = true;
+    }
+    const showFirstTurnHint = isUserThisPlayer && isThisPlayerActive && game.currentRound <= 2 && !hasTypedRef.current;
+    const setDraftValue = playerIdx === 0 ? setOneInput : setTwoInput;
+    const genreVal = playerIdx === 0 ? writer1Genre : writer2Genre;
+    const otherUserIsThisPlayer = playerIdx === 0 ? isUserPlayer2 : isUserPlayer1;
+    const quoteUsed = playerIdx === 0 ? quoteUsedP1 : quoteUsedP2;
+    const quoteIncorporated = playerIdx === 0 ? quoteIncorporatedP1 : quoteIncorporatedP2;
+    const responseValue = isUserThisPlayer ? draftValue : writer?.text ?? "";
+  
+    return (
+      <>
+
+        {/*the username-title*/}
+
+        <div style={{ flexShrink: 0, marginBottom: "clamp(1px, 0.4vh, 4px)" }}>
+          <div className="playerNameTitle">
+            {(writer?.username ?? `Player ${playerNum}`).toUpperCase()}
+          </div>
+        </div>
+  
+        <div className="sectionLabel" style={{ marginBottom: 2, flexShrink: 0 }}>
+          YOUR RESPONSE
+        </div>
+  
+        <div
+          className={`goldInput goldInputFlex ${showFirstTurnHint ? "flashHighlight-1" : ""}`}
+          style={{ flex: 1, minHeight: "clamp(20px, 8.7vw, 120px)", position: "relative" }}
+        >
+          <TextArea
+            maxLength={2000}
+            showCount
+            disabled={!isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION"}
+            value={responseValue}
+            onChange={(e) => setDraftValue(e.target.value)}
+            placeholder={
+              isUserThisPlayer && !showFirstTurnHint
+                ? "Enter your next part of the story..."
+                : isJudge
+                  ? "The writer's contribution will appear here..."
+                  : !isUserThisPlayer && !isJudge
+                  ? "Your opponent's contribution will appear here..."
+                  :""
+            }
+            style={{ height: "100%", resize: "none" }}
+          />
+          {showFirstTurnHint && (
+            <div className="activeTurnHint">
+              It&apos;s your turn.<br />Start writing here
+            </div>
+          )}
+        </div>
+  
+        <div style={{ marginTop: "clamp(2px, 0.8vh, 6px)", flexShrink: 0 }}>
+          <div className="sectionLabel" style={{ marginBottom: 2 }}>
+            GENRE
+          </div>
+  
+          <Tooltip title={!otherUserIsThisPlayer ? writer?.genreDescription ?? "" : ""}>
+            <div className={`genreBox ${showFirstTurnHint ? "flashHighlight-2" : ""}`}>
+              {isUserThisPlayer ? genreVal : otherUserIsThisPlayer ? "Genre" : genreVal}
+            </div>
+          </Tooltip>
+        </div>
+  
+        {(isUserThisPlayer || isJudge) && writer?.quote && (!(quoteUsed || quoteIncorporated) || (playerIdx === 0 ? showIncorporatedHintP1 : showIncorporatedHintP2)) && (
+          <div style={{ marginTop: "clamp(2px, 0.8vh, 6px)", flexShrink: 0 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 2,
+              }}
+            >
+              <span className="sectionLabel">YOUR QUOTE</span>
+  
+              {(isUserThisPlayer || isJudge) && writer?.quote && (
+                <button
+                  onClick={() => navigator.clipboard.writeText(writer?.quote ?? "")}
+                  className="assignQuoteButton"
+                  title="Copy quote to clipboard"
+                >
+                  ⧉ Copy
+                </button>
+              )}
+            </div>
+  
+            <div className="goldInput">
+              <TextArea
+                placeholder="Quote will appear here..."
+                value={writer?.quote ?? ""}
+                readOnly
+                rows={2}
+                style={{ fontSize: "clamp(9px, 1.1vh, 12px)", resize: "none" }}
+              />
+            </div>
+  
+            {writer?.quote &&
+              !quoteUsed &&
+              !quoteIncorporated &&
+              isUserThisPlayer &&
+              (() => {
+                const assigned = writer.quoteAssignedRound ?? game.currentRound;
+                const turnsLeft = 2 - Math.ceil((game.currentRound - assigned) / 2);
+                const expired = turnsLeft <= 0;
+  
+                return (
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: expired ? "#e74c3c" : "var(--gold-bright)",
+                      textAlign: "center",
+                      marginTop: 3,
+                    }}
+                  >
+                    {/*{expired ? "Quote expired!" : `Use in next ${turnsLeft} turn${turnsLeft !== 1 ? "s" : ""}`}*/}
+                    {expired ? "Quote expired!" : 'Use in the next turn'}
+                  </div>
+                );
+              })()}
+  
+            {(quoteUsed || quoteIncorporated) && isUserThisPlayer && (
+              <div
+                style={{
+                  fontSize: 10,
+                  color: "#7fdc9b",
+                  textAlign: "center",
+                  marginTop: 3,
+                }}
+              >
+                Quote incorporated!
+              </div>
+            )}
+          </div>
+        )}
+  
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "clamp(4px, 1.16vw, 16px)",
+            flexShrink: 0,
+          }}
+        >
+          <Button
+            onClick={() => {console.log("clicked"); handleSubmit(playerNum, draftValue); }}
+            disabled={!isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION"}
+            className="goldButton"
+            style={{
+              width: "clamp(60px, 8.3vw, 120px)",
+              opacity: !isUserThisPlayer || !isThisPlayerActive || game.phase === "EVALUATION" ? 0.4 : 1,
+            }}
+          >
+            SUBMIT
+          </Button>
+        </div>
+      </>
+    );
+  };
+
+//--------------------------------------end renderplayerslot function---------------------------------------------------------
+
 
 return (
   <div
-      style={{
-        minHeight: "100vh",
-        width: "100%",
-        boxSizing: "border-box",
-        background: "var(--background)",
-        color: "#ffffff",
-        padding: "20px",
-        fontFamily: "var(--font-cinzel), serif",
-        overflowX: "hidden",
-        overflowY: "auto",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 1400,
-          width: "100%",
-          margin: "0 auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: 16,
-          boxSizing: "border-box",
-        }}
-      >
-        {/* Titelreihe */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "140px minmax(0, 1fr) 140px",
-            alignItems: "center",
-            gap: 16,
-            width: "100%",
-          }}
+    className="gameStarryBg"
+    style={{
+      color: "#ffffff",
+      padding: "12px 28px 18px 28px",
+      fontFamily: "var(--font-cinzel), serif",
+      overflowX: "hidden",
+      overflowY: "auto",
+      boxSizing: "border-box",
+    }}
+  >
+    {starting && (
+      <div className="startOverlay">
+        {startCountdown === 0 ? (
+          <div className="startOverlayTitle">Game Start!</div>
+        ) : (
+          <>
+            <div className="startOverlaySmall">You are a</div>
+ 
+            <div className="startOverlayRole">{isJudge ? "Judge" : "Writer"}</div>
+ 
+            {game?.story?.objective && (
+              <div className="startOverlayText">
+                Story&apos;s theme:{" "}
+                <span style={{ color: "var(--gold-bright)", fontWeight: "bold" }}>
+                  {game.story.objective}
+                </span>
+              </div>
+            )}
+ 
+            {!isJudge && (
+              <div className="startOverlayText">
+                Your Secret Genre:{" "}
+                <span style={{ color: "var(--gold-bright)", fontWeight: "bold" }}>
+                  {isUserPlayer1 ? writer1Genre : writer2Genre}
+                </span>
+              </div>
+            )}
+ 
+            <div className="startOverlayCountdown">{startCountdown}</div>
+          </>
+        )}
+      </div>
+    )}
+ 
+    <div className="gameContentWrapper">
+      <div className="topGameRow">
+        <Button
+          className="pregame-exit-btn"
+          onClick={handleExit}
+          style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}
         >
-          <div>
-            <Button
-             onClick={handleExit}
-              style={{
-                ["--btn-bg" as string]: "#c0392b",
-                width: 120,
-                height: 52,
-                fontSize: 20,
-              }}
+          Exit
+        </Button>
+ 
+        <div style={{ textAlign: "center" }}>
+          <h1 className="gameRoomTitle">GAME ROOM</h1>
+ 
+          <div className="statusPillRow">
+            <span className="statusPill">{"\u231B\uFE0E"}  {game.currentRound} / {game.maxRounds}</span>
+ 
+            <span className="statusPillSeparator">✦</span>
+ 
+            <span className={`statusPill  ${timerReduced ? "timerReducedFlash" : ""}`}
+             style={timerReduced ? { color: "#e74c3c", border: "1px solid #e74c3c" } : {}}
             >
-              Exit
-            </Button>
-          </div>
-
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 1,
-              padding: "14px 22px",
-              textAlign: "center",
-              fontSize: 30,
-              fontWeight: "bold",
-              minWidth: 0,
-            }}
-          >
-            Game Room
-          </div>
-
-          <div />
-        </div>
-
-        {/* Live story titel */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "150px minmax(0, 1fr) 150px",
-            gap: 16,
-            alignItems: "stretch",
-            width: "100%",
-          }}
-        >
-          <div />
-
-          <div
-            style={{
-              position: "relative",
-              background: "rgba(255,255,255,0.03)",
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 1,
-              minWidth: 0,
-              minHeight: 56,
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                left: "50%",
-                top: "50%",
-                transform: "translate(-50%, -50%)",
-                fontSize: 24,
-                fontWeight: "bold",
-                whiteSpace: "nowrap",
-                pointerEvents: "none",
-              }}
-            >
-              Live Story
-            </div>
-
-            <div
-              style={{
-                marginLeft: "auto",
-                width: 100,
-                height: "100%",
-                minHeight: 56,
-                borderLeft: "1px solid rgba(255,255,255,0.06)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 20,
-              }}
-            >
-            {game.currentRound} / 20
-
-            </div>
-          </div>
-
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 18,
-              minWidth: 0,
-            }}
-          >
-            Round
+              ⏱ {game.phase === "EVALUATION" || isPlayer1Active || isPlayer2Active ? formatTime(countdown) : "--:--"}
+            </span>
           </div>
         </div>
-
-        {/* hauptbreich*/}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1fr)",
-            gap: 14,
-            alignItems: "start",
-            width: "100%",
-          }}
-        >
-          {/* Player 1 */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-              minWidth: 0,
-              ...(isPlayer1Active && game.phase !== "EVALUATION" ? activePlayerStyle : inactivePlayerStyle),
-            }}
+ 
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            className="home-corner-btn"
+            onClick={() => setRulesVisible(true)}
+            style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}
           >
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
-              <div className={styles.scrollTitle3}>{game.writers[0]?.username ?? "Player 1"}</div>
-            </div>
-
-            <div
-              style={{
-                ...panelStyle,
-                padding: 12,
-                height: 190,
-                minWidth: 0,
-              }}
-            >
-              <TextArea
-
-                disabled={!isUserPlayer1 || !game.writers[0].turn}
-                style={inputInnerStyle}
-                value={isUserPlayer1 ? OneInput : (game.writers[0]?.text ?? "")}
-                onChange={(e) => setOneInput(e.target.value)}
-                placeholder="Input Field Player 1"
-              />
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "minmax(0, 1fr) 90px 105px",
-                gap: 10,
-                minWidth: 0,
-              }}
-            >
-              <Input
-                value={isUserPlayer1
-                        ? writer1Genre
-                        : isUserPlayer2
-                        ? "Genre"
-                        : writer1Genre}
-                readOnly
-                style={smallFieldStyle}
-              />
-              <Input
-                value={isPlayer1Active && game.phase !== "EVALUATION" ? countdown : "Timer"}
-                readOnly
-                style={{ ...smallFieldStyle, textAlign: "center" }}
-              />
-              <Button
-              onClick={() =>handleSubmit(1,OneInput)}
-              disabled={!isUserPlayer1 || !game.writers[0].turn || game.phase === "EVALUATION"}
-                style={{
-                  ["--btn-bg" as string]: "#2e9f44",
-                  height: 40,
-                  fontSize: 17,
-                  opacity: !isUserPlayer1 || !game.writers[0].turn || game.phase === "EVALUATION" ? 0.4 : 1,
-                }}
-              >
-                Submit
-              </Button>
-            </div>
-
-           {(isUserPlayer1 || (!isUserPlayer1 && !isUserPlayer2)) && (
-            <div
-              style={{
-                background: "rgba(255,255,255,0.018)",
-                backdropFilter: "blur(6px)",
-                border: "1px solid rgba(255,255,255,0.05)",
-                borderRadius: 1,
-                padding: 10,
-                height: 72,
-                minWidth: 0,
-              }}
-            >
-              <TextArea
-                placeholder="Quote field P1"
-                value={game.writers[0]?.quote ?? ""}
-                readOnly
-                style={{
-                  height: "100%",
-                  background: "rgba(255,255,255,0.045)",
-                  color: "#ffffff",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  resize: "none",
-                  fontFamily: "var(--font-cinzel), serif",
-                }}
-              />
-
-              {game.writers[0]?.quote && !quoteUsedP1 && isUserPlayer1 && (
-                  <div style={{ fontSize: 11, color: "#f0c040", marginTop: 2 }}>
-                      Incorporate in your next 2 turns
-                  </div>
-              )}
-              {quoteUsedP1 && isUserPlayer1 && (
-                  <div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
-              )}
-            </div>
-            )}
-          {(isUserPlayer1 || (!isUserPlayer1 && !isUserPlayer2)) && (
-            <Button
-              onClick={() => navigator.clipboard.writeText(game.writers[0]?.quote ?? "")}
-              style={{
-                ["--btn-bg" as string]: "#7ea6e0",
-                width: 118,
-                height: 40,
-                alignSelf: "center",
-                fontSize: 17,
-                marginTop: 2,
-              }}
-            >
-              Copy
-            </Button>
-            )}
-          </div>
-
-          {/* Judge Spalte */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-              minWidth: 0,
-            }}
-          >
-            <div
-              style={{
-                ...panelStyle,
-                padding: 14,
-                height: 400,
-                minWidth: 0,
-              }}
-            >
-                  <TextArea 
-                    style={inputInnerStyle}
-                    value={wholeStoryText} //react kontrolliert das input feld, React setzt bei jedem Render den Wert des Input-Felds auf den aktuellen State wholestoryText.
-                    readOnly
-                    placeholder="Text Field of active Story"
-                  />{/* Bei jedem change wird neu gerendert!!*/}
-            </div>
-
-           {/* <div
-              style={{
-                textAlign: "center",
-                fontSize: 20,
-                fontWeight: "bold",
-                padding: "2px 0 0 0",
-                color: "#f4f4f4",
-              }}
-            >
-              Judge
-            </div>*/}
-            <div style={{ display: "flex", justifyContent: "center", marginTop: 2, marginBottom: 2 }}>
-              <div className={styles.scrollTitleJudge}>Judge</div>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: 10,
-                minWidth: 0,
-              }}
-            >
-              {isJudge && (
-                <Button
-                  disabled={quotedP1}
-                  onClick={() => handleQuoteFetch(1)}
-                  style={{
-                    ["--btn-bg" as string]: "#3d8da8",
-                    height: 44,
-                    fontSize: 17,
-                    width: 120,
-                  }}
-                >
-                  Quote P1
-                </Button>
-              )}
-
-              <Button
-                disabled={!isJudge || game.phase !== "EVALUATION"}
-                onClick={() => setDeclareModalVisible(true)}
-                style={{
-                  ["--btn-bg" as string]: "#c0392b",
-                  height: 44,
-                  fontSize: 17,
-                  width: 120,
-                }}
-              >
-                Declare
-              </Button>
-
-              {isJudge && (
-                <Button
-                  disabled={quotedP2}
-                  onClick={() => handleQuoteFetch(2)}
-                  style={{
-                    ["--btn-bg" as string]: "#3d8da8",
-                    height: 44,
-                    fontSize: 17,
-                    width: 120,
-                  }}
-                >
-                  Quote P2
-                </Button>
-              )}
-            </div>
-
-            <div
-              style={{
-                textAlign: "center",
-                fontSize: 15,
-                color: "rgba(255,255,255,0.78)",
-                padding: "8px 12px",
-                borderTop: "1px solid rgba(255,255,255,0.08)",
-                marginTop: 2,
-              }}
-            >
-              {game.phase === "EVALUATION"
-                ? `The judge must decide! ${countdown}s remaining`
-                : "The writers are creating the story."}
-            </div>
-          </div>
-
-          {/* Player 2 */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-              minWidth: 0,
-              ...(isPlayer2Active && game.phase !== "EVALUATION" ? activePlayerStyle : inactivePlayerStyle),
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
-              <div className={styles.scrollTitle3}>{game.writers[1]?.username ?? "Player 2"}</div>
-            </div>
-
-            <div
-              style={{
-                ...panelStyle,
-                padding: 12,
-                height: 190,
-                minWidth: 0,
-              }}
-            >
-              <TextArea
-                disabled={!isUserPlayer2 || !game.writers[1].turn}
-                style={inputInnerStyle}
-                value={isUserPlayer2 ? TwoInput : (game.writers[1]?.text ?? "")}
-                onChange={(e) => setTwoInput(e.target.value)}
-                placeholder="Input Field Player 2"
-              />
-
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "minmax(0, 1fr) 90px 105px",
-                gap: 10,
-                minWidth: 0,
-              }}
-            >
-              <Input
-                value={isUserPlayer2
-                        ? writer2Genre
-                        : isUserPlayer1
-                        ? "Genre"
-                        : writer2Genre}
-                readOnly
-                style={smallFieldStyle}
-              />
-              <Input
-                value={isPlayer2Active && game.phase !== "EVALUATION" ? countdown : "Timer"}
-                readOnly
-                style={{ ...smallFieldStyle, textAlign: "center" }}
-              />
-              <Button
-              onClick={() =>handleSubmit(2,TwoInput)}
-              disabled={!isUserPlayer2 || !game.writers[1].turn || game.phase === "EVALUATION"}
-                style={{
-                  ["--btn-bg" as string]: "#2e9f44",
-                  height: 40,
-                  fontSize: 17,
-                  opacity: !isUserPlayer2 || !game.writers[1].turn || game.phase === "EVALUATION" ? 0.4 : 1,
-                }}
-              >
-                Submit
-              </Button>
-            </div>
-           {(isUserPlayer2 || (!isUserPlayer1 && !isUserPlayer2)) && (
-            <div
-              style={{
-                background: "rgba(255,255,255,0.018)",
-                backdropFilter: "blur(6px)",
-                border: "1px solid rgba(255,255,255,0.05)",
-                borderRadius: 1,
-                padding: 10,
-                height: 72,
-                minWidth: 0,
-              }}
-            >
-              <TextArea
-                placeholder="Quote field P2"
-                value={game.writers[1]?.quote ?? ""}
-                readOnly
-                style={{
-                  height: "100%",
-                  background: "rgba(255,255,255,0.045)",
-                  color: "#ffffff",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  resize: "none",
-                  fontFamily: "var(--font-cinzel), serif",
-                }}
-              />
-              {game.writers[1]?.quote && !quoteUsedP2 && isUserPlayer2 && (
-                  <div style={{ fontSize: 11, color: "#f0c040", marginTop: 2 }}>
-                      To incorporate in your next 2 turns
-                  </div>
-              )}
-              {quoteUsedP2 && isUserPlayer2 && (<div style={{ fontSize: 11, color: "#25d366", marginTop: 2 }}>Quote incorporated!</div>
-              )}
-            </div>
-            )}
-          {(isUserPlayer2 || (!isUserPlayer1 && !isUserPlayer2)) && (
-            <Button
-              onClick={() => navigator.clipboard.writeText(game.writers[1]?.quote ?? "")}
-              style={{
-                ["--btn-bg" as string]: "#7ea6e0",
-                width: 118,
-                height: 40,
-                alignSelf: "center",
-                fontSize: 17,
-                marginTop: 2,
-              }}
-            >
-              Copy
-            </Button>
-            )}
-          </div>
+            Help
+          </Button>
         </div>
       </div>
-      <Modal
-        open={declareModalVisible}
-        footer={null}
-        closable={true}
-        onCancel={() => setDeclareModalVisible(false)}
-        centered
-        width={420}
-        styles={{
-          body: {
-            background: "#1a1a2e",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: 8,
-            color: "#fff",
-            fontFamily: "var(--font-cinzel), serif",
-            padding: "32px 24px",
-          }
-        }}
-      >
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
-          <div style={{ fontSize: 22, fontWeight: "bold" }}>
-            Who is the winner?
+ 
+      {game.story.objective && (
+        <div className="storyObjectiveWrap">
+          <span className="storyObjectiveSide" aria-hidden />
+          <div className={`storyObjectiveRibbon ${
+            ((isUserPlayer1 && game.writers[0]?.turn) || (isUserPlayer2 && game.writers[1]?.turn))
+            && game.currentRound <= 2 ? "flashHighlight-3" : ""
+          }`}>
+            <span className="storyObjectiveStar">✦</span>
+            STORY OBJECTIVE: {game.story.objective}
+            <span className="storyObjectiveStar">✦</span>
           </div>
-          <div style={{ display: "flex", gap: 20 }}>
-            <Button
-              onClick={() => handleVoteWinner(game?.writers[0]?.id ?? -1)}
-              style={{
-                ["--btn-bg" as string]: "#2e9f44",
-                height: 48,
-                fontSize: 17,
-                width: 150,
-              }}
-            >
-               {game?.writers[0]?.username ?? "Player 1"}
-            </Button>
-            <Button
-              onClick={() => handleVoteWinner(game?.writers[1]?.id ?? -1)}
-              style={{
-                ["--btn-bg" as string]: "#3d8da8",
-                height: 48,
-                fontSize: 17,
-                width: 150,
-              }}
-            >
-              {game?.writers[1]?.username ?? "Player 2"}
-            </Button>
+          <span className="storyObjectiveSide storyObjectiveSideRight" aria-hidden />
+        </div>
+      )}
+ 
+      <div className="panelsGraphic">
+        {!showBullaugeOnLeft && <div className="slotLeft">{renderPlayerSlot(0)}</div>}
+ 
+        <div className="slotMiddle">
+          <div
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              overflowX: "hidden",
+              padding: "clamp(10px, 2.4vw, 35px) 12px 0 20px",
+              minHeight: 0,
+            }}
+          >
+            {game.story.storyContributions && game.story.storyContributions.length > 0 ? (
+              <div className="storyText">
+                {game.story.storyContributions.map((c, i) => {
+                  const isWriter1 = c.userId === game.writers[0]?.id;
+                  return (
+                    <span
+                      key={i}
+                      style={{ color: isWriter1 ? "#dca94b" : "#c0c0c0" }}
+                    >
+                      {c.text}{" "}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="storyTextEmpty">
+                The story will appear here as the writers contribute...
+              </div>
+            )}
           </div>
         </div>
-      </Modal>
-
-      <Modal
-        open={resultModalVisible}
-        footer={null}
-        closable={false}
-        centered
-        width={500}
-        styles={{
-          body: {
-            background: "#1a1a2e",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: 8,
-            color: "#fff",
-            fontFamily: "var(--font-cinzel), serif",
-            padding: "40px 24px",
-          }
-        }}
-      >
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-          <div style={{ fontSize: 26, fontWeight: "bold" }}>
-            {resultGame?.story.hasWinner
-              ? `Winner is ${resultGame.story.winnerUsername ?? "unknown"}!`
-              : "Winner undefined"
-            }
+ 
+        {!showBullaugeOnRight && <div className="slotRight">{renderPlayerSlot(1)}</div>}
+ 
+        {showBullaugeOnLeft && (
+          <div
+            className="bullauge bullaugeLeft"
+            data-genre={genreToBullauge(bullaugeGenreLeft)}
+          >
+            {isUserPlayer1 && (
+              <svg
+                viewBox="0 0 400 100"
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  bottom: "30px",
+                  transform: "translateX(-50%)",
+                  width: "95%",
+                  height: "auto",
+                  pointerEvents: "none",
+                  overflow: "visible",
+                }}
+              >
+                <defs>
+                  <path
+                    id="bullaugeArcLeft"
+                    d="M 20,30 A 200,200 0 0 0 380,30"
+                    fill="none"
+                  />
+                </defs>
+                <text
+                  style={{
+                    fontFamily: "var(--font-cinzel), serif",
+                    fontSize: 20,
+                    fill: "#d4a857",
+                    letterSpacing: 2,
+                    fontWeight: "bold",
+                  }}
+                >
+                  <textPath href="#bullaugeArcLeft" startOffset="50%" textAnchor="middle">
+                    {(game.writers[0]?.username ?? "").length > 12
+                      ? "It\u2019s not your turn!"
+                      : `It\u2019s not your turn, ${game.writers[0]?.username ?? "Player 1"}!`}
+                  </textPath>
+                </text>
+              </svg>
+            )}
           </div>
-          {resultGame?.story.hasWinner && (
-            <div style={{ fontSize: 16, color: "rgba(255,255,255,0.7)" }}>
-              Genre: {resultGame.story.winGenre ?? "—"}
+        )}
+        {showBullaugeOnRight && (
+          <div
+            className="bullauge bullaugeRight"
+            data-genre={genreToBullauge(bullaugeGenreRight)}
+          >
+            {isUserPlayer2 && (
+              <svg
+                viewBox="0 0 400 100"
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  bottom: "30px",
+                  transform: "translateX(-50%)",
+                  width: "95%",
+                  height: "auto",
+                  pointerEvents: "none",
+                  overflow: "visible",
+                }}
+              >
+                <defs>
+                  <path
+                    id="bullaugeArcRight"
+                    d="M 20,30 A 200,200 0 0 0 380,30"
+                    fill="none"
+                  />
+                </defs>
+                <text
+                  style={{
+                    fontFamily: "var(--font-cinzel), serif",
+                    fontSize: 20,
+                    fill: "#d4a857",
+                    letterSpacing: 2,
+                    fontWeight: "bold",
+                  }}
+                >
+                  <textPath href="#bullaugeArcRight" startOffset="50%" textAnchor="middle">
+                    {(game.writers[1]?.username ?? "").length > 12
+                      ? "It\u2019s not your turn!"
+                      : `It\u2019s not your turn, ${game.writers[1]?.username ?? "Player 2"}!`}
+                  </textPath>
+                </text>
+              </svg>
+            )}
+          </div>
+        )}
+      </div>
+      
+       
+        <div className="footerPillWrap">
+          {isJudge && game.phase === "WRITING" && (
+            <button
+              disabled={ quotedP1}
+              onClick={() => handleQuoteFetch(1)}
+              className="footerPill"
+              style={{
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+              }}
+            >
+              ✒ QUOTE P1
+            </button>
+          )}
+
+        {isJudge && game.phase === "WRITING" && (
+          <Tooltip
+            title={
+              game.phase !== "WRITING"
+                ? "Only available during a writer's turn"
+                : reduceTimeLeft <= 0
+                ? `Limit reached for ${activeWriter?.username ?? "this writer"}`
+                :`Cut ${activeWriter?.username ?? "the current writer"}\`s time to ${game?.reducedTimeThreshold ?? 45}s (${reduceTimeLeft} use left)`
+            }
+          >
+            <button
+              disabled={!canReduceTime || reduceTimeLoading}
+              onClick={handleReduceTime}
+              className="footerPill footerPillCenter"
+              style={{
+                borderRadius: 0,
+                padding: "9px 18px",
+                opacity: !canReduceTime || reduceTimeLoading ? 0.4 : 1,
+              }}
+            >
+              ⏱ REDUCE TIME
+            </button>
+          </Tooltip>
+        )}
+        {isJudge && game.phase === "EVALUATION" && (
+          <button
+            onClick={() => setDeclareModalVisible(true)}
+            className="footerPill footerPillCenter"
+            style={{
+              borderRadius: 0,
+              padding: "9px 28px",
+            }}
+          >
+            ♛ DECLARE
+          </button>
+        )}
+          
+      {isJudge && game.phase === "WRITING" && (
+        <button
+          disabled={!isJudge || quotedP2}
+          onClick={() => handleQuoteFetch(2)}
+          className="footerPill"
+          style={{
+            borderTopLeftRadius: 0,
+            borderBottomLeftRadius: 0,
+          }}
+        >
+          QUOTE P2 ✒
+        </button>
+      )}
+
+      </div>
+ 
+      <div className="bottomPhaseStatus">
+        ✦{" "}
+        {game.phase === "EVALUATION"
+          ? `THE JUDGE MUST DECIDE! ${countdown}s REMAINING`
+          : "THE WRITERS ARE CREATING THE STORY."}{" "}
+        ✦
+      </div>
+
+
+    </div>
+ 
+    <Modal
+      open={declareModalVisible}
+      footer={null}
+      closable={true}
+      onCancel={() => setDeclareModalVisible(false)}
+      centered
+      width={420}
+      styles={{
+        body: {
+          background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)",
+          border: "1px solid rgba(212,168,87,0.5)",
+          borderRadius: 8,
+          color: "#fff",
+          fontFamily: "var(--font-cinzel), serif",
+          padding: "32px 24px",
+        },
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+        <div
+          style={{
+            fontSize: 22,
+            fontWeight: "bold",
+            color: "var(--gold)",
+            letterSpacing: 2,
+          }}
+        >
+          Who is the winner?
+        </div>
+ 
+        <div style={{ display: "flex", gap: 20 }}>
+          <Button
+            onClick={() => handleVoteWinner(game?.writers[0]?.id ?? -1)}
+            className="goldButton"
+            style={{ height: 48, width: 150 }}
+          >
+            {game?.writers[0]?.username ?? "Player 1"}
+          </Button>
+ 
+          <Button
+            onClick={() => handleVoteWinner(game?.writers[1]?.id ?? -1)}
+            className="goldButton"
+            style={{ height: 48, width: 150 }}
+          >
+            {game?.writers[1]?.username ?? "Player 2"}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+ 
+    <Modal
+      open={resultModalVisible}
+      footer={null}
+      closable={false}
+      centered
+      width={500}
+      styles={{
+        body: {
+          background: "linear-gradient(135deg, #0f1430 0%, #1a2042 100%)",
+          border: "1px solid rgba(212,168,87,0.5)",
+          borderRadius: 8,
+          color: "#fff",
+          fontFamily: "var(--font-cinzel), serif",
+          padding: "40px 24px",
+        },
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
+        <div
+          style={{
+            fontSize: 26,
+            fontWeight: "bold",
+            color: "var(--gold)",
+            letterSpacing: 2,
+            textAlign: "center",
+          }}
+        >
+          {resultGame?.story.hasWinner
+            ? `Winner is ${resultGame.story.winnerUsername ?? "unknown"}!`
+            : "Winner undefined"}
+        </div>
+
+        {resultGame?.story.hasWinner && (
+          <div style={{ fontSize: 16, color: "rgba(245,230,200,0.7)" }}>
+            Genre: {resultGame.story.winGenre ?? "—"}
+          </div>
+        )}
+
+        {isJudge && (
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ fontSize: 14, color: "var(--gold)", textAlign: "center", letterSpacing: 1 }}>
+              DECIDE A TITLE FOR THE STORY
+            </div>
+            <Input
+              value={storyTitle}
+              maxLength={17}
+              onChange={(e) => setStoryTitle(e.target.value)}
+              placeholder="Enter a title..."
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(212,168,87,0.5)",
+                color: "#fff",
+                fontFamily: "var(--font-cinzel), serif",
+              }}
+            />
+            <Button
+              className="goldButton"
+              disabled={!storyTitle.trim() || titleSubmitted}
+              onClick={async () => {
+                try {
+                  await apiService.put(`/stories/${resultGame?.story.id}/title`, storyTitle.trim(), token);
+                  setTitleSubmitted(true);
+                } catch (e) {
+                  message.error("Failed to set story title.");
+                }
+              }}
+              style={{ width: "100%" }}
+            >
+              {titleSubmitted ? "TITLE SET" : "CONFIRM TITLE"}
+            </Button>
+          </div>
+        )}
+
+        <div style={{ fontSize: 14, color: "rgba(245,230,200,0.5)", marginTop: 8 }}>
+          Redirecting to home in {redirectCountdown} seconds...
+        </div>
+      </div>
+    </Modal>
+ 
+    {rulesVisible && (
+      <div
+        onClick={() => setRulesVisible(false)}
+        className="rulesOverlay"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="rulesModal"
+        >
+          <Button
+            onClick={() => setRulesVisible(false)}
+            style={{
+              position: "absolute",
+              top: 14,
+              right: 14,
+              ["--btn-bg" as string]: "transparent",
+              border: "none",
+              color: "var(--gold)",
+              fontSize: 20,
+            }}
+          >
+            ✕
+          </Button>
+ 
+          <div className="rulesTitle">✦ HOW TO PLAY ✦</div>
+ 
+          {isJudge ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <RuleItem icon="⚖" text="You are the Judge. You observe the story but do not write." />
+              <RuleItem icon="✒" text="Assign a quote to either writer via Quote P1 / Quote P2. Each writer must incorporate it within 2 of their own turns." />
+              <RuleItem icon="✕" text="You can only assign one quote per writer." />
+              <RuleItem icon="⏱" text={`Use Reduce Time to cut the active writer's remaining time to ${game?.reducedTimeThreshold ?? 45}s. Each writer can be punished once!`} />
+              <RuleItem icon="♛" text={`After ${game?.maxRounds ?? 20} rounds the game enters Evaluation. Use the Declare button to pick the winner — the writer whose genre best shaped the story.`} />
+              <RuleItem icon="✦" text="If you don't vote before the timer expires, a tie is recorded automatically." />
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <RuleItem icon="✒" text="Writers alternate turns building a shared story. Steer it toward your secret genre." />
+              <RuleItem icon="◈" text="Your genre is shown in your genre field, hover onto it to see the full description. The opponent does not know your genre!" />
+              <RuleItem icon="❝" text="The Judge may assign you a quote. Weave it into the story within 2 of your own turns or face a penalty." />
+              <RuleItem icon="⊙" text="When it's the other player's turn, a porthole covers their panel — only the active writer's response is visible to everyone." />
+              <RuleItem icon="♛" text={`After ${game?.maxRounds ?? 20} rounds the Judge decides whose genre dominated the story. Write convincingly!`} />
             </div>
           )}
-          <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginTop: 8 }}>
-            Redirecting to home in 20 seconds...
-          </div>
+ 
+          <div className="rulesCloseHint">Click anywhere outside to close</div>
         </div>
-      </Modal>
-    </div>
-  );
+      </div>
+    )}
+  </div>
+);
 };
-
+ 
 export default GamePage;

@@ -1,14 +1,49 @@
 :root {
-  --background: #292c3b;
-  --foreground: #292c3b;
+  /* used by game page */
+  --background: #0a0e27;
+  --foreground: #ededed;
+  --gold: #d4a857;
+  --gold-soft: #c9a76a;
+  --gold-bright: #f0c040;
+  --panel-blue: #1a2042;
+
+  /* used by lobby and home */
+  /* golds */
+  --gold-warm: #e8d896;            /* for texts and highlights, for example used for lobby title, the text in buttons or the glow they get when hovering over them */
+  --gold-rim: #d4af5d;             /* for outlines/borders */
+  --gold-muted: #d4c98a;           /* for subtext, text in less important buttons or the titles in the rooms table*/
+
+  /* blues */
+  --blue-deep: #050818;            
+  --blue-rim: #4a4596;            
+  --blue-button: rgba(40, 35, 90, 0.55);          /* default button background */
+  --blue-button-hero: rgba(60, 50, 130, 0.55);    /* button background big */
+  --blue-button-hover: rgba(60, 50, 120, 0.7);    /* button background hover*/
+  --blue-button-hero-hover: rgba(80, 65, 160, 0.7);
+  --blue-outline-bg: rgba(20, 20, 50, 0.5);       /* outline button background */
+  --blue-outline-bg-hover: rgba(60, 50, 120, 0.6);
+  --blue-panel-bg: rgba(20, 25, 60, 0.35);        /* panel/card background */
+
+  /* shadows and glows */
+  --shadow-button: 0 0 18px rgba(0, 0, 0, 0.4);
+  --glow-gold-soft: 0 0 24px rgba(212, 175, 93, 0.25);
+  --glow-gold-strong: 0 0 32px rgba(232, 216, 150, 0.5);
+  --glow-text-gold: 0 0 12px rgba(232, 216, 150, 0.4);
+
+  /* font */
+  --font-display: var(--font-cinzel), serif;
 }
 
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #d90e0e;
-    --foreground: #ededed;
-  }
-} */
+/* ------------------------------------------------------------
+   *reusable* button styles
+   ------------------------------------------------------------
+   .btn-gold-action   → something like "CREATE MATCH" on lobby page
+   .btn-outline-blue  → something like top right buttons on home page
+   .btn-hero          → big buttons like stories and lobby on homepage
+
+   how to use:
+     <Button className="btn-gold-action">SUBMIT</Button>
+  --------------------------------------------------------------- */
 
 html,
 body {
@@ -35,12 +70,6 @@ a {
   text-decoration: none;
 }
 
-/* @media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-} */
-
 .ant-form,
 .ant-form input,
 .ant-form textarea,
@@ -51,7 +80,8 @@ a {
   font-family: var(--font-cinzel), serif !important;
 }
 
-.login-container {
+.login-container,
+.card-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -62,13 +92,12 @@ a {
   width: 100%;
 }
 
-.card-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+.ant-btn {
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
 }
-/*📝 Buttons: Background, text, border, click animation*/
+
 .ant-btn-variant-outlined.ant-btn-color-default {
   font-family: var(--font-cinzel), serif !important;
   --btn-bg: #6253c6b3;
@@ -78,55 +107,2646 @@ a {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.512) !important;
   transition: transform 0.1s, box-shadow 0.1s !important;
 }
-/* 📝 Buttons: Hovering colours of text & border */
+
 .ant-btn-variant-outlined.ant-btn-color-default:hover,
 .ant-btn-variant-outlined.ant-btn-color-default:focus {
   color: #ffffff !important;
   border: 2px solid #030d57 !important;
   background: var(--btn-bg) !important;
 }
-/* 📝 Table: hide internal measure row added by Ant Design when scroll.y is set */
+
 .ant-table-measure-row {
   display: none !important;
 }
 
-/* 📝 Table: remove column separator lines */
 .ant-table-thead > tr > th::before {
   display: none !important;
 }
 
-/* 📝 Table: uniform row height via padding */
 .ant-table-thead > tr > th,
 .ant-table-tbody > tr > td {
   padding: 4px 16px !important;
 }
 
-/* 📝 Table: alternating row colours to match page theme */
 .ant-table-tbody > tr:nth-child(odd) > td {
   background: rgba(41, 44, 59, 0.9) !important;
 }
+
 .ant-table-tbody > tr:nth-child(even) > td {
   background: rgba(50, 54, 72, 0.9) !important;
 }
+
 .ant-table-thead > tr > th {
   background: rgba(35, 38, 52, 0.95) !important;
 }
+
 .ant-table-tbody > tr:hover > td {
   background: rgba(65, 70, 95, 0.9) !important;
 }
 
-/* 📝 Table: apply Cinzel font to all cells and headers */
 .ant-table,
 .ant-table-thead > tr > th,
 .ant-table-tbody > tr > td {
   font-family: var(--font-cinzel), serif !important;
 }
 
-/* 📝Buttons: Shadow */
 .ant-btn-variant-outlined.ant-btn-color-default:active {
   transform: translateY(2px) !important;
   box-shadow: 0 2px 4px rgba(29, 28, 28, 0.478) !important;
 }
 
+/* -------------------------------------------- */
+/* GAME PAGE                                    */
+/* ----------------------------------------------*/
+
+.gameStarryBg {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background-image: url("/starry-bg.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Main wrapper */
+.gameContentWrapper {
+  max-width: 1500px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+}
+
+/* Top area reduced to save vertical space */
+.topGameRow {
+  display: grid;
+  grid-template-columns: clamp(140px, 13.5vw, 180px) 1fr clamp(140px, 13.5vw, 180px);
+  align-items: start;
+  gap: 16px;
+  width: 100%;
+  padding-top: 4px;
+  position: relative;
+  z-index: 20;
+}
+
+.gameRoomTitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(20px, 4.3vw, 48px);
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 6px;
+  text-align: center;
+  text-shadow: 0 0 18px rgba(212, 168, 87, 0.4);
+  margin: 0;
+  padding: 0;
+  line-height: 1.08;  
+}
+
+.statusPillRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+ 
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: clamp(4px, 0.49vw, 7px) clamp(8px, 1.53vw, 22px);
+  background: rgba(10, 14, 40, 0.6);
+  border: 1px solid rgba(212, 168, 87, 0.55);
+  border-radius: 999px;
+  color: var(--gold-bright);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(9px, 1.04vw, 15px);
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(212, 168, 87, 0.25);
+}
 
 
+.storyObjectiveWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  margin-top: 10px;
+  margin-bottom: -26px;
+  position: relative;
+  z-index: 12;
+}
+
+
+/* previously for the LIVE STORY subtitle, now unused  */
+.liveStorySubtitle {
+  display: none;
+}
+
+
+
+
+.storyObjectiveRibbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: clamp(4px, 0.63vw, 9px) clamp(10px, 2.08vw, 30px);
+  background: rgba(10, 14, 40, 0.62);
+  border: 1px solid rgba(212, 168, 87, 0.55);
+  border-radius: 2px;
+  color: var(--gold-bright);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(8px, 0.9vw, 13px);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-align: center;
+  max-width: 760px;
+  text-shadow: 0 0 8px rgba(212, 168, 87, 0.25);
+}
+
+
+.statusPillSeparator {
+  font-size: 14px;
+  color: var(--gold-bright);
+  line-height: 1;
+  user-select: none;
+  text-shadow: 0 0 8px rgba(212, 168, 87, 0.4);
+}
+ 
+.storyObjectiveSide {
+  display: inline-block;
+  width: 90px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(212, 168, 87, 0.55));
+}
+
+.storyObjectiveSideRight {
+  background: linear-gradient(to left, transparent, rgba(212, 168, 87, 0.55));
+}
+ 
+.storyObjectiveStar {
+  color: var(--gold-bright);
+  font-size: 14px;
+  text-shadow: 0 0 6px rgba(212, 168, 87, 0.4);
+}
+
+
+/* -------------------------------------------- */
+/* PANELS GRAPHIC                               */
+/* -------------------------------------------- */
+
+.panelsGraphic {
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  aspect-ratio: 2.582;
+  background-image: url("/all-panels.webp");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+  z-index: 5;
+  pointer-events: none;
+}
+
+.slotLeft,
+.slotMiddle,
+.slotRight,
+.slotLeft *,
+.slotMiddle *,
+.slotRight *,
+.footerPillWrap,
+.footerPillWrap *,
+.storyObjectiveWrap,
+.storyObjectiveWrap * {
+  pointer-events: auto;
+}
+
+.bullauge {
+  pointer-events: none;
+}
+/* Content slots */
+.slotLeft,
+.slotMiddle,
+.slotRight {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.slotLeft {
+  left: 3.5%;
+  right: 73%;
+  top: 18%;
+  bottom: 15.5%;
+}
+
+.slotMiddle {
+  left: 34.7%;
+  right: 34.7%;
+  top: 20%;
+  bottom: 25%;
+}
+
+.slotRight {
+  left: 73%;
+  right: 3.5%;
+  top: 18%;
+  bottom: 15.5%;
+}
+
+/* Bullauge */
+.bullauge {
+  position: absolute;
+  width: 29%;
+  height: 74.9%;
+  top: 12.5%;
+  background-image: url("/bullauge_darkfantasy.webp");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 8;
+  filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.6));
+}
+
+.bullaugeLeft {
+  left: 0.8%;
+}
+
+.bullaugeRight {
+  right: 0.8%;
+}
+
+.bullauge[data-genre="horror"]         { background-image: url('/bullauge_horror.webp'); }
+.bullauge[data-genre="drama"]          { background-image: url('/bullauge_drama.webp'); }
+.bullauge[data-genre="thriller"]       { background-image: url('/bullauge_thriller.webp'); }
+.bullauge[data-genre="tragedy"]        { background-image: url('/bullauge_tragedy.webp'); }
+.bullauge[data-genre="dystopian"]      { background-image: url('/bullauge_dystopian.webp'); }
+.bullauge[data-genre="survival"]       { background-image: url('/bullauge_survival.webp'); }
+.bullauge[data-genre="crime"]          { background-image: url('/bullauge_crime.webp'); }
+.bullauge[data-genre="psychological"]  { background-image: url('/bullauge_psychological.webp'); }
+.bullauge[data-genre="darkfantasy"]    { background-image: url('/bullauge_darkfantasy.webp'); }
+.bullauge[data-genre="comedy"]         { background-image: url('/bullauge_comedy.webp'); }
+.bullauge[data-genre="love"]           { background-image: url('/bullauge_love.webp'); }
+.bullauge[data-genre="utopian"]        { background-image: url('/bullauge_utopian.webp'); }
+.bullauge[data-genre="fairytale"]      { background-image: url('/bullauge_fairytale.webp'); }
+.bullauge[data-genre="kidsfantasy"]    { background-image: url('/bullauge_kidsfantasy.webp'); }
+
+/* alt-variants: genres with two pictures*/
+.bullauge.bullaugeRight[data-genre="comedy"]         { background-image: url('/bullauge_comedy_alt.webp'); }
+.bullauge.bullaugeRight[data-genre="crime"]          { background-image: url('/bullauge_crime_alt.webp'); }
+.bullauge.bullaugeRight[data-genre="fairytale"]      { background-image: url('/bullauge_fairytale_alt.webp'); }
+.bullauge.bullaugeRight[data-genre="horror"]         { background-image: url('/bullauge_horror_alt.webp'); }
+.bullauge.bullaugeRight[data-genre="kidsfantasy"]    { background-image: url('/bullauge_kidsfantasy_alt.webp'); }
+.bullauge.bullaugeRight[data-genre="psychological"]  { background-image: url('/bullauge_psychological_alt.webp'); }
+
+/* --------------------------------------------- */
+/* TYPOGRAPHY                                   */
+/* ----------------------------------------------*/
+
+.playerNameTitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(8px, 1.5vw, 24px);
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-align: center;
+  margin: 0;
+  text-shadow: 0 0 12px rgba(212, 168, 87, 0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playerSubtitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--gold-soft);
+  text-align: center;
+  margin-top: 1px;
+}
+
+.sectionLabel {
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(7px, 0.69vw, 10px);
+  letter-spacing: 2px;
+  color: var(--gold-soft);
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------*/
+/* INPUTS                                       */
+/* --------------------------------------------- */
+
+.goldInput,
+.goldInput .ant-input,
+.goldInput textarea.ant-input {
+  background: rgba(10, 14, 40, 0.45) !important;
+  border: 1px solid rgba(212, 168, 87, 0.35) !important;
+  color: #F1E9D2;
+
+text-shadow:
+  0 0 4px rgba(255, 220, 140, 0.12),
+  0 0 8px rgba(212, 175, 55, 0.08);
+  border-radius: 4px !important;
+  font-family: var(--font-cinzel), serif !important;
+  resize: none !important;
+  font-size: clamp(10px, 1.1vw, 15px) !important;
+  caret-color: #E6C77A;
+}
+
+.goldInput .ant-input::placeholder,
+.goldInput textarea.ant-input::placeholder {
+  color: rgba(212, 168, 87, 0.4) !important;
+  font-style: italic;
+}
+
+.goldInput .ant-input-data-count {
+  color: rgba(212, 168, 87, 0.5) !important;
+  font-family: var(--font-cinzel), serif !important;
+  font-size: 10px !important;
+}
+
+.goldInputFlex,
+.goldInputFlex .ant-input-textarea-show-count,
+.goldInputFlex .ant-input,
+.goldInputFlex textarea.ant-input {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.goldInputFlex {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.genreBox {
+  padding: clamp(2px, 0.3vw, 4px) clamp(6px, 1vw, 10px);
+  background: rgba(10, 14, 40, 0.45);
+  border: 1px solid rgba(212, 168, 87, 0.35);
+  border-radius: 14px;
+  text-align: center;
+  color: var(--gold);
+  font-size: clamp(7px, 0.87vw, 12px);
+  letter-spacing: 1px;
+  font-family: var(--font-cinzel), serif;
+}
+
+.assignQuoteButton {
+  background: transparent;
+  border: 1px solid rgba(212, 168, 87, 0.5);
+  border-radius: 10px;
+  color: var(--gold);
+  font-size: clamp(7px, 0.63vw, 9px);
+  letter-spacing: 1px;
+  font-family: var(--font-cinzel), serif;
+  padding: 2px 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.assignQuoteButton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* -------------------------------------------- */
+/* ACTIVE STORY                                 */
+/* --------------------------------------------- */
+
+.storyText {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(9px, 1.1vw, 16px);
+  line-height: 1.6;
+  color: #E8ECF1;
+
+  text-shadow:
+    0 0 4px rgba(255, 220, 140, 0.10),
+    0 0 10px rgba(140, 180, 255, 0.18),
+    0 0 20px rgba(80, 120, 255, 0.10);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  overflow-x: hidden;
+}
+
+.storyTextEmpty {
+  color: rgba(245, 230, 200, 0.4);
+  font-style: italic;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+  padding: 0 12px;
+}
+
+/* -----------------------------------------------*/
+/* FOOTER / JUDGE BUTTONS                       */
+/* --------------------------------------------- */
+
+.footerPillWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  margin-top: -44px;
+  position: relative;
+  z-index: 14;
+}
+
+.footerPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: clamp(5px, 0.58vw, 8px) clamp(10px, 1.7vw, 22px);
+  background: rgba(10, 14, 40, 0.6);
+  border: 1px solid rgba(212, 168, 87, 0.45);
+  border-radius: 30px;
+  color: var(--gold);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(9px, 0.87vw, 12px);
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.footerPill:hover:not(:disabled) {
+  background: rgba(212, 168, 87, 0.15);
+  border-color: var(--gold);
+  box-shadow: 0 0 16px rgba(212, 168, 87, 0.3);
+}
+
+.footerPill:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.footerPillCenter {
+  background: rgba(10, 14, 40, 0.72);
+  border: 1.5px solid var(--gold);
+  box-shadow: 0 0 18px rgba(212, 168, 87, 0.35);
+}
+
+.bottomPhaseStatus {
+  text-align: center;
+  font-size: clamp(8px, 0.9vw, 13px);
+  letter-spacing: 3px;
+  color: var(--gold-soft);
+  margin-top: 14px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 10;
+}
+
+/* -------------------------------------------- */
+/* BUTTONS                                      */
+/* -------------------------------------------- */
+
+.goldButton {
+  background: linear-gradient(
+    180deg,
+    rgba(212, 168, 87, 0.18) 0%,
+    rgba(212, 168, 87, 0.05) 100%
+  ) !important;
+  border: 1px solid var(--gold) !important;
+  color: var(--gold) !important;
+  font-family: var(--font-cinzel), serif !important;
+  letter-spacing: 3px !important;
+  border-radius: 18px !important;
+  height: clamp(20px, 2.3vw, 32px) !important;
+  padding: 0 clamp(10px, 1.8vw, 20px) !important;
+  font-size: clamp(7px, 0.87vw, 12px) !important;
+  text-transform: uppercase;
+  transition: all 0.2s !important;
+}
+
+.goldButton:hover:not(:disabled) {
+  background: rgba(212, 168, 87, 0.25) !important;
+  border-color: var(--gold) !important;
+  color: var(--gold-bright) !important;
+  box-shadow: 0 0 14px rgba(212, 168, 87, 0.4) !important;
+}
+
+.cornerButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(212, 168, 87, 0.5);
+  color: var(--gold);
+  font-family: var(--font-cinzel), serif;
+  font-size: 14px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cornerButton:hover {
+  color: var(--gold-bright);
+  border-bottom-color: var(--gold-bright);
+}
+
+/*--------------------------------------------- */
+/* START OVERLAY                                */
+/* -------------------------------------------- */
+
+.startOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(5, 8, 25, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  font-family: var(--font-cinzel), serif;
+}
+
+.startOverlayTitle {
+  font-size: clamp(40px, 8.5vh, 64px);
+  font-weight: bold;
+  letter-spacing: 6px;
+  color: var(--gold);
+}
+
+.startOverlaySmall {
+  font-size: clamp(13px, 2.1vh, 16px);
+  letter-spacing: 3px;
+  color: rgba(212, 168, 87, 0.5);
+  text-transform: uppercase;
+}
+
+.startOverlayRole {
+  font-size: clamp(24px, 4.8vh, 36px);
+  font-weight: bold;
+  letter-spacing: 4px;
+  color: var(--gold);
+}
+
+.startOverlayText {
+  margin-top: 8px;
+  font-size: clamp(12px, 2vh, 15px);
+  letter-spacing: 1px;
+  color: #e8e4d8;
+}
+
+.startOverlayCountdown {
+  font-size: clamp(60px, 13vh, 100px);
+  font-weight: bold;
+  line-height: 1;
+  margin-top: 16px;
+  color: var(--gold);
+}
+
+/* -------------------------------------------- */
+/* RULES MODAL                                  */
+/* -------------------------------------------- */
+
+.rulesOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(5, 8, 25, 0.6);
+  backdrop-filter: blur(6px);
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rulesModal {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%);
+  border: 1px solid rgba(212, 168, 87, 0.5);
+  border-radius: 8px;
+  padding: 36px 40px;
+  max-width: 540px;
+  width: 90%;
+  color: #f5e6c8;
+  font-family: var(--font-cinzel), serif;
+  position: relative;
+}
+
+.rulesTitle {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--gold);
+  letter-spacing: 3px;
+}
+
+.rulesCloseHint {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 12px;
+  color: rgba(245, 230, 200, 0.3);
+}
+/* -------------------------------------------- */
+/* LOBBY PAGE (Elevator Design)                 */
+/* --------------------------------------------- */
+
+/* Lobby page: full-screen starry background */
+.lobby-page {
+  position: fixed;
+  inset: 0;
+  background-image: url('/hintergrund_lobby.webp');
+  background-size: cover;
+  background-position: center;
+  background-color: var(--blue-deep);
+  overflow: hidden;
+}
+
+/* Lobby title at top center */
+.lobby-title {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 5vh, 38px);
+  letter-spacing: 8px;
+  color: var(--gold-warm);
+  text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0,0,0,0.8);
+  z-index: 10;
+  pointer-events: none;
+}
+.lobby-title-divider {
+  position: absolute;
+  top: calc(24px + clamp(26px, 5vh, 38px));
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--gold-rim);
+  font-size: 14px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Elevator stage: centered container that holds the elevator image and overlays */
+.elevator-stage {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  height: 100vh;
+  aspect-ratio: 2551 / 2903;
+  max-width: 95vw;
+  z-index: 2;
+}
+
+/* Elevator image wrapper: this is what slides down from above */
+.elevator-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  animation: elevatorDescend 5s cubic-bezier(0.22, 0.9, 0.32, 1) 0.2s both; /*cubics bezier makes movement it less static, not always same speed */
+}
+.elevator-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+@keyframes elevatorDescend {
+  0%   { transform: translateY(-115%); }
+  100% { transform: translateY(0); }
+}
+
+/* Inner panel: where Available Matches and table sit */
+.elevator-panel {
+  position: absolute;
+  left: 22%;
+  top: 42%;
+  width: 56%;
+  height: 26%;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  animation: panelFadeIn 0.9s ease-out 3.4s forwards;
+}
+
+/* Bottom strip: where Create Match button sits */
+.elevator-cta {
+  position: absolute;
+  left: 22%;
+  top: 76%;
+  width: 56%;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  animation: panelFadeIn 0.7s ease-out 3.7s forwards;
+}
+@keyframes panelFadeIn {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Lobby table: transparent background so the elevator interior shows through */
+.lobby-table .ant-table,
+.lobby-table .ant-table-thead > tr > th,
+.lobby-table .ant-table-tbody > tr > td,
+.lobby-table .ant-table-placeholder,
+.lobby-table .ant-table-cell {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.25) !important;
+}
+.lobby-table .ant-table-thead > tr > th {
+  color: #d4c98a !important;
+  font-size: clamp(9px, 0.87vw, 12px) !important;
+  letter-spacing: 2px !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.5) !important;
+  padding: 3px 6px !important;
+}
+.lobby-table .ant-table-tbody > tr > td {
+  color: #e8d896 !important;
+  font-size: clamp(10px, 0.94vw, 13px) !important;
+  padding: 3px 6px !important;
+}
+.lobby-table .ant-table-tbody > tr:hover > td {
+  background: rgba(212, 175, 93, 0.08) !important;
+}
+.lobby-table .ant-table-placeholder .ant-empty-description {
+  color: #6b6480 !important;
+}
+
+/* 📝 Container context so cqw units inside scale with the frame */
+.pregame-frame {
+  container-type: inline-size;
+}
+
+/* Pre-game room table: same gold styling as lobby-table but with tighter row padding */
+.pregame-table .ant-table,
+.pregame-table .ant-table-placeholder {
+  background: transparent !important;
+  border-bottom: none !important;
+  padding: 2px 8px !important;
+}
+.pregame-table .ant-table-thead > tr > th,
+.pregame-table .ant-table-tbody > tr > td,
+.pregame-table .ant-table-cell {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.25) !important;
+  padding: 2px 8px !important;
+}
+.pregame-table .ant-table-thead > tr > th {
+  color: #d4c98a !important;
+  font-size: clamp(10px, 1.4vh, 14px) !important;
+  letter-spacing: 2px !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.5) !important;
+}
+.pregame-table .ant-table-tbody > tr > td {
+  color: #e8d896 !important;
+  font-size: clamp(11px, 1.5vh, 15px) !important;
+}
+.pregame-table .ant-table-tbody > tr:hover > td {
+  background: rgba(212, 175, 93, 0.08) !important;
+}
+.pregame-table .ant-table-placeholder .ant-empty-description {
+  color: #6b6480 !important;
+}
+
+.elevator-img-stack { position: relative; width: 100%; height: 100%; }
+.elevator-img-stack .elevator-img { position: absolute; inset: 0; }
+.elevator-img-hq { opacity: 0; transition: opacity 400ms ease; }
+.elevator-img-hq.is-loaded { opacity: 1; }
+
+/* -------------------------------------------- */
+/* PROFILE PAGE                                 */
+/* -------------------------------------------- */
+
+/* Profile table: gold styling, transparent background */
+.profile-table .ant-table,
+.profile-table .ant-table-thead > tr > th,
+.profile-table .ant-table-tbody > tr > td,
+.profile-table .ant-table-placeholder,
+.profile-table .ant-table-cell {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.25) !important;
+}
+.profile-table .ant-table-thead > tr > th {
+  color: #d4c98a !important;
+  font-size: clamp(9px, 1.3vh, 13px) !important;
+  letter-spacing: 2px !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.5) !important;
+}
+.profile-table .ant-table-tbody > tr > td {
+  color: #e8d896 !important;
+  font-size: clamp(10px, 1.4vh, 14px) !important;
+}
+.profile-table .ant-table-tbody > tr:hover > td {
+  background: rgba(212, 175, 93, 0.08) !important;
+}
+.profile-table .ant-table-placeholder .ant-empty-description {
+  color: #6b6480 !important;
+}
+.profile-table .ant-table-thead > tr > th,
+.profile-table .ant-table-tbody > tr > td {
+  padding: 3px 4px !important;
+}
+
+/* Profile action button: higher opacity than pregame for legibility inside frame */
+.profile-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.78) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.5) !important;
+}
+.profile-btn.ant-btn:hover,
+.profile-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.88) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+/* Profile exit button: bordeaux red, tunable independently from pregame */
+.profile-red-btn.ant-btn {
+  background: rgba(100, 20, 30, 0.65) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.profile-red-btn.ant-btn:hover,
+.profile-red-btn.ant-btn:focus {
+  background: rgba(140, 30, 40, 0.8) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+/* Profile page title */
+.profile-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4.4vh, 44px);
+  letter-spacing: 8px;
+  color: var(--gold-warm);
+  text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0,0,0,0.8);
+  pointer-events: none;
+}
+.profile-title-divider {
+  color: var(--gold-rim);
+  font-size: clamp(11px, 1.6vh, 16px);
+  pointer-events: none;
+}
+
+/* Profile section heading (e.g. MATCH HISTORY inside the frame) */
+.profile-heading {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(11px, 1.5vh, 15px);
+  letter-spacing: 4px;
+  color: #d1bc6f;
+  margin-bottom: 8px;
+  text-shadow: var(--glow-text-gold);
+}
+.profile-heading::before,
+.profile-heading::after {
+  content: " ✦ ";
+  color: var(--gold-rim);
+  margin: 0 8px;
+  opacity: 0.7;
+}
+
+/* 📝 Profile info row label — decorative diamonds via CSS */
+.profile-info-label::before,
+.profile-info-label::after {
+  content: " ✦ ";
+  color: var(--gold-rim);
+  opacity: 0.7;
+}
+
+/* Pre-game exit button: same gold style but bordeaux red background */
+.pregame-exit-btn.ant-btn {
+  background: rgba(100, 20, 30, 0.65) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.pregame-exit-btn.ant-btn:hover,
+.pregame-exit-btn.ant-btn:focus {
+  background: rgba(140, 30, 40, 0.8) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+/* Pre-game select/deselect buttons: gold style matching lobby-create-btn but keeping compact size */
+.pregame-select-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.pregame-select-btn.ant-btn:hover,
+.pregame-select-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.7) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+.pregame-select-btn.ant-btn.selected {
+  background: rgba(30, 90, 50, 0.65) !important;
+}
+
+/* Create Match button: gold-bordered, semi-transparent, fits the elevator look
+   Aliased with .btn-gold-action, so both give the same styling */
+.lobby-create-btn.ant-btn,
+.btn-gold-action.ant-btn {
+  background: var(--blue-button) !important;
+  border: 1px solid var(--gold-rim) !important;
+  color: var(--gold-warm) !important;
+  padding: 0 clamp(10px, 3vw, 36px) !important;
+  height: clamp(28px, 3.0vw, 42px) !important;
+  font-size: clamp(10px, 0.94vw, 13px) !important;
+  letter-spacing: 3px !important;
+  font-family: var(--font-display) !important;
+  box-shadow: var(--shadow-button) !important;
+}
+.lobby-create-btn.ant-btn:hover,
+.lobby-create-btn.ant-btn:focus,
+.btn-gold-action.ant-btn:hover,
+.btn-gold-action.ant-btn:focus {
+  background: var(--blue-button-hover) !important;
+  border-color: var(--gold-warm) !important;
+  color: #ffffff !important;
+}
+
+/* 📝 Start Game button: same style as lobby-create-btn but with vh-based scaling */
+.pregame-start-btn.ant-btn {
+  background: var(--blue-button) !important;
+  border: 1px solid var(--gold-rim) !important;
+  color: var(--gold-warm) !important;
+  padding: 0 36px !important;
+  background: rgba(40, 35, 90, 0.8) !important;
+  height: clamp(40px, 5.5vh, 57px) !important;
+  font-size: clamp(13px, 1.7vh, 17px) !important;
+  letter-spacing: 3px !important;
+  font-family: var(--font-display) !important;
+  box-shadow: var(--shadow-button) !important;
+}
+.pregame-start-btn.ant-btn:hover,
+.pregame-start-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.8) !important;
+  border-color: var(--gold-warm) !important;
+  color: #ffffff !important;
+}
+
+/* -------------------------------------------- */
+/* USERS PAGE                                   */
+/* -------------------------------------------- */
+
+/* 📝 Container context so cqw units inside scale with the frame */
+.users-frame {
+  container-type: inline-size;
+}
+
+/* 📝 Gold rounded border framing the user list panel */
+.users-list-frame {
+  border: 1px solid rgba(212, 175, 93, 0.55);
+  border-radius: 10px;
+  box-shadow: 0 0 18px rgba(212, 175, 93, 0.15);
+  background: rgba(15, 12, 50, 0.35);
+}
+
+/* 📝 Users page table */
+.users-table .ant-table,
+.users-table .ant-table-wrapper,
+.users-table .ant-table-container,
+.users-table .ant-table-content,
+.users-table .ant-table-body,
+.users-table .ant-table-placeholder,
+.users-table .ant-table-thead > tr,
+.users-table .ant-table-tbody > tr {
+  background: transparent !important;
+  border-bottom: none !important;
+}
+.users-table .ant-table-thead > tr > th,
+.users-table .ant-table-tbody > tr > td,
+.users-table .ant-table-cell {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.25) !important;
+  padding: 2px 16px 2px 8px !important;
+}
+.users-table .ant-table-thead > tr > th {
+  color: #d4c98a !important;
+  font-size: clamp(10px, 1.4vh, 14px) !important;
+  letter-spacing: 2px !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.25) !important;
+}
+.users-table .ant-table-tbody > tr > td {
+  color: #e8d896 !important;
+  font-size: clamp(12px, 1.7vh, 17px) !important;
+}
+.users-table .ant-table-tbody > tr:hover > td {
+  background: rgba(212, 175, 93, 0.08) !important;
+}
+.users-table .ant-table-placeholder .ant-empty-description {
+  color: #6b6480 !important;
+}
+
+/* 📝 Users page logout button: red exit style matching pregame-exit-btn */
+.users-logout-btn.ant-btn {
+  background: rgba(100, 20, 30, 0.65) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.users-logout-btn.ant-btn:hover,
+.users-logout-btn.ant-btn:focus {
+  background: rgba(140, 30, 40, 0.8) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+/* "Available Matches" header above the table */
+.available-matches-heading {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(9px, 1.16vw, 16px);
+  letter-spacing: 4px;
+  color: var(--gold-warm);
+  margin-bottom: 10px;
+  text-shadow: var(--glow-text-gold);
+}
+.available-matches-heading::before,
+.available-matches-heading::after {
+  content: " ✦ ";
+  color: var(--gold-rim);
+  margin: 0 8px;
+  opacity: 0.7;
+}
+
+/* -------------------------------------------- */
+/* HOME PAGE                                    */
+/* --------------------------------------------- */
+
+/* Home wrapper: storywars background covers full screen */
+.home-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background-image: url('/background_home_1920.webp');
+  background-size: cover;
+  background-position: center;
+  background-color: var(--blue-deep);
+  background-attachment: fixed;
+  font-family: var(--font-display);
+  overflow-x: hidden;
+}
+
+.home-page-hq { /* high-res overlay: fixed like the CSS background-attachment: fixed, fades in once loaded */
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+.home-page-hq.is-loaded {
+  opacity: 1;
+}
+
+/* Top-right button stack (Profile / Logout / Login / Register) */
+.home-top-buttons {
+  position: fixed;
+  top: 28px;
+  right: 28px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 📝 Fixed top-right Profile button */
+.profile-nav-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.profile-nav-btn.ant-btn:hover,
+.profile-nav-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.7) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+/* 📝 Fixed top-left Home button */
+.home-corner-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.home-corner-btn.ant-btn:hover,
+.home-corner-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.7) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+/* Outline-button in lobby style (Home/Profile/Logout/Login/Register)
+   Aliased with .btn-outline-blue */
+.home-nav-btn.ant-btn,
+.btn-outline-blue.ant-btn {
+  background: var(--blue-outline-bg) !important;
+  border: 1px solid var(--blue-rim) !important;
+  color: var(--gold-muted) !important;
+  font-family: var(--font-display) !important;
+  letter-spacing: 2px !important;
+  font-size: clamp(12px, 1.8vh, 14px) !important;
+  height: clamp(34px, 5.5vh, 42px) !important;
+  padding: 0 22px !important;
+}
+.home-nav-btn.ant-btn:hover,
+.home-nav-btn.ant-btn:focus,
+.btn-outline-blue.ant-btn:hover,
+.btn-outline-blue.ant-btn:focus {
+  background: var(--blue-outline-bg-hover) !important;
+  border-color: var(--gold-rim) !important;
+  color: var(--gold-warm) !important;
+}
+
+/* fixed width (130px) for home nav buttons */
+.home-nav-btn.ant-btn {
+  width: 130px !important;
+  padding: 0 !important;
+}
+
+/* description text */
+.home-description {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  transform: translateX(-50%);
+  width: min(720px, 90vw);
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(13px, 2.1vh, 16px);
+  line-height: 1.8;
+  color: #d4d8e8;
+}
+.home-description-cta {
+  display: block;
+  margin-top: 14px;
+  color: var(--gold-warm);
+  font-weight: 500;
+  text-shadow: 0 0 12px rgba(232, 216, 150, 0.3);
+}
+
+/* Stories and lobby buttons */
+.home-main-buttons {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: clamp(24px, 3.5vw, 40px);
+}
+/* stories and lobby button
+   Aliased with .btn-hero */
+.home-main-btn.ant-btn,
+.btn-hero.ant-btn {
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+  font-size: 26px !important;
+  letter-spacing: 4px !important;
+  width: clamp(180px, 18.75vw, 240px) !important;
+  height: clamp(52px, 8.5vh, 70px) !important;
+  padding: 0 !important;
+  transition: all 0.2s !important;
+}
+.home-main-btn.ant-btn:hover,
+.home-main-btn.ant-btn:focus,
+.btn-hero.ant-btn:hover,
+.btn-hero.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.7) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+/* --------------Active-Turn-Highlight für die ersten zwei Runden--------------------- */
+
+/* Großer goldener "It's your turn"-Hinweis im Writer-Textarea */
+.activeTurnHint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: clamp(9px, 1.53vw, 22px);
+  letter-spacing: 3px;
+  color: var(--gold-warm);
+  text-align: center;
+  text-shadow: 0 0 16px rgba(232, 216, 150, 0.9),
+               0 0 28px rgba(232, 216, 150, 0.5);
+  pointer-events: none;
+  animation: hintPulse 2s ease-in-out infinite;
+  white-space: nowrap;
+  z-index: 5;
+}
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.75; text-shadow: 0 0 12px rgba(232, 216, 150, 0.6); }
+  50%      { opacity: 1;    text-shadow: 0 0 20px rgba(232, 216, 150, 1), 0 0 32px rgba(232, 216, 150, 0.7); }
+}
+
+/* Sequenzielles Aufleuchten: writer-input → genre → story-objective */
+.flashHighlight-1 { animation: flashGold 1.4s ease-out 0.2s 1; }
+.flashHighlight-2 { animation: flashGold 1.4s ease-out 1.6s 1; }
+.flashHighlight-3 { animation: flashGold 1.4s ease-out 3.0s 1; }
+
+@keyframes flashGold {
+  0%   { box-shadow: 0 0 0 0 rgba(232, 216, 150, 0); }
+  30%  { box-shadow: 0 0 24px 4px rgba(232, 216, 150, 0.9); }
+  100% { box-shadow: 0 0 0 0 rgba(232, 216, 150, 0); }
+}
+
+.goldInput .ant-input[disabled],
+.goldInput .ant-input-disabled,
+.goldInput textarea[disabled],
+.goldInput .ant-input-affix-wrapper-disabled .ant-input {
+  color: var(--gold-warm) !important;
+  -webkit-text-fill-color: var(--gold-warm) !important;
+  opacity: 1 !important;
+  cursor: default !important;
+}
+
+.timerReducedNotif .ant-notification-notice-title {
+  color: var(--gold) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.timerReducedNotif .ant-notification-notice-description {
+  color: rgba(245,230,200,0.85) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.timerReducedNotif .ant-notification-notice-icon {
+  color: #e74c3c !important;
+}
+
+@keyframes timerFlash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.timerReducedFlash {
+  animation: timerFlash 0.6s ease-in-out 3;
+}
+
+/* Tutorial page*/
+
+.tutorials-back {
+  position: fixed;
+  top: 28px;
+  left: 28px;
+  z-index: 100;
+}
+
+.tutorials-astronaut {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: clamp(160px, 18vw, 260px);
+  pointer-events: none;
+  z-index: 5;
+  animation: astronautDrift 40s ease-in-out infinite;
+}
+
+.tutorials-astronaut-inner {
+  animation: astronautBob 5s ease-in-out infinite;
+}
+
+.tutorials-astronaut img {
+  width: 100%;
+  display: block;
+  filter: drop-shadow(0 0 18px rgba(0, 0, 0, 0.6));
+}
+
+/* astronaut floats around */
+@keyframes astronautDrift {
+  0%   { transform: translate(2vw, 8vh)   rotate(-5deg); }
+  15%  { transform: translate(85vw, 15vh) rotate(8deg); }
+  30%  { transform: translate(88vw, 45vh) rotate(-3deg); }
+  45%  { transform: translate(82vw, 75vh) rotate(10deg); }
+  60%  { transform: translate(5vw, 80vh)  rotate(-8deg); }
+  75%  { transform: translate(2vw, 50vh)  rotate(5deg); }
+  90%  { transform: translate(8vw, 25vh)  rotate(-2deg); }
+  100% { transform: translate(2vw, 8vh)   rotate(-5deg); }
+}
+
+
+@keyframes astronautBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+.tutorials-content {
+  position: relative;
+  z-index: 10;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 100px 1.5rem 4rem;
+  text-align: center;
+}
+
+.tutorials-content .home-description {
+  position: static;
+  transform: none;
+  width: auto;
+  max-width: 600px;
+  margin: 1.5rem auto 2.5rem;
+}
+
+/* Menu list  */
+.tutorials-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 2rem;
+}
+.tutorials-menu-item {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+
+.tutorials-section {
+  padding: 1.75rem 2rem;
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%);
+  border: 1px solid rgba(212, 168, 87, 0.5);
+  border-radius: 8px;
+  color: rgba(245, 230, 200, 0.85);
+  text-align: left;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.tutorials-section p { margin: 0.75rem 0; }
+.tutorials-section strong { color: var(--gold-warm); }
+
+/* Screenshots */
+.tutorials-figure { margin: 1.25rem 0; text-align: center; }
+.tutorials-figure img {
+  max-width: 100%;
+  border-radius: 4px;
+  border: 1px solid rgba(212, 168, 87, 0.4);
+}
+.tutorials-figure figcaption {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.tutorials-subsection-title {
+  font-family: var(--font-cinzel), serif;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.tutorials-content .home-description {
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: auto;
+  max-width: 720px;
+  margin: 1.5rem auto 2.5rem;
+ 
+}
+
+.tutorials-content .home-description-cta {
+  text-align: center;
+  margin-top: 1.25rem;
+}
+
+/* -------------------------------------------- */
+/* LEADERBOARD PAGE (Chessboard Drawer Design)  */
+/* -------------------------------------------- */
+
+/* Full-screen starry background, same as the lobby page */
+.leaderboard-page {
+  position: fixed;
+  inset: 0;
+  background-image: url('/hintergrund_lobby.webp');
+  background-size: cover;
+  background-position: center;
+  background-color: var(--blue-deep);
+  overflow: hidden;
+}
+
+/* Stage: centered container */
+.chessboard-stage {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  height: min(70vh, calc(100vh - 60px));
+  aspect-ratio: 3072 / 1522;  /* exact ratio of the top piece of the chessboard */
+  max-width: 92vw;
+  z-index: 2;
+}
+
+.chessboard-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  /* Children (drawer, bottom) extend below the stage, we want them to render */
+  overflow: visible;
+}
+
+/* ---- Layer stack ---- */
+
+/* Bottom piece (z=2) */
+.chessboard-bottom {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, -2%);  /* slight overlap to hide the seam */
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+}
+
+/* Top piece (z=4): above drawer to hide it */
+.chessboard-top {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  z-index: 4;
+}
+
+/* Drawer (z=3): sandwiched between bottom and top */
+.chessboard-drawer {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 85%;
+  z-index: 3;
+  transform: translate(-50%, -63%);  /* closed: front aligns with slot */
+  transition: transform 0.7s cubic-bezier(0.22, 0.9, 0.32, 1);
+  pointer-events: none;  /* image itself shouldn't block clicks */
+}
+.chessboard-drawer.is-open {
+  transform: translate(-50%, -18%);  
+}
+
+.chessboard-drawer-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  user-select: none;
+}
+
+/* ---- Genre buttons over the drawers compartments ----*/
+.drawer-genres-row {
+  position: absolute;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.4%;
+  pointer-events: none;
+}
+.drawer-genres-row--top {
+  /* Back row */
+  top: 18%;
+  height: 21%;
+  left: 8.5%;
+  right: 9%;
+}
+.drawer-genres-row--bottom {
+  /* Front row*/
+  top: 40%;
+  height: 21%;
+  left: 6%;
+  right: 6%;
+}
+.chessboard-drawer.is-open .drawer-genres-row {
+  pointer-events: auto;
+}
+
+.drawer-genre-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color:   #BFA06A;
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(9px, 0.85vw, 13px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 4px 6px;
+  text-align: center;
+  line-height: 1.1;
+ text-shadow:
+    0 1px 2px rgba(0,0,0,0.9),
+    0 0 6px rgba(191,160,106,0.2);
+  /* Hidden until the drawer is mostly open, then fade in */
+  opacity: 0;
+  transition: opacity 0.3s ease, color 0.15s, text-shadow 0.15s, background 0.15s,
+    border-color 0.15s;
+}
+.chessboard-drawer.is-open .drawer-genre-btn {
+  opacity: 1;
+  transition-delay: 0.35s;
+}
+
+.drawer-genre-btn:hover {
+  color: #D6C08A;
+  background: transparent;
+  border-color: transparent;
+
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.95),
+    0 0 5px rgba(214,192,138,0.28);
+}
+
+.drawer-genre-btn.is-active {
+  color: #a27146; /* kühles Bronze */
+
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.95),
+    0 0 5px rgba(154,115,80,0.28);
+}
+.drawer-genre-btn.is-active {
+  color: #47427E;
+
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.95),
+    0 0 6px rgba(71,66,126,0.38);
+}
+
+/* Drawer open/close button */
+.chessboard-drawer-toggle {
+  position: absolute;
+  left: 50%;
+  top: 90%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  width: 22%;
+  height: 5%;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #9A7350;
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(11px, 1.1vw, 17px);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-shadow: 0 0 10px rgba(232, 216, 150, 0.4), 0 1px 2px rgba(0, 0, 0, 0.9);
+  transition: color 0.15s, text-shadow 0.15s, border-color 0.15s, background 0.15s;
+}
+.chessboard-drawer-toggle:hover,
+.chessboard-drawer-toggle:focus {
+  color: #9A7350;
+  border-color: rgba(154, 115, 80, 0.3);
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.95),
+    0 0 8px rgba(154, 115, 80, 0.22);
+  background: rgba(154, 115, 80, 0.04);
+  outline: none;
+}
+.chessboard-drawer-toggle:active {
+  transform: translate(-50%, calc(-50% + 1px));
+}
+
+/*  Leaderboard panel: inside the dark space on the top piece */
+.leaderboard-panel {
+  position: absolute;
+  left: 25%;
+  top: 25%;
+  width: 48%;
+  height: 33%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  padding: 1% 2%;
+  pointer-events: none;
+}
+.leaderboard-panel > * {
+  pointer-events: auto;
+}
+
+.leaderboard-table {
+  flex: 1 1 0;
+  overflow: auto;
+  min-height: 0;
+}
+
+/* Reuse the lobby's transparent table styling so rows blend with the panel */
+.leaderboard-table .ant-table,
+.leaderboard-table .ant-table-thead > tr > th,
+.leaderboard-table .ant-table-tbody > tr > td,
+.leaderboard-table .ant-table-placeholder,
+.leaderboard-table .ant-table-cell {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.25) !important;
+}
+.leaderboard-table .ant-table-thead > tr > th {
+  color: #D6B47A !important;
+  font-size: 12px !important;
+  letter-spacing: 2px !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.5) !important;
+}
+.leaderboard-table .ant-table-tbody > tr > td {
+  color: #A8844E !important;
+  font-size: 13px !important;
+}
+.leaderboard-table .ant-table-tbody > tr:hover > td {
+  background: rgba(212, 175, 93, 0.08) !important;
+}
+.leaderboard-table .ant-table-placeholder .ant-empty-description {
+  color:   #7A6A58 !important;
+}
+
+
+/* -------------------------------------------- */
+/* REGISTER PAGE                                */
+/* -------------------------------------------- */
+
+.register-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4.4vh, 44px);
+  letter-spacing: 8px;
+  color: var(--gold-warm);
+  text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0,0,0,0.8);
+  pointer-events: none;
+}
+
+.register-title-divider {
+  color: var(--gold-rim);
+  font-size: clamp(11px, 1.6vh, 16px);
+  pointer-events: none;
+}
+
+/* Section heading inside the frame */
+.register-heading {
+  text-align: center;
+  font-family: var(--font-display);
+  letter-spacing: 4px;
+  color: #d1bc6f;
+  text-shadow: var(--glow-text-gold);
+}
+.register-heading::before,
+.register-heading::after {
+  content: " ✦ ";
+  color: var(--gold-rim);
+  margin: 0 8px;
+  opacity: 0.7;
+}
+
+/* Field label above each input */
+.register-label {
+  font-family: var(--font-display);
+  letter-spacing: 2px;
+  color: #d1bc6f;
+  text-align: center;
+}
+
+/* Gold-themed transparent inputs */
+.register-input.ant-input,
+.register-input.ant-input-affix-wrapper,
+.register-input .ant-input,
+.register-input.ant-input-textarea .ant-input {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #0a0e27 !important;
+  font-family: var(--font-cormorant), serif !important;
+  font-size: 25px !important;
+  caret-color: #0a0e27;
+}
+/* inner input inside password wrapper — no double border */
+.register-input.ant-input-affix-wrapper .ant-input {
+  background: transparent !important;
+  border: none !important;
+  color: #0a0e27 !important;
+  font-family: var(--font-cormorant), serif !important;
+  font-size: 25px !important;
+  caret-color: #0a0e27;
+}
+.register-input.ant-input::placeholder,
+.register-input .ant-input::placeholder {
+  color: #0a0e2774 !important;
+  font-style: italic;
+}
+.register-input.ant-input:-webkit-autofill,
+.register-input .ant-input:-webkit-autofill,
+.register-input.ant-input:-webkit-autofill:hover,
+.register-input .ant-input:-webkit-autofill:hover,
+.register-input.ant-input:-webkit-autofill:focus,
+.register-input .ant-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  -webkit-text-fill-color: #0a0e27 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* 📝 zero out antd's default Form.Item margin so gap on the flex Form controls spacing */
+.register-form .ant-form-item {
+  margin-bottom: 0 !important;
+}
+
+/* 📝 allow bio textarea to fill its absolutely-positioned wrapper */
+.register-bio-wrap,
+.register-bio-wrap .ant-form-item,
+.register-bio-wrap .ant-form-item-row,
+.register-bio-wrap .ant-form-item-control,
+.register-bio-wrap .ant-form-item-control-input,
+.register-bio-wrap .ant-form-item-control-input-content,
+.register-bio-wrap .ant-input-textarea,
+.register-bio-wrap textarea {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+.register-bio-wrap textarea {
+  overflow-y: auto !important;
+  height: calc(85vh * 0.22) !important;
+}
+
+/* 📝 scale down validation error messages inside the register form */
+.register-form .ant-form-item-explain-error { display: none !important; }
+.register-input-error.ant-input::placeholder,
+.register-input-error .ant-input::placeholder {
+  color: rgba(220, 50, 50, 0.8) !important; font-style: italic;
+}
+
+/* Secondary button — Go to Login */
+.register-secondary-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.8) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.register-secondary-btn.ant-btn:hover,
+.register-secondary-btn.ant-btn:focus {
+  background: rgba(61, 50, 120, 0.9) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+.register-submit-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.8) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.register-submit-btn.ant-btn:hover,
+.register-submit-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.9) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+/* -------------------------------------------- */
+/* LOGIN PAGE                                   */
+/* -------------------------------------------- */
+.login-title {
+  margin: 0; font-family: var(--font-display);
+  font-size: clamp(28px, 4.4vh, 44px); letter-spacing: 8px;
+  color: var(--gold-warm); text-shadow: 0 0 24px rgba(232,216,150,0.55), 0 0 8px rgba(0,0,0,0.8);
+  pointer-events: none;
+}
+.login-title-divider { color: var(--gold-rim); font-size: clamp(11px, 1.6vh, 16px); pointer-events: none; }
+
+.login-input.ant-input,
+.login-input.ant-input-affix-wrapper,
+.login-input .ant-input {
+  background: transparent !important; border: none !important; box-shadow: none !important;
+  color: #e8d896 !important; font-family: var(--font-cormorant), serif !important; font-size: 36px !important; caret-color: #ffffff;
+  text-align: center !important; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000, 1px 0 0 #000 !important;
+}
+.login-input.ant-input-affix-wrapper .ant-input {
+  background: transparent !important; border: none !important; box-shadow: none !important;
+  color: #e8d896 !important; font-family: var(--font-cormorant), serif !important; font-size: 36px !important; caret-color: #ffffff;
+  text-align: center !important; padding-left: 1em !important;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000, 1px 0 0 #000 !important;
+}
+.login-input.ant-input-affix-wrapper .ant-input-password-icon {
+  color: #f1e9d2 !important; opacity: 0; pointer-events: none;
+}
+.login-input.ant-input-affix-wrapper:has(.ant-input:not(:placeholder-shown)) .ant-input-password-icon {
+  opacity: 1; pointer-events: auto;
+}
+.login-input.ant-input::placeholder,
+.login-input .ant-input::placeholder {
+  color: #e8d896c7 !important; font-style: italic; text-shadow: 0 0 1px rgba(0, 0, 0, 0.9), 1px 1px 2px rgba(0,0,0,0.8);
+}
+.login-input.ant-input:-webkit-autofill,
+.login-input .ant-input:-webkit-autofill,
+.login-input.ant-input:-webkit-autofill:hover,
+.login-input .ant-input:-webkit-autofill:hover,
+.login-input.ant-input:-webkit-autofill:focus,
+.login-input .ant-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+  -webkit-text-fill-color: #f1e9d2 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+.login-input-error.ant-input::placeholder,
+.login-input-error .ant-input::placeholder {
+  color: rgba(220, 50, 50, 0.8) !important; font-style: italic;
+}
+
+.login-form .ant-form-item { margin-bottom: 0 !important; }
+
+.login-form .ant-form-item-explain-error { display: none !important; }
+
+.login-submit-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.login-submit-btn.ant-btn:hover,
+.login-submit-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.7) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+.login-secondary-btn.ant-btn {
+  background: rgba(40, 35, 90, 0.55) !important;
+  border: 1px solid #d4af5d !important;
+  color: #e8d896 !important;
+  font-family: var(--font-cinzel), serif !important;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4) !important;
+}
+.login-secondary-btn.ant-btn:hover,
+.login-secondary-btn.ant-btn:focus {
+  background: rgba(60, 50, 120, 0.7) !important;
+  border-color: #e8d896 !important;
+  color: #ffffff !important;
+}
+
+
+/* -----------------results page--------------------------*/
+
+
+.results-page {   /* the lowest level container, just blue, that fills the whole screen*/
+  position: fixed; /* fixed to the browser window, doesn't move when scrolling */
+  inset: 0; /* short for: top: 0; right: 0; bottom: 0; left: 0; aka no margins anywhere, fill the whole window*/
+  background-color: var(--blue-deep); /* deep blue background to match the starry sky */
+  overflow: hidden; /* no scrollbars, everything that overflows the window is hidden*/
+}
+
+.results-title { /* The "STORIES" title */
+  position: absolute; /* can be positioned freely within the parent element, here results-page*/
+  top: 16px; /* 16 pixels from the top of results-page*/
+  left: 50%; /* shifts the element right, such that its left border is in the middle of the page*/
+  transform: translateX(-50%); /* shifts the element left by 50% of it's own width, so now its perfectöy horizontally centered */
+  margin: 0; /* to ignore the standard margin*/
+  font-family: var(--font-display); /* sets the font to the cinzel*/
+  font-size: clamp(18px, 2.7vw, 38px); /* font size  */
+  letter-spacing: 8px; /* spacing between letters*/
+  color: var(--gold-warm); /* color of the title, a bright gold */
+  text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0, 0, 0, 0.8); 
+  /* two shadows: first: 0 offset to left/right and up/down, blur over 24 pixel, gold at 55% coverage, 
+                  second: hard black shadow, 0 x offset, 0 y offset, blur over 8px, black with 80% coverage
+     so it's gold with black shimmering through in the middle and then just soft gold around*/
+  z-index: 10; /* stack order, the higher the number, the more in the foreground, this is very much in the foreground*/
+  pointer-events: none; /* clicks go through it, it's "ignored" by clicks */
+}
+.results-title-divider { /* the caro symbol ◆ below the title*/
+  position: absolute; /* can be positioned freely within results-page */
+  top: calc(24px + clamp(26px, 5vh, 38px)); /* margin from top (practically directly under title, 16 margin + font size + gap)*/
+  left: 50%; /* same trick to horizontally center it*/
+  transform: translateX(-50%); /* same trick to horizontally center it */
+  color: var(--gold-rim); /* the gold colour of it*/
+  font-size: 14px; /* font size */
+  z-index: 10; /* how far in the foreground it is, same level as title */
+  pointer-events: none; /* ignored by clicks */
+}
+
+.results-stage { /*the background image of the gas station */
+  position: absolute; /*can be positioned freely on results-page */
+  left: 0; /* zero margin from the left border*/
+  top: 50%; /* top border is in the middle of the page*/
+  transform: translateY(-50%); /* shifts the top border by 50% of it's own size up, trick to center it vertically*/
+  width: 100vw; /* 100& of the viewport width, fills the whole window horizontally*/
+  height: 0; /* height is set to 0 in preparation*/
+  padding-bottom: 56.95%; /* set height to 56.95% of width, so it's never distorted */
+  background-image: url('/background-stories.webp'); /* the path to the gas station image*/
+  background-size: 100% 100%; /* image should is set to 100% width and height of the container, that we made sure has the right proportions*/
+  background-repeat: no-repeat; /* image is never repeated, if it's small */
+  background-position: center; /* in case it's ever smaller than container, which is never really, it will be centered in the container*/
+  z-index: 2; /* how much in the foreground (less than title and caro) */
+}
+
+.results-stage-hq { /* high-res overlay: invisible until loaded, then fades in over the low-res CSS background */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill; /* matches background-size: 100% 100% — fills exactly without distortion */
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.results-stage-hq.is-loaded {
+  opacity: 1;
+}
+
+.results-panel { /* invisible container for the board in the middle of the gas station*/
+  position: absolute; /* can be positioned freely within results-stage*/
+  left: 37%; /* left boarder sits at 37% of the width of the results-stage (kinda in the middle of the picture) */
+  top: 39%; /* top boarder sits at 39& of the height of the results stage (kinda in the middle)*/
+  width: 26%; /* width is 26% of the width of the results-stage */
+  height: 33%; /* height is 33% of the height of results-stage */
+  display: flex; /* makes it a flexbox container, automatic distribution of space between children */
+  flex-direction: column; /* children will be placed below each other instead of side by side which would be flexboard standard*/
+  padding: 8px 12px; /* the table should be padded by 8 top and bottom and 12 left and right from the edges of this container*/
+  z-index: 2; /* how much in the foreground (less than title and caro, same as gas station image)*/
+}
+
+/* here we need to overwrite all the standard antd designs for tables that would be applied automatically, but specifically for out table marked with the results-table class*/
+.results-table .ant-table, /* within our results-table element the ant-table element that antd needs, that specifies the whole table, the outermost container of antd*/
+.results-table .ant-table-thead > tr > th, /*the header row cells (thead= table header, tr=table row, th=table header cell*/
+.results-table .ant-table-tbody > tr > td, /* the normal data cells (td=table data, tr > th means th (header cell) must be a direct child of tr (row))*/
+.results-table .ant-table-placeholder, /* the placeholder shown when no data, we have "no program yet" */
+.results-table .ant-table-cell { /* every cell in the table, doesn't matter what kind, our safety net*/
+  background: transparent !important; /* transparent background for all of them*/
+  border-bottom: 1px solid rgba(107, 100, 128, 0.55) !important; /* below each row a 1px thin, solid mauve separator line 55% transparent*/
+}
+.results-table .ant-table-thead > tr > th { /*the header row cells, wins over the previous rule, because further down*/
+  color: #c9ab76 !important; /* text colour, beige-gold*/
+  font-size: clamp(9px, 0.87vw, 12px) !important; /*font size*/
+  letter-spacing: 2px !important; /* letter spacing*/
+  padding: 6px 8px !important; /* in the cells, 6 px margin top/down, 8px left/right*/
+  border-bottom: 1px solid rgba(107, 100, 128, 0.7) !important; /*1px thin, solid line under the header row, less transparent with 70%*/
+}
+.results-table .ant-table-tbody > tr > td { /* data cells/ "normal rows" "*/
+  color:   #f0e6d0 !important; /* a bit brighter gold than the header, because data is more important*/
+  font-size: clamp(10px, 0.94vw, 13px) !important; /* a bit bigger, because data is more important*/
+  padding: 6px 8px !important; /* in the cells, 6 px margin top/down, 8px left/right*/
+}
+
+/*each td (table data cell) element, that is a direct child of a tr (table row) element, that the user hovers over at this moment*/
+.results-table .ant-table-tbody > tr:hover > td { 
+  background: rgba(212, 175, 93, 0.08) !important; /*very very lowkey golden background, only 8% coverage*/
+}
+
+
+
+/* light animations, we use pseudo elements for this (::before and ::after). Pseudo, because they don't need divs
+You can only use ::before and ::after once per element*/
+
+/* Star pulse */
+.results-stage::before { /*pseudo element, css will make a "ghost div" from it for us, without us needing to write an actual one into our jsx*/
+  content: ""; /*this always needs to be here for pseudo elements, otherwise the browser won't render them*/
+  position: absolute; /* freely positionable in the parent element, here results stage*/
+  left: 50%; /* left boarder sits at 50% of the width of the results-stage (in the middle of the picture, where the star is)*/
+  top: 32%; /*top border sits at 32% of the height of results stage (where the star is*/
+  width: 4%; /*width is 4% of the width of the results-stage (really small, like the star)*/
+  height: 0; /*height is set to 0 in preparation*/
+  padding-bottom: 4%; /* height is 4% of the width, so both 4%-> makes a perfect circle*/
+  transform: translate(-50%, -50%); /*shifts the element by 50% of it's width to the left and 50% of it's height to the top, so the middle of the circle (and not it's left upper corner) is in the middle of the picture and at 32% height*/
+  border-radius: 50%; /*makes 50% edgeradius, so it becomes a circle instead of a square*/
+  background: radial-gradient(circle, /*instead of a simple background, we have a radial gradient (from inside to outside instead of left to right) and in the shape of a circle instead of ellipse*/
+    rgba(255, 220, 130, 0.55) 0%, /*colour at the middle, light gold, 55% coverage*/
+    rgba(255, 200, 100, 0.25) 35%, /*colour at 35% from the middle, darker gold, 25% coverage*/
+    rgba(255, 200, 100, 0) 70%);/*colour at 70% from the middle, closer to the edge of the circle, same colour, zero coverage->transparent, so from 70-100% transparent*/
+  pointer-events: none; /*ignores clicks*/
+  z-index: 1; /*lies below the panel (only decides between siblings, parents are always below their children) */
+  animation: starPulse 2.8s ease-in-out infinite; /*starPulse is the name of the animation defined below, one cycle of the animation lasts 2.8 seconds, ease in ease out: animation starts slow, faster in middle and ends slow, infinite: repeats for infintiy*/
+}
+@keyframes starPulse { /*the concrete animation instruction*/
+  0%, 100% { /* at the beginning and end (0% of time and 100% of time (0 and 100% of these 2.8 seconds)*/
+    opacity: 0.55; /*coverage 55%*/
+    transform: translate(-50%, -50%) scale(0.95); /*makes it a little smaller 95%, we need the translate again, because otherwise, because of the scale, it would be set back to default*/
+  }
+  50% { /**/
+    opacity: 1; /*coverage 100%*/
+    transform: translate(-50%, -50%) scale(1.15); /*makes it a bit bigger, 115%*/
+  }
+}
+ /*->star gets from small and darker to bigger and brighter and then smaller and darker again */
+
+
+/* Light bar flicker*/
+
+.results-stage::after { /*again a pseudo element*/
+  content: ""; /*again necessary for it to even take effect*/
+  position: absolute; /*can be positioned freely withing the parent results-stage*/
+  left: 31%; /*left border sits at 31% of the width of the results-stage*/
+  top: 35%; /*top border sits at 35% of the height of results stage, just below star over the light bar*/
+  width: 38%; /*width is 38% of the width of the results-stage, length of light bar approximately*/
+  height: 1.8%; /*height is 1.8% of the height of the results-stage, so very thin, like a light bar*/
+  background: rgba(8, 10, 25, 0.85); /*it's black and at 85% coverage, will cover the light bar, to make flicker effect*/
+  pointer-events: none; /*ignored by clicks*/
+  z-index: 1; /*same level as star pulse*/
+  opacity: 0; /*transparent at beginning*/
+  animation: lightFlicker 11s steps(1, end) infinite; /*lightFlicker: name of animation defined below, 11 seconds duration per cycle, steps(1,end): no soft transition, jump hard from state 1 to next state, infinitely repeat*/
+}
+
+@keyframes lightFlicker { /* animation script*/
+  0%      { opacity: 0; } /*in the beginning transparent, light bar looks "on"*/
+
+  /* First flicker: a quick triple-flicker */
+  14%     { opacity: 1; } /*at 14% of 11 seconds: 100% coverage: light bar seems off*/
+  14.5%   { opacity: 0; } /*on again*/
+  15.1%   { opacity: 1; } /*off again*/
+  15.4%   { opacity: 0; } /*on again*/
+
+  /* Long quiet stretch, where the light seems on */
+
+  /* Second: single hard blink */
+  41%     { opacity: 1; } /*at 41% of 11seconds, light off again*/
+  41.6%   { opacity: 0; } /*on again*/
+
+  /* Quiet again */
+
+  /* Third: stutter */
+  68%     { opacity: 1; } /*off*/
+  68.4%   { opacity: 0; } /*on*/
+  69.0%   { opacity: 1; } /*off*/
+  69.5%   { opacity: 0; } /*on*/
+
+  /* Fourth: short single */
+  88%     { opacity: 1; } /*off*/
+  88.5%   { opacity: 0; } /*on*/
+
+  100%    { opacity: 0; } /*on*/
+}
+
+/* ---- the "Screening tonight" title ---- */
+.results-screening-title {
+  font-family: var(--font-display); /*the usual cinzel font*/
+  font-size: clamp(4px, 1.3vw, 18px); /*font size*/
+  letter-spacing: clamp(1px, 0.35vw, 5px); /*letter spacing*/
+  color: #f5d996; /*dark gold*/
+  text-align: center; /*horizontally centered*/
+  text-transform: uppercase; /*automatically transforms text to uppercase*/
+  text-shadow: 0 0 12px rgba(245, 217, 150, 0.35), 0 0 6px rgba(0, 0, 0, 0.8); /* again the double shadow trick*/
+  margin-bottom: 8px; /*space between title and table*/
+  flex-shrink: 0; /*makes it nonshrinkable within the flexbox panel*/
+}
+
+/* ---- tagline under the table "chose a story-see you at the cinema"---- */
+.results-screening-tagline {
+  font-family: var(--font-display);
+  font-size: clamp(3px, 0.8vw, 11px);
+  letter-spacing: clamp(0.5px, 0.1vw, 1.5px);
+  color: #d8bd78;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(212, 175, 93, 0.35), 0 0 6px rgba(0, 0, 0, 0.8);
+  margin-top: 6px; /*6 px margin from table*/
+  flex-shrink: 0; /*nonshrinkable*/
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ---- empty-state text inside the table "No program yet" ---- */
+.results-empty-text {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #6b6480;
+  text-transform: uppercase;
+  padding: 12px 0; /*12 up down and 0 left right*/
+  opacity: 0.75; /*little bit transparent*/
+}
+
+/* hide the default empty-state icon (the ugly inbox symbol) */
+.results-table .ant-empty-image {
+  display: none !important;
+}
+.results-table .ant-empty-normal { /*less than default margin around the empty table text*/
+  margin: 4px 0 !important;
+}
+/*---------------------storyid page-------------------------------------------*/
+
+
+.drivein-page { /* the lowest level container, just blue, that fills the whole screen*/
+  position: fixed; /* fixed to the browser window, doesn't move when scrolling */
+  inset: 0; /* short for: top: 0; right: 0; bottom: 0; left: 0; aka no margins anywhere, fill the whole window*/
+  background-color: var(--blue-deep);
+  overflow: hidden; /* no scrollbars, everything that overflows the window is hidden*/
+}
+
+/* full-viewport ambient fill */
+.drivein-fill {
+  position: absolute;
+  inset: 0; /* short for: top: 0; right: 0; bottom: 0; left: 0; aka no margins anywhere, fill the whole window*/
+  z-index: 0; /*lowest level*/
+  background-color: var(--blue-deep); /*fallback colour*/
+  background-image: url('/bg-fill-sky.webp');
+  background-size: cover; /*scales the images to really cover the whole container*/
+  background-position: center; /*centers the image*/
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+/* subtle vignette so the seam between the fill and real image is invisible */
+.drivein-fill::after { /*again a pseudo element*/
+  content: ""; /*necessary for pseudo elements*/
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, transparent 40%, rgba(5, 8, 24, 0.6) 100%); /* form of ellipse, center at center of container, transparent until 40% from center, then gradually more dark blueisch gradient with max 60% cover*/
+  pointer-events: none;
+}
+
+/*
+  --canvas-zoom controls how much larger than the viewport the image is, here slightely larger, zooms the image, so it gets a little cropped
+*/
+.drivein-canvas { /* container for the main cinema image*/
+  --canvas-zoom: 1.18;  /* definition of a local css variable that only applies to drivin canvas and it's children*/
+  position: absolute;
+  top: 50%;  /*the known positioning trick to make it perfectly centered*/
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;  /*above fill but below stage*/
+  width: calc(min(100vw, 100vh * 3749 / 2206) * var(--canvas-zoom));  /* width is calculated as the minimum of viewport width (browser width) and the width the image requires, if it fills the whole height of the viewport and then everything times 1.18 for the zoom*/
+  aspect-ratio: 3749 / 2206;  /*no matter what the width is, the height should be in this ratio to it*/
+}
+
+/* The image fills the canvas exactly */
+.drivein-bg {  /*the styles for the image itself, positioned within the canvas, filling it 100%*/
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;  /*cannot be selected by the user*/
+  pointer-events: none;
+  z-index: 0;  /*within the canvas at the very back*/
+}
+
+.drivein-bg-hq {
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+.drivein-bg-hq.is-loaded {
+  opacity: 1;
+}
+/*
+  how far from the cinema-screen edges the genre panels are
+*/
+.drivein-stage {   /*the stage for the 3 panel inner area on the screen*/
+  position: absolute;
+  /*the exact position of the cinema screen*/
+  left: 21.4%;  /*left border at 21.4% canvas width*/
+  right: 22%;  /*right border 22% from right canvas border*/
+  top: 31.8%; /*top border at 31.8% of canvas height*/
+  bottom: 29.8%; /*bottom border 29.8% from bottom border of canvas*/
+  display: grid; /*makes the container a grid*/
+  grid-template-columns: 1fr 2fr 1fr; /*defines 3 columns with the fractions 1:2:1, middle is twice as large as sides*/
+  grid-template-rows: 1fr; /*one row that takes the whole height, aka 1 fraction*/
+  z-index: 2;
+}
+
+/* ---------- Side panels---------- */
+.drivein-side {
+  position: relative; /*makes it the reference point for its children (all the stuff that comes on top of the sides)*/
+  overflow: hidden; /*hides the part of the genre images that potentially overflows the container*/
+  display: flex; /*makes the container a flexbox*/
+  flex-direction: column; /*children will be places beneath each other instead of next to each other*/
+  min-width: 0; /*allows it to be smaller than its content, if a username is for example to long, it doesn't get wider*/
+  min-height: 0; /*allows it to be smaller than its content*/
+}
+
+.drivein-side-left  { grid-column: 1 / 2; grid-row: 1; } /*go from gridline 1 to gridline 2( first collumn) and into the one and only row*/
+.drivein-side-right { grid-column: 3 / 4; grid-row: 1; } /*go from gridline 3 to 4 (last column) and in the one and only row*/
+
+/* the genre images, cover ensures it always fills the column with no gaps */
+.drivein-side-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center; /*horizontally and vertically centered*/
+  background-repeat: no-repeat;
+  background-color: var(--blue-deep);
+  z-index: 0;
+}
+
+/* dark vignette to keep text readable on top of the genre image.
+   Text now lives in the upper portion, so we can read it.
+   Slightly stronger bottom fade to ground the vote button. */
+.drivein-side-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg, /*from top to bottom*/
+    rgba(5, 8, 24, 0.78) 0%, /*on top very dark for text*/
+    rgba(5, 8, 24, 0.55) 25%, /*lighter*/
+    rgba(5, 8, 24, 0.20) 55%,/*lighter*/
+    rgba(5, 8, 24, 0.15) 75%,/*lighter*/
+    rgba(5, 8, 24, 0.55) 100% /*darker again for button*/
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.drivein-side-content { /*container for the text of the side panels*/
+  position: relative;
+  z-index: 2;
+  display: flex; /*flexbox*/
+  flex-direction: column;/*beneath each other*/
+  align-items: center; /*horizontally centers all children in the container*/
+  padding: 6% 6% 6% 6%; /*inner padding on all sides*/
+  text-align: center; /*text within all children is centred horizontally*/
+  height: 100%;
+  gap: clamp(2px, 0.4vw, 6px); /*distance between he children, min, preferred (4% of viewport width), max*/
+}
+
+.drivein-username {
+  background: transparent; /*because it's technically a button, we need to remove the default grey background*/
+  border: none; /*and border*/
+  cursor: pointer; /*but should look clickable*/
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(14px, 1.35vw, 22px);
+  letter-spacing: 2px;
+  color: var(--gold-warm);
+  text-shadow: 0 0 14px rgba(232, 216, 150, 0.45), 0 2px 4px rgba(0, 0, 0, 0.95);
+  padding: 2px 6px;
+  transition: color 0.15s, text-shadow 0.15s, transform 0.1s; /*colour on hover changes over 0.15s and shadow too*/
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.drivein-username:hover {
+  color: var(--gold-bright);
+  text-shadow: 0 0 18px rgba(240, 192, 64, 0.65), 0 2px 4px rgba(0, 0, 0, 0.95);
+}
+.drivein-username:active { transform: translateY(1px); } /*on click, the text shifts 1 pixel down, so it looks like a real click*/
+
+.drivein-genre { /*the genre text*/
+
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(10px, 0.9vw, 14px);
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 1);
+  text-align: center;
+  line-height: 1.3;
+  margin-bottom: clamp(8px, 1vw, 16px);
+}
+
+.drivein-vote-status { /*"cast your vote text or similar*/
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(8px, 0.65vw, 11px);
+  letter-spacing: 2px;
+  color: var(--gold-muted);
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+  opacity: 0.9;
+  min-height: 1em; /*reserves space for it, even if it's not there, 1em is the current fontsize of it*/
+}
+
+.drivein-votes { /*the vote counts*/
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(9px, 0.78vw, 12px);
+  letter-spacing: 2px;
+  color: var(--gold-warm);
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+}
+
+/* Vote button  */
+.drivein-vote-btn-wrap {
+  position: absolute;
+  left: 0; /*over the whole width of the side panel*/
+  right: 0;
+  bottom: clamp(8px, 1vw, 16px);
+  z-index: 3;
+  display: flex;
+  justify-content: center; /*centers the button horizontally within*/
+  pointer-events: none; /* let the button itself handle clicks */
+}
+.drivein-vote-btn-wrap > * { /*all direct children are again clickable*/
+  pointer-events: auto;
+}
+
+/* Vote button: native button to avoid Ant Design background layers */
+.drivein-vote-btn {
+  display: inline-block;
+  height: auto;
+  padding: clamp(5px, 0.7vw, 9px) clamp(14px, 1.5vw, 26px);
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(10px, 0.8vw, 13px);
+  letter-spacing: 2px;
+  background: #30245c;
+  background-color: #30245c;
+  border: 1px solid var(--gold-rim);
+  color: var(--gold-warm);
+  border-radius: 2px;
+  cursor: pointer;
+  outline: none;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.4) inset,
+    0 0 14px rgba(0, 0, 0, 0.5);
+  transition: background 0.15s, color 0.15s, transform 0.1s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+.drivein-vote-btn:hover,
+.drivein-vote-btn:focus {
+  background: #4b3a8c;
+  background-color: #4b3a8c;
+  color: #ffffff;
+  border-color: var(--gold-warm);
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.6),
+    0 0 18px rgba(232, 216, 150, 0.35);
+}
+.drivein-vote-btn:active { transform: translateY(1px); }
+
+.drivein-vote-btn-active {
+  background: #d4af5d;
+  background-color: #d4af5d;
+  color: #2a1f0a;
+  border-color: var(--gold-warm);
+}
+.drivein-vote-btn-active:hover,
+.drivein-vote-btn-active:focus {
+  background: #e8d896;
+  background-color: #e8d896;
+  color: #2a1f0a;
+}
+
+.drivein-vote-btn:disabled,
+.drivein-vote-btn[disabled] {
+  cursor: not-allowed;
+  background: #1f1840;
+  background-color: #1f1840;
+  color: #6b6480;
+  border-color: rgba(212, 175, 93, 0.4);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.4) inset;
+}
+.drivein-vote-btn:disabled:hover,
+.drivein-vote-btn[disabled]:hover {
+  background: #1f1840;
+  background-color: #1f1840;
+  color: #6b6480;
+  border-color: rgba(212, 175, 93, 0.4);
+}
+
+/* ---------- Return button ---------- */
+.drivein-return-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.drivein-return-btn {
+  display: inline-block;
+  background: rgba(40, 35, 90, 0.55);
+  border: 1px solid #d4af5d;
+  color: #e8d896;
+  font-family: var(--font-cinzel), serif;
+  letter-spacing: 2px;
+  font-size: clamp(12px, 1.8vh, 14px);
+  height: clamp(36px, 5.5vh, 42px);
+  padding: 0 clamp(20px, 2.5vw, 32px);
+  border-radius: 2px;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  outline: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.drivein-return-btn:hover,
+.drivein-return-btn:focus {
+  background: rgba(60, 50, 120, 0.7);
+  border-color: #e8d896;
+  color: var(--gold-warm);
+}
+
+/* ---------- Center screen (the story text) ---------- */
+.drivein-screen {
+  position: relative;
+  z-index: 0;
+  grid-column: 2 / 3;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.drivein-screen-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0 5% 2% 5%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  color: #2a1f0a;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.drivein-story-title {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(13px, 1.25vw, 20px);
+  letter-spacing: 6px;
+  color: #8a6420;
+  font-weight: 600;
+  flex-shrink: 0;
+  text-shadow: 0 1px 0 rgba(255, 245, 220, 0.5);
+}
+
+.drivein-story-divider {
+  text-align: center;
+  font-size: clamp(7px, 0.7vw, 11px);
+  color: rgba(42, 31, 10, 0.6);
+  margin: 3px 0 6px;
+  letter-spacing: 4px;
+  flex-shrink: 0;
+}
+
+.drivein-story-text {
+  flex: 1 1 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Switched from cinzel to a different serif for better readability */
+  font-family: 'EB Garamond', 'Lora', Georgia, 'Times New Roman', serif;
+  font-size: clamp(14px, 1.2vw, 19px);
+  line-height: 1.6;
+  color: rgba(42, 31, 10, 0.92);
+  text-align: left;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  padding-right: 4px;
+  min-height: 0;
+  /* fade the bottom edge into the cream background, so it doesn't look weird at the edge */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
+          mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+.drivein-story-text::-webkit-scrollbar { width: 6px; }
+.drivein-story-text::-webkit-scrollbar-track { background: rgba(42, 31, 10, 0.06); }
+.drivein-story-text::-webkit-scrollbar-thumb { background: rgba(42, 31, 10, 0.3); border-radius: 3px; }
+
+.drivein-winners {
+  margin-top: clamp(4px, 0.6vw, 10px);
+  padding-top: clamp(4px, 0.6vw, 10px);
+  border-top: 1px solid rgba(42, 31, 10, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.drivein-winner-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-cinzel), serif;
+}
+
+.drivein-winner-label {
+  font-size: clamp(10px, 0.8vw, 12px);
+  letter-spacing: 2px;
+  color: #2b1d0f;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.drivein-winner-value {
+  font-size: clamp(12px, 1.0vw, 15px);
+  letter-spacing: 2.5px;
+  color: #8a6420;
+  text-transform: uppercase;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 245, 220, 0.5);
+}
+
+/* notification and errors */
+
+.ant-notification-notice-title {
+  color: var(--gold) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-notification-notice-description {
+  color: rgba(245, 230, 200, 0.85) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-message-notice-content {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%) !important;
+  border: 1px solid rgba(212,168,87,0.5) !important;
+  color: var(--gold) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-notification-notice {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%) !important;
+  border: 1px solid rgba(212,168,87,0.5) !important;
+  font-family: var(--font-cinzel), serif !important;
+}
+
+.ant-notification-notice-message {
+  color: var(--gold) !important;
+}
+
+.ant-notification-notice-description {
+  color: rgba(245,230,200,0.85) !important;
+}
+
+.ant-message-notice-content .anticon-check-circle {
+  color: var(--gold) !important;
+}
+
+.ant-message-notice-content .anticon-info-circle,
+.ant-message-notice-content .anticon-exclamation-circle {
+  color: var(--gold) !important;
+}
+
+.ant-modal-container .goldButton {
+  background: transparent !important;
+  border: 1px solid var(--gold) !important;
+  color: var(--gold) !important;
+}
+
+.ant-modal-container .goldButton:hover {
+  background: rgba(212,168,87,0.15) !important;
+}
+
+.ant-modal-container .delete-btn,
+.ant-modal-container .delete-btn:hover,
+.ant-modal-container .delete-btn:focus,
+.ant-modal-container .delete-btn:active {
+  background: transparent !important;
+  border: 1px solid #e74c3c !important;
+  color: #e74c3c !important;
+  font-family: var(--font-cinzel), serif !important;
+  border-radius: 18px !important;
+  height: 32px !important;
+  padding: 0 20px !important;
+  font-size: 12px !important;
+  letter-spacing: 3px !important;
+}
+
+.ant-modal-container .delete-btn:hover {
+  background: rgba(231,76,60,0.15) !important;
+  box-shadow: 0 0 8px rgba(231,76,60,0.5) !important;
+  border: 2px solid #e74c3c !important;
+}
+
+.ant-modal-container {
+  background: linear-gradient(135deg, #0f1430 0%, #1a2042 100%) !important;
+  border: 1px solid rgba(212,168,87,0.5) !important;
+  border-radius: 8px !important;
+}

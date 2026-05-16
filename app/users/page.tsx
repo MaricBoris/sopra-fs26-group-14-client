@@ -8,32 +8,17 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
 import { Button, Table } from "antd";
 import type { TableProps } from "antd";
-import styles from "@/styles/page.module.css";
 
 import HomeButton from "@/components/HomeButton";
 import ProfileButton from "@/components/ProfileButton";
 
-// Columns for the antd table of User objects
+// 📝 Columns for user list table
 const columns: TableProps<User>["columns"] = [
-  {
-    title: "#",
-    key: "index",
-    width: 70,
-    render: (_, __, index) => index + 1,
-    onCell: () => ({
-      style: {
-        backgroundColor: "rgba(255,255,255,0.10)",
-        color: "#ffffff",
-        fontWeight: "bold",
-        textAlign: "center",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
-      },
-    }),
-  },
   {
     title: "Username",
     dataIndex: "username",
     key: "username",
+    onCell: () => ({ style: { textAlign: "center" as const } }),
   },
 ];
 
@@ -64,9 +49,8 @@ const UsersPage: React.FC = () => {
     }
   };
 
-  
   useEffect(() => {
-   if (!token) return;
+    if (!token) return;
 
     const fetchUsers = async () => {
       try {
@@ -83,7 +67,6 @@ const UsersPage: React.FC = () => {
 
     fetchUsers();
   }, [apiService, token]);
-
 
   useEffect(() => {
     if (token !== "") {
@@ -113,69 +96,84 @@ const UsersPage: React.FC = () => {
 
   return (
     <>
-      
       <HomeButton />
       <ProfileButton />
 
-      <div className="login-container">
-        <div
-          className={styles.glassCard}
-          style={{
-            width: 800,
-            maxWidth: "90%",
-            padding: 24,
-            fontFamily: "var(--font-cinzel), serif",
-            color: "#ffffff",
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-          }}
+      {/* 📝 Logout button fixed below Profile button */}
+      <div style={{ position: "fixed", top: 76, right: 16, zIndex: 1000 }}>
+        <Button
+          className="users-logout-btn"
+          onClick={handleLogout}
+          style={{ width: 104, height: 50, fontSize: 18, padding: 0 }}
         >
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
-          <div className={styles.scrollTitle}>User Profiles</div>
-        </div>
-
-       {users && (
-          <>
-            
-              <Table<User>
-                className={styles.usersTable}
-                columns={columns}
-                dataSource={users}
-                rowKey="id"
-                scroll={{ y: 300 }}
-                pagination={false}
-                showHeader={false}
-                rowClassName={(_, index) =>
-                  index % 2 === 0 ? styles.evenRow : styles.oddRow
-                }
-                onRow={(row) => ({
-                  onClick: () => router.push(`/users/${row.id}`),
-                  style: { cursor: "pointer" },
-                })}
-              />
-            
-
-            <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
-              <Button
-                onClick={handleLogout}
-                style={
-                  {
-                    ["--btn-bg" as string]: "#b33a3a",
-                    width: 110,
-                    height: 50,
-                    padding: 0,
-                    fontSize: "20px",
-                    fontFamily: "var(--font-cinzel), serif",
-                  } as React.CSSProperties
-                }
-              >
-                Logout
-              </Button>
-            </div>
-          </>
-        )}
+          Logout
+        </Button>
       </div>
+
+      <div style={{
+        minHeight: "100vh",
+        backgroundImage: "url('/users_wp.webp')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+      }}>
+        <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 18, paddingBottom: 40 }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", transform: "translateX(calc(0.02 * min(85vw, 85vh * 1672 / 941)))" }}>
+            <h1 className="profile-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
+              USERS
+            </h1>
+            <div className="profile-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 8 }}>✦</div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "center" }}>
+
+            {/* 📝 Frame image filling full viewport */}
+            <div className="users-frame" style={{ position: "relative", width: "min(85vw, calc(85vh * 1672 / 941))", aspectRatio: "1672 / 941" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/users_frame.webp"
+                alt="Users frame"
+                style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }}
+              />
+
+              {/* 📝 User list panel */}
+              <div className="users-list-frame" style={{
+                position: "absolute",
+                top: "10%",
+                bottom: "56%",
+                left: "52%",
+                transform: "translateX(-50%)",
+                width: "18%",
+                display: "flex",
+                flexDirection: "column",
+                fontFamily: "var(--font-cinzel), serif",
+                color: "#ffffff",
+                overflow: "hidden",
+                padding: "0.15cqw",
+              }}>
+                {users && (
+                  <div className="users-table" style={{ flex: 1, overflow: "auto" }}>
+                    <Table<User>
+                      columns={columns}
+                      dataSource={users}
+                      rowKey="id"
+                      pagination={false}
+                      size="small"
+                      showHeader={false}
+                      style={{ fontFamily: "var(--font-cinzel), serif", fontSize: "0.9cqw", cursor: "pointer" }}
+                      onRow={(row) => ({
+                        onClick: () => router.push(`/users/${row.id}`),
+                        style: { cursor: "pointer" },
+                      })}
+                    />
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        </main>
       </div>
     </>
   );

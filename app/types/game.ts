@@ -10,4 +10,6 @@ export interface Game {
   story: Story ;
   currentRound: number;
   phase: string;
+  maxRounds: number;
+  reducedTimeThreshold?: number;
 }

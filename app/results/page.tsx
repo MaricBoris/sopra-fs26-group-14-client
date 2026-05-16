@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Button, Table, message } from "antd";
+import { Table, message } from "antd";
 import HomeButton from "@/components/HomeButton";
+import ProfileButton from "@/components/ProfileButton";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
 import { Story } from "@/types/story";
@@ -16,6 +16,7 @@ export default function ResultsPage() {
 
   const [stories, setStories] = useState<Story[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [hqLoaded, setHqLoaded] = useState(false);
   useEffect(() => setIsMounted(true), []);
 
   const fetchStories = useCallback(async () => {
@@ -34,26 +35,11 @@ export default function ResultsPage() {
     fetchStories();
   }, [isMounted, token, userId, fetchStories, router]);
 
-  const handleJoinLobby = () => {
-    if (token && userId) {
-      router.push("/rooms");
-    } else {
-      router.push("/login");
-    }
-  };
-
   const columns = [
     {
-      title: "#",
-      key: "index",
-      width: 40,
-      align: "left" as const,
-      render: (_: unknown, __: Story, index: number) => index + 1,
-    },
-    {
-      title: "Story",
-      key: "story",
-      render: (_: unknown, record: Story) => `Story #${record.id}`,
+      title: "Title",
+      key: "title",
+      render: (_: unknown, record: Story) => `${record.title}`,
     },
     {
       title: "Winner",
@@ -66,37 +52,56 @@ export default function ResultsPage() {
   if (!isMounted) return null;
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div className="results-page">
       <HomeButton />
-      <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20 }}>
+      <ProfileButton />
 
-        {/* 📝 Title banner */}
-        <div style={{ position: "relative", marginBottom: -22 }}>
-          <Image src="/schriftrolle.png" alt="Stories banner" width={400} height={100} style={{ maxWidth: "100%", height: "auto", display: "block" }} />
-          <h1 style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", margin: 0, fontSize: 40, fontFamily: "var(--font-cinzel), serif", color: "#3b2a1a", whiteSpace: "nowrap" }}>Stories</h1>
-        </div>
+      {/*Main title */}
+      <h1 className="results-title">STORIES</h1>
+      <div className="results-title-divider">✦</div>
 
-        <div style={{ width: 660, maxWidth: "100%", background: "rgba(255,255,255,0.09)", backdropFilter: "blur(12px)", borderRadius: 1, border: "1px solid rgba(255,255,255,0.15)", padding: 24 }}>
-          {/* 📝 Scrollable story table */}
-          <div style={{ maxHeight: 340, overflowY: "auto" }}>
+      
+      {/* The gas-station background picture*/}
+      <div className="results-stage">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/background-stories-hq.webp"
+          alt=""
+          aria-hidden="true"
+          className={`results-stage-hq ${hqLoaded ? "is-loaded" : ""}`}
+          onLoad={() => setHqLoaded(true)}
+          decoding="async"
+        />
+        {/* Inner panel: sits on the dark display board in the background image */}
+        <div className="results-panel">
+          {/* Table title */}
+          <div className="results-screening-title">
+            ✦ SCREENING TONIGHT ✦
+          </div>
+
+          <div className="results-table" style={{ flex: 1, overflowY: "auto" }}>
             <Table
               dataSource={stories}
               columns={columns}
               rowKey="id"
               pagination={false}
+              size="small"
+              locale={{
+                emptyText: (
+                  <div className="results-empty-text">no program yet</div>
+                ),
+              }}
               onRow={(record) => ({ onClick: () => router.push(`/results/${record.id}`) })}
               style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif" }}
             />
           </div>
 
-          {/* 📝 Join Lobby button */}
-          <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
-            <Button style={{ width: 160, height: 38, fontSize: 14 }} onClick={handleJoinLobby}>
-              Join Lobby
-            </Button>
+          {/*Textline under the table */}
+          <div className="results-screening-tagline">
+           ✦ Pick a Story—See you at the Drive-In ✦
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

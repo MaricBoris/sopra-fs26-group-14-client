@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import Image from "next/image";
 import { useRouter, useParams } from "next/navigation";
 import { Button, Table, message } from "antd";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
+import { genInputSmallStyle } from "antd/es/input/style";
 
 interface UserGetDTO {
   id: number;
@@ -29,6 +29,8 @@ interface Room {
   users: UserGetDTO[];
   writers: WriterGetDTO[];
   judges: JudgeGetDTO[];
+  timer: number;
+  maxRounds: number;
 }
 
 interface GameGetDTO {
@@ -55,6 +57,11 @@ export default function PreGameRoomPage() {
 
   const [room, setRoom] = useState<Room | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [roundsOpen, setRoundsOpen] = useState(false);
+  const [timerOpen, setTimerOpen] = useState(false);
+  const [maxRounds, setMaxRounds] = useState(4);
+  const [timer, setTimer] = useState(90);
+
   useEffect(() => setIsMounted(true), []);
 
   // 📝 Fetch room state from GET /rooms/{roomId}
@@ -64,6 +71,8 @@ export default function PreGameRoomPage() {
     try {
       const data = await api.get<Room>(`/rooms/${roomId}`, token);
       setRoom(data);
+      if (data.maxRounds) setMaxRounds(data.maxRounds);
+      if (data.timer) setTimer(data.timer);
     } catch (e) {
       const status = (e as { status?: number }).status;
       if (status === 404) {
@@ -98,6 +107,23 @@ export default function PreGameRoomPage() {
     const interval = setInterval(fetchRoom, 3000);
     return () => clearInterval(interval);
   }, [isMounted, token, fetchRoom]);
+
+  useEffect(() => {
+    if (!isMounted || !token || !room) return;
+    if (!isLobbyLeader) return;
+    api.put(`/rooms/${roomId}/rounds`, maxRounds, token).catch((e) => {
+      message.error(`Could not update max rounds: ${e instanceof Error ? e.message : String(e)}`);
+    });
+  }, [maxRounds]);
+
+  
+  useEffect(() => {
+    if (!isMounted || !token || !room) return;
+    if (!isLobbyLeader) return;
+    api.put(`/rooms/${roomId}/timer`, timer, token).catch((e) => {
+      message.error(`Could not update timer: ${e instanceof Error ? e.message : String(e)}`);
+    });
+  }, [timer]);
 
   // 📝 PUT /rooms/{roomId}/leave - redirect to /rooms
   // 📝 If this was the last user: room is dissolved, show message
@@ -159,30 +185,28 @@ export default function PreGameRoomPage() {
       ]
     : [];
 
+  const roundOptions = Array.from({ length: Math.ceil((30 - 2) / 4) + 1 }, (_, i) => 2 + i * 4);
+  const timerOptions = Array.from({ length: Math.ceil((180 - 20) / 10) + 1 }, (_, i) => 20 + i * 10);
+
   const roleColumns = [
-    {
-      title: "#",
-      key: "index",
-      width: 40,
-      render: (_: unknown, __: RoleRow, index: number) => index + 1,
-    },
     {
       title: "Role",
       dataIndex: "roleName",
       key: "roleName",
+      width: "10cqw",
     },
     {
-      title: <div style={{ textAlign: "center" }}>Slots</div>,
+      title: "Slots",
       key: "slots",
-      width: 80,
-      render: (_: unknown, record: RoleRow) => (
-        <div style={{ textAlign: "center" }}>{record.count}/{record.max}</div>
-      ),
+      width: "69cqw",
+      onHeaderCell: () => ({ style: { textAlign: "center" as const } }),
+      onCell: () => ({ style: { textAlign: "center" as const } }),
+      render: (_: unknown, record: RoleRow) => `${record.count}/${record.max}`,
     },
     {
       title: "",
       key: "select",
-      width: 100,
+      width: "6.9cqw",
       align: "right" as const,
       render: (_: unknown, record: RoleRow) => {
         const isMyRole = myRole === record.role;
@@ -190,6 +214,7 @@ export default function PreGameRoomPage() {
         const isDisabled = !isMyRole && isFull;
         return (
           <Button
+            className={`pregame-select-btn${isMyRole ? " selected" : ""}`}
             disabled={isDisabled}
             onClick={(e) => {
               e.stopPropagation();
@@ -197,8 +222,7 @@ export default function PreGameRoomPage() {
               handleSelectRole(isMyRole ? "NONE" : record.role);
             }}
             style={{
-              width: 80, height: 30, fontSize: 13, padding: 0,
-              ...(isMyRole && { ["--btn-bg" as string]: "#25d366" }),
+              width: "5.5cqw", height: "2.1cqw", fontSize: "0.9cqw", padding: 0,
               ...(isDisabled && { opacity: 0.4 }),
             } as React.CSSProperties}
           >
@@ -212,118 +236,204 @@ export default function PreGameRoomPage() {
   if (!isMounted) return null;
 
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <div style={{
+      minHeight: "100vh",
+      backgroundImage: "url('/rooms_id_wp.webp')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      backgroundAttachment: "fixed",
+    }}>
 
       {/* 📝 Exit button */}
       <Button
+        className="pregame-exit-btn"
         onClick={handleExit}
         style={{
           position: "fixed",
           top: 16,
           left: 16,
-          width: 80,
-          height: 38,
-          fontSize: 14,
+          width: 104,
+          height: 50,
+          fontSize: 18,
           zIndex: 100,
-          ["--btn-bg" as string]: "#c0392b",
         } as React.CSSProperties}
       >
         Exit
       </Button>
 
-      <main style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20 }}>
+      <main style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: 0 }}>
 
-        {/* 📝 Pre-Game Room banner with schriftrolle.png */}
-        <div style={{ position: "relative", marginBottom: -22 }}>
-          <Image
-            src="/schriftrolle.png"
-            alt="Pre-Game Room banner"
-            width={400}
-            height={100}
-            style={{ maxWidth: "100%", height: "auto", display: "block" }}
-          />
-          <h1 style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            margin: 0,
-            fontSize: 28,
-            fontFamily: "var(--font-cinzel), serif",
-            color: "#3b2a1a",
-            whiteSpace: "nowrap",
-          }}>
-            Pre-Game Room
-          </h1>
-        </div>
+        {/* 📝 Outer wrapper */}
+        <div style={{ display: "flex", justifyContent: "center" }}>
 
-        {/* 📝 Main glass box */}
-        <div style={{
-          width: 560,
-          maxWidth: "100%",
-          background: "rgba(255,255,255,0.09)",
-          backdropFilter: "blur(12px)",
-          borderRadius: 1,
-          border: "1px solid rgba(255,255,255,0.15)",
-          padding: 24,
-        }}>
+          {/* 📝 Frame image filling full viewport height */}
+          <div className="pregame-frame" style={{ position: "relative", width: "min(100vw, calc(100vh * 1448 / 1086))", aspectRatio: "1448 / 1086" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/rooms_id_frame.webp"
+              alt="Room frame"
+              style={{ width: "100%", height: "100%", display: "block", pointerEvents: "none", userSelect: "none" }}
+            />
 
-          {/* 📝 Available Roles heading */}
-          <div style={{
-            background: "rgba(255,255,255,0.12)",
-            borderRadius: 2,
-            padding: "10px 0",
-            textAlign: "center",
-            marginBottom: 16,
-          }}>
-            <h2 style={{ margin: 0, fontFamily: "var(--font-cinzel), serif" }}>Available Roles</h2>
-          </div>
+            {/* 📝 Title overlaid on transparent top of frame */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 20, zIndex: 5 }}>
+              <h1 className="lobby-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
+                PRE-GAME ROOM
+              </h1>
+              <div className="lobby-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 0 }}>✦</div>
+            </div>
 
-          {/* 📝 Roles table: Writers and Judge rows with Select buttons */}
-          <Table
-            dataSource={roleRows}
-            columns={roleColumns}
-            rowKey="key"
-            pagination={false}
-            onRow={(record) => ({ onClick: () => handleSelectRole(record.role) })}
-            style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif", marginBottom: 20 }}
-          />
+            {/* 📝 Users panel */}
+            <div style={{
+              position: "absolute",
+              top: "26.4%",
+              left: "33.3%",
+              right: "5%",
+              fontFamily: "var(--font-cinzel), serif",
+              fontSize: "1.1cqw",
+            }}>
+              <span style={{ color: "#e8d896" }}>Users: </span>
+              <span style={{ color: "#e8d896" }}>
+                {allUsers.length === 0 ? "—" : allUsers.join(", ")}
+              </span>
+            </div>
 
-          {/* 📝 Users box: all participants currently in the room */}
-          <div style={{
-            background: "rgba(255,255,255,0.12)",
-            borderRadius: 2,
-            padding: "12px 20px",
-            marginBottom: 20,
-            textAlign: "center",
-          }}>
-            <h3 style={{ margin: "0 0 8px 0", fontFamily: "var(--font-cinzel), serif" }}>Users</h3>
-            {allUsers.length === 0 ? (
-              <p style={{ margin: 0, fontFamily: "var(--font-cinzel), serif", opacity: 0.6 }}>No users yet</p>
-            ) : (
-              allUsers.map((username, i) => (
-                <p key={i} style={{ margin: "2px 0", fontFamily: "var(--font-cinzel), serif" }}>{username}</p>
-              ))
+            {/* 📝 Content panel overlaid inside the frame */}
+            <div style={{
+              position: "absolute",
+              top: "12%",
+              left: "32.1%",
+              right: "32.1%",
+              bottom: "25%",
+              display: "flex",
+              flexDirection: "column",
+              fontFamily: "var(--font-cinzel), serif",
+              color: "#ffffff",
+              overflow: "visible",
+            }}>
+
+              {/* 📝 Available Roles heading */}
+              <div className="available-matches-heading" style={{ marginBottom: "1.6cqw", fontSize: "1.2cqw", color: "#e8d896" }}>
+                AVAILABLE ROLES
+              </div>
+
+              {/* 📝 Roles table */}
+              <div className="pregame-table">
+                <Table
+                  dataSource={roleRows}
+                  columns={roleColumns}
+                  rowKey="key"
+                  pagination={false}
+                  size="small"
+                  onRow={(record) => ({ onClick: () => handleSelectRole(record.role) })}
+                  style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif", marginBottom: "0.8cqw", fontSize: "0.9cqw" }}
+                />
+              </div>
+
+            </div>
+
+            {/* 📝 Settings row  */}
+            <div style={{ position: "absolute", top: "31%", left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5 }}>
+
+              {/* 📝 Max Rounds button + dropdown */}
+              <div style={{ position: "relative" }}>
+                <Button
+                  className="pregame-select-btn"
+                  disabled={!isLobbyLeader}
+                  onClick={() => { setRoundsOpen((o) => !o); setTimerOpen(false); }}
+                  style={{
+                    width: "clamp(123px, 12vh, 164px)", height: "clamp(29px, 3.8vh, 38px)",
+                    fontSize: "clamp(9px, 1.2vh, 14px)", padding: "0 4px",
+                    opacity: isLobbyLeader ? 1 : 0.7,
+                  } as React.CSSProperties}
+                >
+                  <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}><span>Max Rounds</span><span>{maxRounds}</span></span>
+                </Button>
+                {roundsOpen && (
+                  <div style={{
+                    position: "absolute", right: "100%", top: 0, zIndex: 200,
+                    marginRight: 4,
+                    background: "rgba(20,15,35,0.97)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: 6, padding: 8,
+                    display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6,
+                    width: "clamp(163px, 20vh, 219px)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                  }}>
+                    {roundOptions.map((r) => (
+                      <button key={r} onClick={() => { setMaxRounds(r); setRoundsOpen(false); }}
+                        style={{
+                          background: maxRounds === r ? "rgba(168,134,75,0.35)" : "rgba(255,255,255,0.05)",
+                          border: maxRounds === r ? "1px solid #a8864b" : "1px solid rgba(255,255,255,0.1)",
+                          borderRadius: 4, color: "#e8d896",
+                          fontFamily: "var(--font-cinzel), serif",
+                          fontSize: "clamp(10px, 1.4vh, 13px)", padding: "4px 0", cursor: "pointer",
+                          transition: "background 0.15s",
+                        }}
+                      >{r}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 📝 Round Timer button + dropdown */}
+              <div style={{ position: "relative" }}>
+                <Button
+                  className="pregame-select-btn"
+                  disabled={!isLobbyLeader}
+                  onClick={() => { setTimerOpen((o) => !o); setRoundsOpen(false); }}
+                  style={{
+                    width: "clamp(123px, 12vh, 164px)", height: "clamp(29px, 3.8vh, 38px)",
+                    fontSize: "clamp(9px, 1.2vh, 14px)", padding: "0 4px",
+                    opacity: isLobbyLeader ? 1 : 0.7,
+                  } as React.CSSProperties}
+                >
+                  <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.2 }}><span>Round Timer</span><span>{timer}s</span></span>
+                </Button>
+                {timerOpen && (
+                  <div style={{
+                    position: "absolute", left: "100%", top: 0, zIndex: 200,
+                    marginLeft: 4,
+                    background: "rgba(20,15,35,0.97)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: 6, padding: 8,
+                    display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6,
+                    width: "clamp(163px, 20vh, 219px)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                  }}>
+                    {timerOptions.map((t) => (
+                      <button key={t} onClick={() => { setTimer(t); setTimerOpen(false); }}
+                        style={{
+                          background: timer === t ? "rgba(168,134,75,0.35)" : "rgba(255,255,255,0.05)",
+                          border: timer === t ? "1px solid #a8864b" : "1px solid rgba(255,255,255,0.1)",
+                          borderRadius: 4, color: "#e8d896",
+                          fontFamily: "var(--font-cinzel), serif",
+                          fontSize: "clamp(10px, 1.4vh, 13px)", padding: "4px 0", cursor: "pointer",
+                          transition: "background 0.15s",
+                        }}
+                      >{t}s</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 📝 Start Game button — independent absolute div */}
+            {isLobbyLeader && (
+              <div style={{ position: "absolute", top: "75.35%", left: "50%", transform: "translateX(-50%)" }}>
+                <Button
+                  className="pregame-start-btn"
+                  onClick={handleStartGame}
+                  disabled={!rolesReady}
+                  style={{ width: "clamp(127px, 15.6vh, 171px)" } as React.CSSProperties}
+                >
+                  START GAME
+                </Button>
+              </div>
             )}
           </div>
 
-          {/* 📝 Start Game button: only visible to lobby leader */}
-          {isLobbyLeader && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <Button
-                onClick={handleStartGame}
-                disabled={!rolesReady}
-                style={{
-                  width: 160,
-                  height: 38,
-                  fontSize: 14,
-                  ["--btn-bg" as string]: "#25d366",
-                } as React.CSSProperties}
-              >
-                Start Game
-              </Button>
-            </div>
-          )}
         </div>
       </main>
     </div>
