@@ -135,6 +135,10 @@ export default function PreGameRoomPage() {
     });
   }, [timer]);
 
+useEffect(() => {
+  chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [room?.chat]);
+
   // 📝 PUT /rooms/{roomId}/leave - redirect to /rooms
   // 📝 If this was the last user: room is dissolved, show message
   const handleExit = async () => {
