@@ -19,6 +19,7 @@ export default function UserStatsPage() {
   const [username, setUsername] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [hqLoaded, setHqLoaded] = useState(false);
 
   useEffect(() => setIsMounted(true), []);
 
@@ -65,6 +66,21 @@ export default function UserStatsPage() {
 
   return (
     <div className="stats-page">
+    
+      <div
+        className="stats-bg-lq"
+        aria-hidden="true"
+        style={{ backgroundImage: "url('/trees_lq.webp')" }}
+      />
+      <img
+        src="/trees_hq.webp"
+        alt=""
+        aria-hidden="true"
+        onLoad={() => setHqLoaded(true)}
+        className="stats-bg-hq"
+        style={{ opacity: hqLoaded ? 1 : 0 }}
+      />
+
       <HomeButton />
 
       {/* Profile button top-right, same as home page */}
@@ -80,8 +96,10 @@ export default function UserStatsPage() {
         </div>
       )}
 
-      <h1 className="stats-title">PLAYER STATS</h1>
-      <div className="results-title-divider">◆</div>
+      <div className="stats-title-wrap">
+        <h1 className="stats-title">PLAYER STATS</h1>
+        <div className="results-title-divider stats-divider">◆</div>
+      </div>
 
       <div className="stats-stage">
         {loading ? (
@@ -160,11 +178,6 @@ export default function UserStatsPage() {
           <div className="stats-empty">No statistics found.</div>
         )}
 
-        <div className="results-cta">
-          <button className="lobby-create-btn" onClick={() => router.push("/rooms")}>
-            JOIN LOBBY
-          </button>
-        </div>
       </div>
 
       <style>{`
@@ -173,13 +186,48 @@ export default function UserStatsPage() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 2rem 1rem 4rem;
+          padding: 0.5rem 1rem 4rem;
+          position: relative;
+        }
+        .stats-bg-lq,
+        .stats-bg-hq {
+          position: fixed;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          z-index: -1;
+          pointer-events: none;
+        }
+        .stats-bg-lq {
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+        }
+        .stats-bg-hq {
+          object-fit: cover;
+          object-position: center;
+          transition: opacity 400ms ease-in;
+        }
+        .stats-title-wrap {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin: 1rem 0 0.5rem;
+        }
+        .stats-title-wrap .results-title-divider {
+          position: static;
+          top: auto;
+          left: auto;
+          transform: none;
+          margin-top: 0.25rem;
         }
         .stats-title {
-          font-family: var(--font-cinzel), serif;
-          font-size: 2.5rem;
-          letter-spacing: 0.2em;
-          margin: 2rem 0 0.25rem;
+          font-family: var(--font-display);
+          font-size: clamp(18px, 2.7vw, 38px);
+          letter-spacing: clamp(3px, 0.56vw, 8px);
+          color: var(--gold-warm);
+          text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0, 0, 0, 0.8);
+          margin: 0;
           text-align: center;
         }
         .stats-stage {
@@ -189,41 +237,44 @@ export default function UserStatsPage() {
           flex-direction: column;
           align-items: center;
           gap: 1rem;
-          margin-top: 2rem;
+          margin-top: 0.5rem;
         }
         .stats-username {
           font-family: var(--font-cinzel), serif;
-          font-size: 1.6rem;
+          font-size: clamp(14px, 2.2vw, 26px);
           letter-spacing: 0.1em;
           margin-bottom: 0.5rem;
+          text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0, 0, 0, 0.8);
         }
         .stats-section-label {
           font-family: var(--font-cinzel), serif;
           font-size: 0.6rem;
           letter-spacing: 0.25em;
-          opacity: 0.4;
+          opacity: 0.7;
           align-self: flex-start;
           margin-top: 0.5rem;
+          text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0, 0, 0, 0.8);
         }
         .stats-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 0.75rem;
+          gap: clamp(6px, 0.83vw, 12px);
           width: 100%;
         }
         .stats-card {
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(10, 14, 40, 0.55);
+          border: 1px solid rgba(212, 175, 93, 0.25);
           border-radius: 4px;
-          padding: 1.1rem 1rem;
+          padding: clamp(8px, 1.2vw, 18px) clamp(6px, 1.1vw, 16px);
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 0.35rem;
           text-align: center;
+          backdrop-filter: blur(2px);
         }
         .stats-card.wide { grid-column: span 2; }
-        .stats-card.accent { border-color: rgba(255,200,80,0.4); }
+        .stats-card.accent { border-color: rgba(255,200,80,0.5); }
         .stats-card-label {
           font-family: var(--font-cinzel), serif;
           font-size: 0.58rem;
@@ -232,7 +283,7 @@ export default function UserStatsPage() {
         }
         .stats-card-value {
           font-family: var(--font-cinzel), serif;
-          font-size: 1.8rem;
+          font-size: clamp(16px, 3.5vw, 29px);
           font-weight: 700;
           line-height: 1;
         }

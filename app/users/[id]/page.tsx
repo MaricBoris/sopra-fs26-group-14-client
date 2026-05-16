@@ -286,11 +286,20 @@ const Login: React.FC = () => {
         Trophies
       </Button>
 
+      {/* Stats button */}
+      <Button
+        className="profile-btn"
+        onClick={() => router.push(`/stats/${viewedUserId}`)}
+        style={{ position: "fixed", top: 136, right: 16, width: 104, height: 50, fontSize: 18, zIndex: 100 } as React.CSSProperties}
+      >
+        Stats
+      </Button>
+
       {/* 📝 Logout button */}
       <Button
         className="users-logout-btn"
         onClick={handleLogout}
-        style={{ position: "fixed", top: 136, right: 16, width: 104, height: 50, fontSize: 18, padding: 0, zIndex: 100 } as React.CSSProperties}
+        style={{ position: "fixed", top: 196, right: 16, width: 104, height: 50, fontSize: 18, padding: 0, zIndex: 100 } as React.CSSProperties}
       >
         Logout
       </Button>
@@ -302,7 +311,7 @@ const Login: React.FC = () => {
         <h1 className="profile-title" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: 4 }}>
           USER PROFILE
         </h1>
-        <div className="profile-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: -15 }}>✦</div>
+        <div className="profile-title-divider" style={{ position: "relative", transform: "none", left: "auto", top: "auto", marginBottom: -35 }}>✦</div>
 
         {/* 📝 Profile frame — height-driven so it reaches near bottom of screen */}
         <div style={{ position: "relative", height: "92vh", aspectRatio: "1145 / 1374", maxWidth: "95vw" }}>

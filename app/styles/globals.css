@@ -1554,6 +1554,252 @@ text-shadow:
 }
 
 /* -------------------------------------------- */
+/* LEADERBOARD PAGE (Chessboard Drawer Design)  */
+/* -------------------------------------------- */
+
+/* Full-screen starry background, same as the lobby page */
+.leaderboard-page {
+  position: fixed;
+  inset: 0;
+  background-image: url('/hintergrund_lobby.webp');
+  background-size: cover;
+  background-position: center;
+  background-color: var(--blue-deep);
+  overflow: hidden;
+}
+
+/* Stage: centered container */
+.chessboard-stage {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  height: min(70vh, calc(100vh - 60px));
+  aspect-ratio: 3072 / 1522;  /* exact ratio of the top piece of the chessboard */
+  max-width: 92vw;
+  z-index: 2;
+}
+
+.chessboard-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  /* Children (drawer, bottom) extend below the stage, we want them to render */
+  overflow: visible;
+}
+
+/* ---- Layer stack ---- */
+
+/* Bottom piece (z=2) */
+.chessboard-bottom {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, -2%);  /* slight overlap to hide the seam */
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+}
+
+/* Top piece (z=4): above drawer to hide it */
+.chessboard-top {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  z-index: 4;
+}
+
+/* Drawer (z=3): sandwiched between bottom and top */
+.chessboard-drawer {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 85%;
+  z-index: 3;
+  transform: translate(-50%, -63%);  /* closed: front aligns with slot */
+  transition: transform 0.7s cubic-bezier(0.22, 0.9, 0.32, 1);
+  pointer-events: none;  /* image itself shouldn't block clicks */
+}
+.chessboard-drawer.is-open {
+  transform: translate(-50%, -18%);  
+}
+
+.chessboard-drawer-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  user-select: none;
+}
+
+/* ---- Genre buttons over the drawers compartments ----*/
+.drawer-genres-row {
+  position: absolute;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.4%;
+  pointer-events: none;
+}
+.drawer-genres-row--top {
+  /* Back row */
+  top: 18%;
+  height: 21%;
+  left: 8.5%;
+  right: 9%;
+}
+.drawer-genres-row--bottom {
+  /* Front row*/
+  top: 40%;
+  height: 21%;
+  left: 6%;
+  right: 6%;
+}
+.chessboard-drawer.is-open .drawer-genres-row {
+  pointer-events: auto;
+}
+
+.drawer-genre-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color:   #BFA06A;
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(9px, 0.85vw, 13px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 4px 6px;
+  text-align: center;
+  line-height: 1.1;
+ text-shadow:
+    0 1px 2px rgba(0,0,0,0.9),
+    0 0 6px rgba(191,160,106,0.2);
+  /* Hidden until the drawer is mostly open, then fade in */
+  opacity: 0;
+  transition: opacity 0.3s ease, color 0.15s, text-shadow 0.15s, background 0.15s,
+    border-color 0.15s;
+}
+.chessboard-drawer.is-open .drawer-genre-btn {
+  opacity: 1;
+  transition-delay: 0.35s;
+}
+
+.drawer-genre-btn:hover {
+  color: #D6C08A;
+  background: transparent;
+  border-color: transparent;
+
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.95),
+    0 0 5px rgba(214,192,138,0.28);
+}
+
+.drawer-genre-btn.is-active {
+  color: #a27146; /* kühles Bronze */
+
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.95),
+    0 0 5px rgba(154,115,80,0.28);
+}
+.drawer-genre-btn.is-active {
+  color: #47427E;
+
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.95),
+    0 0 6px rgba(71,66,126,0.38);
+}
+
+/* Drawer open/close button */
+.chessboard-drawer-toggle {
+  position: absolute;
+  left: 50%;
+  top: 90%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  width: 22%;
+  height: 5%;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #9A7350;
+  font-family: var(--font-cinzel), serif;
+  font-size: clamp(11px, 1.1vw, 17px);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-shadow: 0 0 10px rgba(232, 216, 150, 0.4), 0 1px 2px rgba(0, 0, 0, 0.9);
+  transition: color 0.15s, text-shadow 0.15s, border-color 0.15s, background 0.15s;
+}
+.chessboard-drawer-toggle:hover,
+.chessboard-drawer-toggle:focus {
+  color: #9A7350;
+  border-color: rgba(154, 115, 80, 0.3);
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.95),
+    0 0 8px rgba(154, 115, 80, 0.22);
+  background: rgba(154, 115, 80, 0.04);
+  outline: none;
+}
+.chessboard-drawer-toggle:active {
+  transform: translate(-50%, calc(-50% + 1px));
+}
+
+/*  Leaderboard panel: inside the dark space on the top piece */
+.leaderboard-panel {
+  position: absolute;
+  left: 25%;
+  top: 25%;
+  width: 48%;
+  height: 33%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  padding: 1% 2%;
+  pointer-events: none;
+}
+.leaderboard-panel > * {
+  pointer-events: auto;
+}
+
+.leaderboard-table {
+  flex: 1 1 0;
+  overflow: auto;
+  min-height: 0;
+}
+
+/* Reuse the lobby's transparent table styling so rows blend with the panel */
+.leaderboard-table .ant-table,
+.leaderboard-table .ant-table-thead > tr > th,
+.leaderboard-table .ant-table-tbody > tr > td,
+.leaderboard-table .ant-table-placeholder,
+.leaderboard-table .ant-table-cell {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.25) !important;
+}
+.leaderboard-table .ant-table-thead > tr > th {
+  color: #D6B47A !important;
+  font-size: 12px !important;
+  letter-spacing: 2px !important;
+  border-bottom: 1px solid rgba(212, 175, 93, 0.5) !important;
+}
+.leaderboard-table .ant-table-tbody > tr > td {
+  color: #A8844E !important;
+  font-size: 13px !important;
+}
+.leaderboard-table .ant-table-tbody > tr:hover > td {
+  background: rgba(212, 175, 93, 0.08) !important;
+}
+.leaderboard-table .ant-table-placeholder .ant-empty-description {
+  color:   #7A6A58 !important;
+}
+
+
+/* -------------------------------------------- */
 /* REGISTER PAGE                                */
 /* -------------------------------------------- */
 
@@ -1792,7 +2038,7 @@ text-shadow:
   transform: translateX(-50%); /* shifts the element left by 50% of it's own width, so now its perfectöy horizontally centered */
   margin: 0; /* to ignore the standard margin*/
   font-family: var(--font-display); /* sets the font to the cinzel*/
-  font-size: clamp(26px, 5vh, 38px); /* font size  */
+  font-size: clamp(18px, 2.7vw, 38px); /* font size  */
   letter-spacing: 8px; /* spacing between letters*/
   color: var(--gold-warm); /* color of the title, a bright gold */
   text-shadow: 0 0 24px rgba(232, 216, 150, 0.55), 0 0 8px rgba(0, 0, 0, 0.8); 
@@ -1966,8 +2212,8 @@ You can only use ::before and ::after once per element*/
 /* ---- the "Screening tonight" title ---- */
 .results-screening-title {
   font-family: var(--font-display); /*the usual cinzel font*/
-  font-size: clamp(11px, 1.3vw, 18px); /*font size*/
-  letter-spacing: 5px; /*letter spacing*/
+  font-size: clamp(4px, 1.3vw, 18px); /*font size*/
+  letter-spacing: clamp(1px, 0.35vw, 5px); /*letter spacing*/
   color: #f5d996; /*dark gold*/
   text-align: center; /*horizontally centered*/
   text-transform: uppercase; /*automatically transforms text to uppercase*/
@@ -1979,14 +2225,16 @@ You can only use ::before and ::after once per element*/
 /* ---- tagline under the table "chose a story-see you at the cinema"---- */
 .results-screening-tagline {
   font-family: var(--font-display);
-  font-size: clamp(8px, 0.8vw, 11px);
-  letter-spacing: 2.5px;
+  font-size: clamp(3px, 0.8vw, 11px);
+  letter-spacing: clamp(0.5px, 0.1vw, 1.5px);
   color: #d8bd78;
   text-align: center;
   text-transform: uppercase;
   text-shadow: 0 0 8px rgba(212, 175, 93, 0.35), 0 0 6px rgba(0, 0, 0, 0.8);
   margin-top: 6px; /*6 px margin from table*/
   flex-shrink: 0; /*nonshrinkable*/
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 /* ---- empty-state text inside the table "No program yet" ---- */
