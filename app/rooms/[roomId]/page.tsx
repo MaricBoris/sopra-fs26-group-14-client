@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button, Table, message } from "antd";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -21,6 +21,12 @@ interface JudgeGetDTO {
   username: string;
 }
 
+interface ChatMessage {
+  username: string;
+  message: string;
+  timestamp: string;
+}
+
 interface Room {
   id: number;
   name: string;
@@ -31,6 +37,7 @@ interface Room {
   judges: JudgeGetDTO[];
   timer: number;
   maxRounds: number;
+  chat: ChatMessage[];
 }
 
 interface GameGetDTO {
@@ -61,6 +68,10 @@ export default function PreGameRoomPage() {
   const [timerOpen, setTimerOpen] = useState(false);
   const [maxRounds, setMaxRounds] = useState(4);
   const [timer, setTimer] = useState(90);
+  const [chatInput, setChatInput] = useState("");
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [sendFlash, setSendFlash] = useState(false);
 
   useEffect(() => setIsMounted(true), []);
 
@@ -125,6 +136,10 @@ export default function PreGameRoomPage() {
     });
   }, [timer]);
 
+useEffect(() => {
+  chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [room?.chat]);
+
   // 📝 PUT /rooms/{roomId}/leave - redirect to /rooms
   // 📝 If this was the last user: room is dissolved, show message
   const handleExit = async () => {
@@ -156,6 +171,18 @@ export default function PreGameRoomPage() {
       router.push(`/games/${game.gameId}`);
     } catch (e) {
       message.error(`Could not start game: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  };
+
+  const handleSendChat = async () => {
+    if (!chatInput.trim()) return;
+    try {
+      await api.put(`/rooms/${roomId}/chat`, { message: chatInput.trim() }, token);
+      setChatInput("");
+      setSendFlash(true);
+      setTimeout(() => setSendFlash(false), 300);
+    } catch {
+      message.error("Failed to send message.");
     }
   };
 
@@ -332,6 +359,137 @@ export default function PreGameRoomPage() {
               </div>
 
             </div>
+            {/* 📝 Chat sidebar toggle button */}
+            <button
+              onClick={() => setChatOpen(o => !o)}
+              style={{
+                position: "fixed",
+                right: chatOpen ? "clamp(160px, 15vw, 220px)" : "0px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "rgba(15, 12, 50, 0.85)",
+                border: "1px solid rgba(212, 175, 93, 0.55)",
+                borderRight: "None",
+                borderRadius: "4px 0 0 4px",
+                color: "var(--gold)",
+                fontFamily: "var(--font-cinzel), serif",
+                fontSize: "clamp(9px, 1.2vh, 12px)",
+                padding: "12px 6px",
+                cursor: "pointer",
+                zIndex: 200,
+                writingMode: "vertical-rl",
+                letterSpacing: 2,
+                transition: "right 0.3s ease",
+              }}
+            >
+              {chatOpen ? "✕" : "✒ CHAT"}
+            </button>
+
+            {/* 📝 Chat sidebar */}
+            {chatOpen && (
+              <div style={{
+                position: "fixed",
+                right: 1,
+                top: "25%",
+                bottom: "25%",
+                width: "min(clamp(160px, 15vw, 220px), 60vw)",
+                overflow: "hidden",
+                background: "rgba(15, 12, 50, 0.65)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(212, 175, 93, 0.55)",
+                boxShadow: "0 0 18px rgba(212, 175, 93, 0.15)",
+                borderRight: "none",
+                borderRadius: "8px 0 0 8px",
+                display: "flex",
+                flexDirection: "column",
+                zIndex: 199,
+                fontFamily: "var(--font-cinzel), serif",
+              }}>
+                {/* header */}
+                <div style={{
+                  padding: "10px 16px",
+                  borderBottom: "1px solid rgba(212,168,87,0.2)",
+                  color: "var(--gold)",
+                  fontSize: "clamp(10px, 1.3vh, 13px)",
+                  letterSpacing: 2,
+                }}>
+                  ✒ CHAT
+                </div>
+
+                {/* messages */}
+                <div style={{
+                  flex: 1,
+                  overflowY: "auto",
+                  overflowX: "hidden",
+                  padding: "8px 12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                }}>
+                  {(room?.chat ?? []).length === 0 ? (
+                    <span style={{ color: "#6b6480", fontSize: "clamp(11px, 1.5vh, 14px)" }}>No messages yet...</span>
+                  ) : (
+                    (room?.chat ?? []).map((msg, i) => (
+                      <div key={i} style={{
+                        fontSize: "clamp(11px, 1.5vh, 14px)",
+                        color: "#e8d896",
+                        fontFamily: "var(--font-cinzel), serif",
+                        wordBreak: "break-all",
+                        overflowWrap: "break-word",
+                      }}>
+                        <span style={{ color: "var(--gold)" }}>{msg.username}</span>
+                        <span style={{ color: "rgba(245,230,200,0.5)" }}> ✦ </span>
+                        <span>{msg.message}</span>
+                      </div>
+                    ))
+                  )}
+                  <div ref={chatBottomRef} />
+                </div>
+
+                {/* input */}
+                <div style={{
+                  display: "flex",
+                  borderTop: "1px solid rgba(212,168,87,0.2)",
+                  padding: "8px 0",
+                  boxSizing: "border-box",
+                  width: "100%",
+                }}>
+                  <input
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSendChat()}
+                    placeholder="Say something..."
+                    maxLength={200}
+                    style={{
+                      width: "calc(100% - 36px)",
+                      background: "transparent",
+                      border: "none",
+                      outline: "none",
+                      color: "#fff",
+                      fontFamily: "var(--font-cinzel), serif",
+                      fontSize: "clamp(11px, 1.5vh, 14px)",
+                      padding: "10px 10px",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                  <button
+                    onClick={handleSendChat}
+                    style={{
+                      width: 36,
+                      flexShrink: 0,
+                      background: sendFlash ? "rgba(15, 12, 50, 0.8)" : "transparent",
+                      border: "none",
+                      borderLeft: "1px solid rgba(212,168,87,0.2)",
+                      color: "var(--gold)",
+                      fontSize: 14,
+                      cursor: "pointer",
+                    }}
+                  >
+                    ✒
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* 📝 Settings row  */}
             <div style={{ position: "absolute", top: "31%", left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5 }}>

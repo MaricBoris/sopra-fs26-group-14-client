@@ -2672,6 +2672,31 @@ You can only use ::before and ::after once per element*/
   text-shadow: 0 1px 0 rgba(255, 245, 220, 0.5);
 }
 
+/* scrollable sidebar redesign */
+
+/* Scrollbar track */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 168, 87, 0.4);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 168, 87, 0.7);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 168, 87, 0.4) transparent;
+}
+
 /* notification and errors */
 
 .ant-notification-notice-title {
