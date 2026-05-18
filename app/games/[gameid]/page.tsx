@@ -440,7 +440,32 @@ useEffect(() => {
   autoVoteFired.current = true;
   handleVoteWinner(-1);
 }, [countdown, game, isJudge]);
+
+//writer auto vote if judge is awol
  
+const writerForceVoteFired = useRef(false);
+
+useEffect(() => {
+  if (!game || isJudge) return;                 // writers only
+  if (game.phase !== "EVALUATION") return; 
+  if (writerForceVoteFired.current) return;
+  if (!game.turnStartedAt || !game.timer) return;
+
+  const elapsed = Math.floor((Date.now() - game.turnStartedAt) / 1000);
+  // +5s puffer for judge auto vote
+  if (elapsed < game.timer + 5) return;
+
+  writerForceVoteFired.current = true;
+  (async () => {
+    try {
+      await apiService.post(`/games/${gameid}/force-judge-vote`, {}, token);
+      // polling effect will get the new game state after
+    } catch (e) {
+      console.log("Force judge vote failed/skipped:", e);
+      writerForceVoteFired.current = false; //try again witg next countdown tick
+    }
+  })();
+}, [countdown, game, isJudge, gameid, token]);
  
 useEffect(() => {
   if (!resultModalVisible) {
@@ -1100,18 +1125,20 @@ return (
             <div style={{ fontSize: 14, color: "var(--gold)", textAlign: "center", letterSpacing: 1 }}>
               DECIDE A TITLE FOR THE STORY
             </div>
-            <Input
-              value={storyTitle}
-              maxLength={17}
-              onChange={(e) => setStoryTitle(e.target.value)}
-              placeholder="Enter a title..."
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(212,168,87,0.5)",
-                color: "#fff",
-                fontFamily: "var(--font-cinzel), serif",
-              }}
-            />
+            {!titleSubmitted && (
+              <Input
+                value={storyTitle}
+                maxLength={17}
+                onChange={(e) => setStoryTitle(e.target.value)}
+                placeholder="Enter a title..."
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(212,168,87,0.5)",
+                  color: "#fff",
+                  fontFamily: "var(--font-cinzel), serif",
+                }}
+              />
+            )}
             <Button
               className="goldButton"
               disabled={!storyTitle.trim() || titleSubmitted}

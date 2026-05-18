@@ -30,6 +30,7 @@ const GENRES_BOTTOM = [
   "Thriller",
   "Fairy Tale",
 ];
+  
 
 export default function LeaderboardPage() {
   const router = useRouter();
@@ -151,6 +152,9 @@ export default function LeaderboardPage() {
 
   return (
     <div className="leaderboard-page">
+     
+
+    
       <ActiveSessionModal
           modalVisible={modalVisible}
           sessionType={sessionType}

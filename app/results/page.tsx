@@ -42,7 +42,7 @@ export default function ResultsPage() {
     {
       title: "Title",
       key: "title",
-      render: (_: unknown, record: Story) => `${record.title}`,
+      render: (_: unknown, record: Story) => record.title ?? "Untitled",
     },
     {
       title: "Winner",
