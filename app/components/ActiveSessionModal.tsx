@@ -36,7 +36,7 @@ const ActiveSessionModal: React.FC<Props> = ({ modalVisible, sessionType, handle
                 <br />
                 Click below to rejoin. If you want to leave the{" "}
                 <span style={{ color: "var(--gold-bright)", fontWeight: "bold" }}>{sessionType}</span>
-                {" "}please do so by clicking on the "EXIT" button.
+                {" "}please do so by clicking on the &quot;EXIT&quot; button.
             </div>
 
             <Button

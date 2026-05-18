@@ -26,8 +26,9 @@ export const useActiveSessionCheck = () => {
                     setModalVisible(true);
                     return;
                 }
-            } catch (e: any) {
-                if (e?.status !== 404) console.error("Game check failed", e);
+            } catch (e: unknown) {
+                const err = e as { status?: number };
+                if (err?.status !== 404) console.error("Game check failed", e);
             }
 
             // Check active room
