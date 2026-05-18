@@ -5,7 +5,7 @@ import HomeButton from "@/components/HomeButton";
 import { useActiveSessionCheck } from "@/hooks/useActiveSessionCheck";
 import ActiveSessionModal from "@/components/ActiveSessionModal";
 
-const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
+
 const menu = [
   {
     key: "starting",
@@ -40,6 +40,7 @@ const menu = [
 ];
 
 const Tutorial: React.FC = () => {
+  const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   //checks if what was clicked on is already open, if yes, close, otherwise open
