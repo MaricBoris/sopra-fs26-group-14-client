@@ -11,6 +11,8 @@ import type { TableProps } from "antd";
 
 import HomeButton from "@/components/HomeButton";
 import ProfileButton from "@/components/ProfileButton";
+import { useActiveSessionCheck } from "@/hooks/useActiveSessionCheck";
+import ActiveSessionModal from "@/components/ActiveSessionModal";
 
 // 📝 Columns for user list table
 const columns: TableProps<User>["columns"] = [
@@ -26,6 +28,7 @@ const UsersPage: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [users, setUsers] = useState<User[] | null>(null);
+  const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
 
   const {
     value: token,
@@ -96,9 +99,14 @@ const UsersPage: React.FC = () => {
 
   return (
     <>
+      <ActiveSessionModal
+          modalVisible={modalVisible}
+          sessionType={sessionType}
+          handleRejoin={handleRejoin}
+      />
       <HomeButton />
       <ProfileButton />
-
+      
       {/* 📝 Logout button fixed below Profile button */}
       <div style={{ position: "fixed", top: 76, right: 16, zIndex: 1000 }}>
         <Button

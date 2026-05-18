@@ -7,12 +7,15 @@ import { BookOutlined, CodeOutlined, GlobalOutlined } from "@ant-design/icons";
 import ProfileButton from "./components/ProfileButton";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
+import { useActiveSessionCheck } from "@/hooks/useActiveSessionCheck";
+import ActiveSessionModal from "@/components/ActiveSessionModal";
 
 export default function Home() {
   const router = useRouter();
   const api = useApi();
   const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
   const { value: userId, clear: clearUserId } = useLocalStorage<string>("userId", ""); //to clear userId on logout
+  const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
 
   //mount gate -> don't read localStorage before it's available (prevents hydration mismatch)
   const [isMounted, setIsMounted] = useState(false);
@@ -76,6 +79,11 @@ export default function Home() {
 
  return (
     <div className="home-page">
+      <ActiveSessionModal
+          modalVisible={modalVisible}
+          sessionType={sessionType}
+          handleRejoin={handleRejoin}
+      />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/background_home_hq.webp"

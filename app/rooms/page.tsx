@@ -7,6 +7,8 @@ import HomeButton from "@/components/HomeButton";
 import ProfileButton from "@/components/ProfileButton";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
+import { useActiveSessionCheck } from "@/hooks/useActiveSessionCheck";
+import ActiveSessionModal from "@/components/ActiveSessionModal";
 
 interface Room {
   id: number;
@@ -28,6 +30,7 @@ export default function RoomsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [roomName, setRoomName] = useState("");
   const [hqLoaded, setHqLoaded] = useState(false);
+  const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
   // mount gate -> don't read localStorage before it's available (prevents hydration mismatch)
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
@@ -124,6 +127,11 @@ export default function RoomsPage() {
   return (
     
     <div className="lobby-page">
+      <ActiveSessionModal
+          modalVisible={modalVisible}
+          sessionType={sessionType}
+          handleRejoin={handleRejoin}
+      />
       <HomeButton />
       <ProfileButton />
 
@@ -159,8 +167,6 @@ export default function RoomsPage() {
                 pagination={false}
                 size="small"
                 locale={{ emptyText: <span style={{ color: "#6b6480", fontFamily: "var(--font-cinzel), serif" }}>No matches available. Create your own!</span> }}
-                onRow={(record) => ({ onClick: () => router.push(`/rooms/${record.id}`) })}
-                style={{ cursor: "pointer", fontFamily: "var(--font-cinzel), serif" }}
               />
             </div>
           </div>

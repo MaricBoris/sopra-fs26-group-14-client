@@ -6,6 +6,9 @@ import HomeButton from "@/components/HomeButton";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
 import { UserStatistics } from "@/types/userStatistics";
+import { useActiveSessionCheck } from "@/hooks/useActiveSessionCheck";
+import ActiveSessionModal from "@/components/ActiveSessionModal";
+
 
 export default function UserStatsPage() {
   const router = useRouter();
@@ -20,6 +23,7 @@ export default function UserStatsPage() {
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [hqLoaded, setHqLoaded] = useState(false);
+  const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
 
   useEffect(() => setIsMounted(true), []);
 
@@ -66,6 +70,12 @@ export default function UserStatsPage() {
 
   return (
     <div className="stats-page">
+
+      <ActiveSessionModal
+          modalVisible={modalVisible}
+          sessionType={sessionType}
+          handleRejoin={handleRejoin}
+      />
     
       <div
         className="stats-bg-lq"

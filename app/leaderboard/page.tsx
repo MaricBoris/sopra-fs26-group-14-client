@@ -7,6 +7,8 @@ import ProfileButton from "@/components/ProfileButton";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
 import { LeaderboardEntry as ApiLeaderboardEntry } from "@/types/leaderboardEntry";
+import { useActiveSessionCheck } from "@/hooks/useActiveSessionCheck";
+import ActiveSessionModal from "@/components/ActiveSessionModal";
 
 // 14 genres, split into the drawer's two compartment rows (7 each)
 // Order is left to right in each row
@@ -46,6 +48,7 @@ export default function LeaderboardPage() {
   // leaderboard data: overall by default, per-genre when selectedGenre is set
   const [entries, setEntries] = useState<ApiLeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
 
   // auth redirect
   useEffect(() => {
@@ -148,6 +151,11 @@ export default function LeaderboardPage() {
 
   return (
     <div className="leaderboard-page">
+      <ActiveSessionModal
+          modalVisible={modalVisible}
+          sessionType={sessionType}
+          handleRejoin={handleRejoin}
+      />
       <HomeButton />
       <ProfileButton />
 
