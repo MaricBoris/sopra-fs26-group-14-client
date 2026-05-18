@@ -14,6 +14,8 @@ import { Button, Input, Table, Modal, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/page.module.css";
+import { useActiveSessionCheck } from "@/hooks/useActiveSessionCheck";
+import ActiveSessionModal from "@/components/ActiveSessionModal";
 
 
 
@@ -52,6 +54,7 @@ const Login: React.FC = () => {
   //state variables for password changes and profile deletion
   const [passwordModal, setPasswordModal] = useState({open: false, loading: false, current: "", next: "", confirm: ""});
   const [deleteModal, setDeleteModal] = useState({open: false, loading: false, password: ""});
+  const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
 
   const isOwnProfile = String(users?.id) === String(id)
 
@@ -255,7 +258,13 @@ const Login: React.FC = () => {
 
   return (
     <div style={{ minHeight: "100vh", backgroundImage: "url('/profile_wp.webp')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed" }}>
+      <ActiveSessionModal
+          modalVisible={modalVisible}
+          sessionType={sessionType}
+          handleRejoin={handleRejoin}
+      />
       <HomeButton />
+
 
       {/* 📝 Delete Account button — fixed bottom right, own profile only */}
       {isOwnProfile && (

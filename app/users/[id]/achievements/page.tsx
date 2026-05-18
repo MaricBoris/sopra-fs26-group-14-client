@@ -8,6 +8,8 @@ import ProfileButton from "@/components/ProfileButton";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
+import { useActiveSessionCheck } from "@/hooks/useActiveSessionCheck";
+import ActiveSessionModal from "@/components/ActiveSessionModal";
 
 // type script inteface according to AchievementGetDTO
 interface Achievement {
@@ -43,6 +45,7 @@ const AchievementsPage: React.FC = () => {
   const [viewedUser, setViewedUser] = useState<User | null>(null);
   const [allAchievements, setAllAchievements] = useState<Achievement[]>([]);
   const [unlocked, setUnlocked] = useState<UserAchievement[]>([]);
+  const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
 
   const {
     value: token,
@@ -133,6 +136,11 @@ const AchievementsPage: React.FC = () => {
         backgroundAttachment: "fixed", //doesn't move when scrolled
       }}
     >
+      <ActiveSessionModal
+          modalVisible={modalVisible}
+          sessionType={sessionType}
+          handleRejoin={handleRejoin}
+      />
       <HomeButton /> 
       <ProfileButton />
 

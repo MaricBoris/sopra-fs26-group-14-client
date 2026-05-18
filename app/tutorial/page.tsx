@@ -2,7 +2,10 @@
 
 import React, { useState } from "react";
 import HomeButton from "@/components/HomeButton";
+import { useActiveSessionCheck } from "@/hooks/useActiveSessionCheck";
+import ActiveSessionModal from "@/components/ActiveSessionModal";
 
+const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
 const menu = [
   {
     key: "starting",
@@ -55,6 +58,11 @@ const Tutorial: React.FC = () => {
     if (key === "starting") {
       return (
         <>
+          <ActiveSessionModal
+          modalVisible={modalVisible}
+          sessionType={sessionType}
+          handleRejoin={handleRejoin}
+      />
           <p>To start a match, you need to be registered and logged in.</p>
 
           <p>

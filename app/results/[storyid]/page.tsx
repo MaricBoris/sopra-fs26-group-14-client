@@ -9,6 +9,8 @@ import { useApi } from "@/hooks/useApi";
 import { Story } from "@/types/story";
 import { User } from "@/types/user";
 import { GenreRating } from "@/types/genreRating";
+import { useActiveSessionCheck } from "@/hooks/useActiveSessionCheck";
+import ActiveSessionModal from "@/components/ActiveSessionModal";
 
 // maps genre names to the file slugs
 const GENRE_TO_SLUG: Record<string, string> = {
@@ -50,6 +52,7 @@ export default function StoryDetailPage() {
   const [rating, setRating] = useState<GenreRating | null>(null);
   const [voting, setVoting] = useState(false);
   const [hqLoaded, setHqLoaded] = useState(false);
+  const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
 
   useEffect(() => setIsMounted(true), []);
 
@@ -206,6 +209,11 @@ export default function StoryDetailPage() {
 
   return (
     <div className="drivein-page">
+       <ActiveSessionModal
+          modalVisible={modalVisible}
+          sessionType={sessionType}
+          handleRejoin={handleRejoin}
+      />
       <HomeButton />
       <ProfileButton />
 

@@ -7,6 +7,8 @@ import ProfileButton from "@/components/ProfileButton";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useApi } from "@/hooks/useApi";
 import { Story } from "@/types/story";
+import { useActiveSessionCheck } from "@/hooks/useActiveSessionCheck";
+import ActiveSessionModal from "@/components/ActiveSessionModal";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -17,6 +19,7 @@ export default function ResultsPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [hqLoaded, setHqLoaded] = useState(false);
+  const { modalVisible, sessionType, handleRejoin } = useActiveSessionCheck();
   useEffect(() => setIsMounted(true), []);
 
   const fetchStories = useCallback(async () => {
@@ -53,6 +56,11 @@ export default function ResultsPage() {
 
   return (
     <div className="results-page">
+      <ActiveSessionModal
+          modalVisible={modalVisible}
+          sessionType={sessionType}
+          handleRejoin={handleRejoin}
+      />
       <HomeButton />
       <ProfileButton />
 
