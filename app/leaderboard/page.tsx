@@ -30,6 +30,26 @@ const GENRES_BOTTOM = [
   "Thriller",
   "Fairy Tale",
 ];
+  const petalImages = [
+  "/rose-petal.png",
+  "/rose-petal-2.png",
+  "/rose-petal-3.png",
+  "/rose-petal-4.png",
+];
+
+ const darkParticlesImages = [
+  "/particle-1.png",
+  "/particle-2.png",
+  "/particle-3.png",
+  //"/particle-4.png",
+  "/particle-5.png",
+  "/particle-6.png",
+  "/particle-7.png",
+  "/particle-8.png",
+  "/particle-9.png",
+  "/particle-10.png",
+
+];
 
 const petals = Array.from({ length: 80 }, (_, i) => ({
   id: i,
