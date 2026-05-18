@@ -1125,18 +1125,20 @@ return (
             <div style={{ fontSize: 14, color: "var(--gold)", textAlign: "center", letterSpacing: 1 }}>
               DECIDE A TITLE FOR THE STORY
             </div>
-            <Input
-              value={storyTitle}
-              maxLength={17}
-              onChange={(e) => setStoryTitle(e.target.value)}
-              placeholder="Enter a title..."
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(212,168,87,0.5)",
-                color: "#fff",
-                fontFamily: "var(--font-cinzel), serif",
-              }}
-            />
+            {!titleSubmitted && (
+              <Input
+                value={storyTitle}
+                maxLength={17}
+                onChange={(e) => setStoryTitle(e.target.value)}
+                placeholder="Enter a title..."
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(212,168,87,0.5)",
+                  color: "#fff",
+                  fontFamily: "var(--font-cinzel), serif",
+                }}
+              />
+            )}
             <Button
               className="goldButton"
               disabled={!storyTitle.trim() || titleSubmitted}

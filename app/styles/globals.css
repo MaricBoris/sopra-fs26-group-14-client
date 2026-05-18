@@ -2775,3 +2775,83 @@ You can only use ::before and ::after once per element*/
   border: 1px solid rgba(212,168,87,0.5) !important;
   border-radius: 8px !important;
 }
+
+.effect-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.clash-particle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  /* cubic-bezier mit hohem zweitem Y-Wert macht die Bewegung sanft und natürlich,
+     ohne harten Start/Stop */
+  animation-timing-function: cubic-bezier(.4, .1, .5, 1);
+  will-change: transform, opacity;
+}
+
+.petal {
+  left: -40px;
+  animation-name: petalFlow;
+}
+
+.ash {
+  right: -40px;
+  animation-name: ashFlow;
+  filter: brightness(1.4) drop-shadow(0 0 4px rgba(255, 200, 150, 0.4));
+}
+
+/* ROSENBLÄTTER: sanfte Kurve von links unten → Mitte → oben */
+@keyframes petalFlow {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  /* Mittelpunkt der Kurve: ungefähr 70% horizontal, schon leicht hochgestiegen.
+     Das ist der "Knick" der die Bahn zur Kurve macht. */
+  60% {
+    transform:
+      translate(calc(var(--reach) * 0.85), calc(var(--rise) * -0.3))
+      rotate(calc(var(--rotation) * 0.5));
+    opacity: 1;
+  }
+  /* Endposition: voll horizontal erreicht und nach oben rausgestiegen */
+  100% {
+    transform:
+      translate(var(--reach), calc(var(--rise) * -1))
+      rotate(var(--rotation));
+    opacity: 0;
+  }
+}
+
+/* ASCHE: spiegelverkehrt */
+@keyframes ashFlow {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  60% {
+    transform:
+      translate(calc(var(--reach) * -0.85), calc(var(--rise) * -0.3))
+      rotate(calc(var(--rotation) * -0.5));
+    opacity: 1;
+  }
+  100% {
+    transform:
+      translate(calc(var(--reach) * -1), calc(var(--rise) * -1))
+      rotate(calc(var(--rotation) * -1));
+    opacity: 0;
+  }
+}

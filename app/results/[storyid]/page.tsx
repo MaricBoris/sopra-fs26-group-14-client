@@ -116,14 +116,14 @@ export default function StoryDetailPage() {
   const leftWriter = rating
     ? {
         userId: rating.winnerUserId,
-        name: rating.winnerUsername ?? story.winnerUsername ?? "Player 1",
+        name: rating.winnerUsername ?? story.winnerUsername ?? "deleted",
         genre: rating.winnerGenre ?? story.winGenre ?? null,
         votes: rating.winnerVotes ?? 0,
         userObj: winnerUser,
       }
     : {
         userId: null,
-        name: story.winnerUsername ?? "Player 1",
+        name: story.winnerUsername ?? "deleted",
         genre: story.winGenre ?? null,
         votes: 0,
         userObj: winnerUser,
@@ -132,14 +132,14 @@ export default function StoryDetailPage() {
   const rightWriter = rating
     ? {
         userId: rating.loserUserId,
-        name: rating.loserUsername ?? story.loserUsername ?? "Player 2",
+        name: rating.loserUsername ?? story.loserUsername ?? "deleted",
         genre: rating.loserGenre ?? story.loseGenre ?? null,
         votes: rating.loserVotes ?? 0,
         userObj: loserUser,
       }
     : {
         userId: null,
-        name: story.loserUsername ?? "Player 2",
+        name: story.loserUsername ?? "deleted",
         genre: story.loseGenre ?? null,
         votes: 0,
         userObj: loserUser,

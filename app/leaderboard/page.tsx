@@ -31,6 +31,32 @@ const GENRES_BOTTOM = [
   "Fairy Tale",
 ];
 
+const petals = Array.from({ length: 80 }, (_, i) => ({
+  id: i,
+  src: petalImages[Math.floor(Math.random() * petalImages.length)],
+  top: 35 + Math.random() * 30,
+  width: 14 + Math.random() * 10,
+  duration: 3 + Math.random() * 1.5,
+  delay: (i / 80) * 3 + Math.random() * 0.4,
+  // Wie weit horizontal vor dem Hochsteigen (45-55vw von links)
+  reach: 45 + Math.random() * 10,
+  // Wie hoch am Ende
+  rise: 280 + Math.random() * 200,
+  rotation: 180 + Math.random() * 360,
+}));
+
+const particles = Array.from({ length: 80 }, (_, i) => ({
+  id: i,
+  src: darkParticlesImages[Math.floor(Math.random() * darkParticlesImages.length)],
+  top: 35 + Math.random() * 30,
+  width: 14 + Math.random() * 10,
+  duration: 3 + Math.random() * 1.5,
+  delay: (i / 80) * 3 + Math.random() * 0.4,
+  reach: 45 + Math.random() * 10,
+  rise: 280 + Math.random() * 200,
+  rotation: 180 + Math.random() * 360,
+}));
+
 export default function LeaderboardPage() {
   const router = useRouter();
   const api = useApi();
@@ -151,6 +177,43 @@ export default function LeaderboardPage() {
 
   return (
     <div className="leaderboard-page">
+      <div className="effect-container">
+        {petals.map((petal) => (
+          <img
+            key={`petal-${petal.id}`}
+            src={petal.src}
+            className="clash-particle petal"
+            style={{
+              top: `${petal.top}vh`,
+              width: `${petal.width}px`,
+              animationDuration: `${petal.duration}s`,
+              animationDelay: `${petal.delay}s`,
+              "--reach": `${petal.reach}vw`,
+              "--rise": `${petal.rise}px`,
+              "--rotation": `${petal.rotation}deg`,
+            } as React.CSSProperties}
+            alt=""
+          />
+        ))}
+
+        {particles.map((particle) => (
+          <img
+            key={`ash-${particle.id}`}
+            src={particle.src}
+            className="clash-particle ash"
+            style={{
+              top: `${particle.top}vh`,
+              width: `${particle.width}px`,
+              animationDuration: `${particle.duration}s`,
+              animationDelay: `${particle.delay}s`,
+              "--reach": `${particle.reach}vw`,
+              "--rise": `${particle.rise}px`,
+              "--rotation": `${particle.rotation}deg`,
+            } as React.CSSProperties}
+            alt=""
+          />
+        ))}
+      </div>
       <ActiveSessionModal
           modalVisible={modalVisible}
           sessionType={sessionType}
