@@ -30,59 +30,7 @@ const GENRES_BOTTOM = [
   "Thriller",
   "Fairy Tale",
 ];
-  const petalImages = [
-  "/rose-petal.png",
-  "/rose-petal-2.png",
-  "/rose-petal-3.png",
-  "/rose-petal-4.png",
-];
-
- const darkParticlesImages = [
-  "/particle-1.png",
-  "/particle-2.png",
-  "/particle-3.png",
-  //"/particle-4.png",
-  "/particle-5.png",
-  "/particle-6.png",
-  "/particle-7.png",
-  "/particle-8.png",
-  "/particle-9.png",
-  "/particle-10.png",
-
-];
-
-const petals = Array.from({ length: 80 }, (_, i) => ({
-  id: i,
-  src: petalImages[Math.floor(Math.random() * petalImages.length)],
-  // Enger vertikaler Kanal: nur 8vh hoch, ungefähr auf Fuß-Höhe der Figuren
-  // PASS DEN top-WERT AN deine Figuren an
-  top: 30 + Math.random() * 35,
-  width: 12 + Math.random() * 12,
-  // Schneller: 1.0-1.8s statt 2.2-3.7s
-  duration: 1 + Math.random() * 0.8,
-  delay: Math.random() * 2,
-  rotation: 180 + Math.random() * 540,
-}));
-
-const particles = Array.from({ length: 50 }, (_, i) => ({
-  id: i,
-  src: darkParticlesImages[Math.floor(Math.random() * darkParticlesImages.length)],
-  top: 30 + Math.random() * 35,
-  width: 42 + Math.random() * 12,
-  duration: 1 + Math.random() * 0.8,
-  delay: Math.random() * 2,
-  rotation: 180 + Math.random() * 540,
-}));
-
-const bursts = Array.from({ length: 5 }, (_, i) => ({
-  id: i,
-  x: 42 + Math.random() * 16,
-  y: 30 + Math.random() * 35,   // gleicher Bereich wie deine Partikel
-  size: 60 + Math.random() * 80,
-  duration: 1.5 + Math.random() * 1,
-  delay: 1 + Math.random() * 0.8,
-  variant: Math.random() < 0.5 ? "rose" : "violet",
-}));
+  
 
 export default function LeaderboardPage() {
   const router = useRouter();
@@ -204,53 +152,7 @@ export default function LeaderboardPage() {
 
   return (
     <div className="leaderboard-page">
-     <div className="effect-container">
-  {petals.map((petal) => (
-    <img
-      key={`petal-${petal.id}`}
-      src={petal.src}
-      className="clash-particle petal-gust"
-      style={{
-        top: `${petal.top}vh`,
-        width: `${petal.width}px`,
-        animationDuration: `${petal.duration}s`,
-        animationDelay: `${petal.delay}s`,
-        "--rotation": `${petal.rotation}deg`,
-      } as React.CSSProperties}
-      alt=""
-    />
-  ))}
-
-  {particles.map((particle) => (
-    <img
-      key={`ash-${particle.id}`}
-      src={particle.src}
-      className="clash-particle ash-gust"
-      style={{
-        top: `${particle.top}vh`,
-        width: `${particle.width}px`,
-        animationDuration: `${particle.duration}s`,
-        animationDelay: `${particle.delay}s`,
-        "--rotation": `${particle.rotation}deg`,
-      } as React.CSSProperties}
-      alt=""
-    />
-  ))}
- {bursts.map((burst) => (
-  <div
-    key={`burst-${burst.id}`}
-    className={`clash-burst clash-burst--${burst.variant}`}
-    style={{
-      left: `${burst.x}vw`,
-      top: `${burst.y}vh`,
-      width: `${burst.size}px`,
-      height: `${burst.size}px`,
-      animationDuration: `${burst.duration}s`,
-      animationDelay: `${burst.delay}s`,
-    } as React.CSSProperties}
-  />
-))}
-  </div>
+     
 
     
       <ActiveSessionModal
