@@ -440,7 +440,32 @@ useEffect(() => {
   autoVoteFired.current = true;
   handleVoteWinner(-1);
 }, [countdown, game, isJudge]);
+
+//writer auto vote if judge is awol
  
+const writerForceVoteFired = useRef(false);
+
+useEffect(() => {
+  if (!game || isJudge) return;                 // writers only
+  if (game.phase !== "EVALUATION") return; 
+  if (writerForceVoteFired.current) return;
+  if (!game.turnStartedAt || !game.timer) return;
+
+  const elapsed = Math.floor((Date.now() - game.turnStartedAt) / 1000);
+  // +5s puffer for judge auto vote
+  if (elapsed < game.timer + 5) return;
+
+  writerForceVoteFired.current = true;
+  (async () => {
+    try {
+      await apiService.post(`/games/${gameid}/force-judge-vote`, {}, token);
+      // polling effect will get the new game state after
+    } catch (e) {
+      console.log("Force judge vote failed/skipped:", e);
+      writerForceVoteFired.current = false; //try again witg next countdown tick
+    }
+  })();
+}, [countdown, game, isJudge, gameid, token]);
  
 useEffect(() => {
   if (!resultModalVisible) {
