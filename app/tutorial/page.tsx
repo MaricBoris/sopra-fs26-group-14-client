@@ -59,11 +59,6 @@ const Tutorial: React.FC = () => {
     if (key === "starting") {
       return (
         <>
-          <ActiveSessionModal
-          modalVisible={modalVisible}
-          sessionType={sessionType}
-          handleRejoin={handleRejoin}
-      />
           <p>To start a match, you need to be registered and logged in.</p>
 
           <p>
@@ -315,6 +310,11 @@ type MenuItem = {
 
   return (
     <div className="tutorials-page gameStarryBg">
+       <ActiveSessionModal
+                modalVisible={modalVisible}
+                sessionType={sessionType}
+                handleRejoin={handleRejoin}
+            />
       <HomeButton />
 
       <div className="tutorials-astronaut" aria-hidden="true">
